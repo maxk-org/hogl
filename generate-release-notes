@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+#
+
+mod_name="hogl"
+
+nostat=
+nofetch=
+noheader=
+nosubmod=
+
+something_changed()
+{
+	[ `git rev-list ${1}.. | wc -l` -gt 0 ]
+}
+
+add_header()
+{
+	echo "----------------------------------------------------------------------"
+	echo "Changes in $mod_name: "
+}
+
+add_stat()
+{
+	git diff --stat ${2}..
+}
+
+generate()
+{
+	if [ "$1" != "." ]; then
+		mod_name=$1
+	fi
+
+	pushd $1 >& /dev/null
+	if something_changed ${2}; then
+		[ "$noheader" = "" ] && add_header
+		git log --abbrev=14 --no-merges --pretty='format:  %s (%ae - %h) %n %w(80,2,4) %b' ${2}..
+		echo
+		[ "$nostat" = "" ] && add_stat $1 $2
+	fi
+	popd >& /dev/null
+}
+
+# Parse command line args
+while true; do
+	case "$1" in
+		--help)
+			echo "Usage: release-notes <prev-version>"
+			exit 0
+			;;
+		--nostat)
+			nostat=true
+			shift
+			;;
+		--nofetch)
+			nofetch=true
+			shift
+			;;
+		--noheader)
+			noheader=true
+			shift
+			;;
+		--nosubmod)
+			nosubmod=true
+			shift
+			;;
+		*)
+			break
+			;;
+	esac
+done
+since=$1
+
+# Make sure we have the most recent and up2date
+# tags objects from remote before running describe
+[ "$nofetch" = "" ] && for I in $(git remote); do git fetch $I; done
+
+ver=`git describe --tags --abbrev=14`
+
+[ "$noheader" = "" ] && echo "Release notes for version $ver"
+
+if [ "$since" = "" ]; then
+	since=${ver/-*/}
+fi
+
+generate . $since
+
+if [ "$nosubmod" = "" ]; then
+	git ls-tree -r ${since} import | 
+		while read mode type hash dir; do
+			generate $dir $hash
+		done
+fi
+

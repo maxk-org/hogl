@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+package=hogl
+
+version=@VERSION@
+release=@RELEASE@
+
+name=`git config user.name`
+email=`git config user.email`
+
+if [ "$name" = "" -o "$email" = "" ]; then
+	echo "Please make sure your Git config has non-empty user.name and user.email settings."
+	echo "This script uses those settings for generating maintainer info for the debian package."
+	exit 1
+fi
+
+buildroot=$1
+
+if [ "$buildroot" = "" ]; then
+	echo "Usage: debbuild <build-root-dir>"
+	exit 1
+fi
+
+# Create buildroot dir and unpack fresh source tree in there
+# Note that we're using git for that, which means that untracked / uncommited
+# files will not show up in there.
+rm -rf $buildroot
+mkdir -p $buildroot
+git archive --format=tar --prefix=$package/ HEAD | tar -C $buildroot -x
+
+# Generate Debian changelog file for packaging
+echo "$package ($version~$release) unstable; urgency=low" > $buildroot/$package/debian/changelog
+./generate-release-notes --nofetch --nostat --noheader   >> $buildroot/$package/debian/changelog
+echo " -- $name <$email>  `date -R`"                     >> $buildroot/$package/debian/changelog
+
+# Build packages
+cd $buildroot/$package
+dpkg-buildpackage -uc -us

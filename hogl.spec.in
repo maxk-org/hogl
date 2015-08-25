@@ -1,0 +1,55 @@
+# Note that this is NOT a relocatable package
+%define prefix @prefix@
+%define version @VERSION@
+%define release @RELEASE@
+
+Summary: High-performance, low-overhead logging framework
+Name: hogl
+Version: %{version}
+Release: %{release}
+License: BSD 2-Clause
+Group: Development/Libraries
+Vendor: Max Krasnyansky
+Packager: Max Krasnyansky <max.krasnyansky@gmail.com>
+BuildRoot: %{prefix}
+
+%package devel
+Summary: Headers and static libraries for HOGL
+Version: %{version}
+Release: %{release}
+Requires: hogl libffi-devel
+License: BSD 2-Clause
+Group: Development/Libraries
+
+%package tools
+Summary: Hogl tools 
+Version: %{version}
+Release: %{release}
+Requires: hogl
+License: BSD 2-Clause
+Group: Development/Tools
+
+%description
+High-performance, low-overhead logging framework
+
+%description devel
+Headers and static libraries for HOGL
+
+%description tools
+HOGL tools. Includes tools like hogl-recover for recovering logs
+from the coredump files.
+
+%files
+%defattr(-, root, root)
+%{_libdir}/libhogl.so*
+
+%files devel
+%defattr(-, root, root)
+%{_libdir}/pkgconfig/hogl.pc
+%{_includedir}/hogl/*
+%{_libdir}/libhogl.*a
+
+%files tools
+%defattr(-, root, root)
+%{_bindir}/hogl-recover
+%{_bindir}/hogl-cook

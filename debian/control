@@ -1,0 +1,30 @@
+Source: hogl
+Priority: extra
+Maintainer: Max Krasnyansky <max.krasnyansky@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev
+Standards-Version: 3.9.3
+Section: libs
+Homepage: http://github.com/maxk-org/hogl.git
+Vcs-Git: git://github.com/maxk-org/hogl.git
+Vcs-Browser: http://github.com/maxk-org/hogl.git
+
+Package: libhogl-dev
+Section: libdevel
+Architecture: any
+Depends: libhogl (= ${binary:Version})
+Description: Header files and static libs used for HOGL development
+ HOGL header files and static libraries
+
+Package: libhogl
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: High performance logging library
+ High performance logging library
+
+Package: libhogl-utils
+Section: utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: HOGL utils
+ HOGL utils

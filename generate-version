@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+
+out=$1
+if [ "$out" = "" ]; then
+	echo "Usage: generate_version <version.mk>"
+	exit 1
+fi
+
+ver=`git describe --tags --abbrev=14`
+if [ "$ver" = "" ]; then
+	echo "Hmm, \'git describe\' returned an empty string"
+	exit 1
+fi
+
+ver=${ver:1}
+rel=${ver#*-}; rel=${rel/-/.}
+ver=${ver%%-*}
+
+[ "$rel" = "$ver" ] && rel="0"
+
+# If the version didn't change do not override the file
+if [ -f $out ]; then
+	source $out
+	[ "$VERSION" = $ver -a "$RELEASE" = "$rel" ] && exit 0
+fi 
+
+echo "Generationg new version: $ver-$rel"
+echo "VERSION=$ver" >| $out
+echo "RELEASE=$rel" >> $out

@@ -1,0 +1,12 @@
+#! /bin/sh
+
+echo -n Running auto-tools "  " 
+
+libtoolize --automake && echo -n . \
+&& aclocal -I. && echo -n . \
+&& automake --foreign --add-missing --copy && echo -n . \
+&& autoconf -I.
+
+echo
+echo done
+echo Please run ./configure

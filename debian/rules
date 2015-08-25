@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE=1
+
+%:
+	dh $@ --with autotools-dev
+
+override_dh_auto_configure:
+	./bootstrap
+	./configure CXXFLAGS="-O3 -g -Wall" CFLAGS="-O3 -g -Wall" --prefix=/usr
+
+override_dh_auto_build:
+	make -j4
+
+override_dh_auto_test:
+	echo Skipping tests

@@ -1,0 +1,50 @@
+/*
+   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   All rights reserved.
+   
+   Redistribution and use in source and binary forms, with or without modification,
+   are permitted provided that the following conditions are met:
+   
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+   
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+   
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+   (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+   AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/**
+ * @file hogl/output-stderr.h
+ * Simple stderr output handler
+ */
+#ifndef HOGL_OUTPUT_STDERR_HPP
+#define HOGL_OUTPUT_STDERR_HPP
+
+#include <hogl/detail/output.hpp>
+
+namespace hogl {
+
+/**
+ * Stderr output handler.
+ * Dumps output records to stderr
+ */
+class output_stderr : public output {
+public:
+	output_stderr(format &fmt, unsigned int buffer_capacity = 8192);
+	virtual ~output_stderr();
+};
+
+} // namespace hogl
+
+#endif // HOGL_OUTPUT_STDERR_HPP

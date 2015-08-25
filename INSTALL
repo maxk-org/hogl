@@ -1,0 +1,11 @@
+On Ubuntu, run the following:
+-------------------------------------------------------------
+$ CXXFLAGS="-Wall -g -O3 -march=corei7" ./configure --prefix=/usr --libdir=/usr/lib --with-boost-libdir=/usr/lib/x86_64-linux-gnu
+
+
+On Fedore based systems:
+------------------------------------------------------------
+$ CXXFLAGS="-Wall -g -O3 -march=corei7" ./configure --prefix=/usr --libdir=/usr/lib64 
+
+
+The above is just an example, and you can change the flags as you like. (e.g. change optimization flags)
