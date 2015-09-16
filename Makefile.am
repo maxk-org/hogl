@@ -146,6 +146,7 @@ TESTS = \
 	tests/tso_test \
 	tests/engine_test \
 	tests/basic_test \
+	tests/aux_engine_test \
 	tests/rawrec_test \
 	tests/defring_test \
 	tests/stress_test \
@@ -174,6 +175,7 @@ tests_ring_test_SOURCES  = tests/ring_test.cc
 tests_tso_test_SOURCES   = tests/tso_test.cc
 tests_engine_test_SOURCES= tests/engine_test.cc
 tests_basic_test_SOURCES = tests/basic_test.cc
+tests_aux_engine_test_SOURCES = tests/aux_engine_test.cc
 tests_rawrec_test_SOURCES = tests/rawrec_test.cc
 tests_defring_test_SOURCES = tests/defring_test.cc
 tests_stress_test_SOURCES = tests/stress_test.cc
