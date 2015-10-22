@@ -7,6 +7,7 @@ Summary: High-performance, low-overhead logging framework
 Name: hogl
 Version: %{version}
 Release: %{release}
+Epoch: 1
 License: BSD 2-Clause
 Group: Development/Libraries
 Vendor: Max Krasnyansky
