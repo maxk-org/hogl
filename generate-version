@@ -17,7 +17,7 @@ ver=${ver:1}
 rel=${ver#*-}; rel=${rel/-/.}
 ver=${ver%%-*}
 
-[ "$rel" = "$ver" ] && rel="0"
+[ "$rel" = "$ver" ] && rel="1"
 
 # If the version didn't change do not override the file
 if [ -f $out ]; then
