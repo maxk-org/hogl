@@ -64,15 +64,15 @@ raw_area::raw_area() : hogl::area("dummy")
 
 void raw_parser::read_args(hogl::record &r)
 {
-	unsigned int offset = 16 * 8;
+	unsigned long offset = 16 * 8;
 
 	r.argtype = read_uint<uint64_t>("argtype");
 
-	unsigned int i, n;
-	for (i=0; i < record::NARGS; i++) {
+	for (unsigned int i=0; i < record::NARGS; i++) {
 		if (_failed) return;
 
 		unsigned int type = r.get_arg_type(i);
+		unsigned long n;
 
 		switch (type) {
 		case arg::NONE:
@@ -92,7 +92,11 @@ void raw_parser::read_args(hogl::record &r)
 
 		case arg::HEXDUMP:
 		case arg::RAW:
-			n = read_blob<uint16_t>((char *) r.argval + offset);
+			if (_ver == V1)
+				n = read_blob<uint16_t>((char *) r.argval + offset);
+			else
+				n = read_blob<uint32_t>((char *) r.argval + offset);
+
 			r.set_arg_data(i, offset, n);
 			offset += n;
 			break;
@@ -107,8 +111,8 @@ void raw_parser::read_args(hogl::record &r)
 	}
 }
 
-raw_parser::raw_parser(hogl::rdbuf &in, unsigned int max_record_size) :
-	_in(in)
+raw_parser::raw_parser(hogl::rdbuf &in, unsigned int ver, unsigned int max_record_size) :
+	_in(in), _ver(ver)
 {
 	reset();
 

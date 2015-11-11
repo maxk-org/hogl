@@ -86,10 +86,10 @@ int main(void)
 	for (i=0; i<10; i++) {
 		hogl::push(_aux_ring, _aux_area, 0,
 				4, // four chunks
-				hogl::arg_raw(&huge_buf[chunk_size * 0], 64000),
-				hogl::arg_raw(&huge_buf[chunk_size * 1], 64000),
-				hogl::arg_raw(&huge_buf[chunk_size * 2], 64000),
-				hogl::arg_raw(&huge_buf[chunk_size * 3], 64000));
+				hogl::arg_raw(&huge_buf[chunk_size * 0], 84000),
+				hogl::arg_raw(&huge_buf[chunk_size * 1], 84000),
+				hogl::arg_raw(&huge_buf[chunk_size * 2], 84000),
+				hogl::arg_raw(&huge_buf[chunk_size * 3], 84000));
 	}
 
 	// Wait for those records to get processed

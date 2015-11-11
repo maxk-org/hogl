@@ -46,8 +46,11 @@
 #include "raw-parser.hpp"
 #include "rdbuf.hpp"
 
+using hogl::raw_parser;
+
 unsigned int max_record_size = 10 * 1024 * 1024; // 10MB should be plenty for all cases
 unsigned int output_buf_size = 1 * 1024 * 1024;
+unsigned int version = raw_parser::V1_1;
 
 static void process(const std::string& infile, unsigned int flags, hogl::format &fmt)
 {
@@ -60,7 +63,7 @@ static void process(const std::string& infile, unsigned int flags, hogl::format 
 	}
 
 	// Allocate raw parser
-	hogl::raw_parser parser(in, max_record_size);
+	hogl::raw_parser parser(in, version, max_record_size);
 	if (parser.failed()) {
 		fprintf(stderr, "failed to allocate raw parser. %s\n", parser.error().c_str());
 		exit(1);
@@ -76,23 +79,45 @@ static void process(const std::string& infile, unsigned int flags, hogl::format 
 		out.flush();
 	}
 
-
 	if (parser.failed()) {
 		fprintf(stderr, "failed to parse input. %s\n", parser.error().c_str());
 		exit(1);
 	}
 }
 
+static unsigned int get_version(const char *str)
+{
+	// RAW format version map
+	static const struct {
+		const char *str;
+		unsigned int ver;
+	} vm[] = {
+		{ "1.0", raw_parser::V1   },
+		{ "1.1", raw_parser::V1_1 },
+		{ 0 }
+	};
+
+	for (unsigned int i = 0; vm[i].str; i++)
+		if (!strcmp(str, vm[i].str)) return vm[i].ver;
+
+	fprintf(stderr, "Unsupported version: %s\n", str);
+	fprintf(stderr,"Supported versions:");
+	for (unsigned int i = 0; vm[i].str; i++) fprintf(stderr, " %s", vm[i].str);
+	fprintf(stderr, "\n");
+	exit(1);
+}
+
 // Command line args {
 static struct option main_lopts[] = {
    {"help",    0, 0, 'h'},
+   {"version", 1, 0, 'v'},
    {"format",  1, 0, 'f'},
    {"plugin",  1, 0, 'p'},
    {"tailf",   0, 0, 't'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:p:t:";
+static char main_sopts[] = "hv:f:p:t:";
 
 static char main_help[] =
    "hogl-cook - HOGL raw log processor\n"
@@ -101,6 +126,7 @@ static char main_help[] =
    "Options:\n"
       "\t--help -h              Display help text\n"
       "\t--tailf -t             Follow the growth of a log file\n"
+      "\t--version -v <ver>     Force a specific RAW version for compatibility\n"
       "\t--format -f <fmt>      Format of the output log records\n"
       "\t--plugin -p <fmt.so>   Plugin used for formating records\n";
 // }
@@ -115,6 +141,10 @@ int main(int argc, char *argv[])
 	// Parse command line args
 	while ((opt = getopt_long(argc, argv, main_sopts, main_lopts, NULL)) != -1) {
 		switch (opt) {
+		case 'v':
+			version = get_version(optarg);
+			break;
+
 		case 'f':
 			log_format = strdup(optarg);
 			break;

@@ -27,6 +27,9 @@
 #include "hogl/area.hpp"
 #include "hogl/format-raw.hpp"
 
+#include <algorithm>
+#include <limits>
+
 namespace hogl {
 
 class raw_packer {
@@ -40,21 +43,23 @@ private:
 	}
 
 	template <typename T>
-	void add_blob(const void* data, T len)
+	void add_blob(const void* data, unsigned long len)
 	{
-		_sb.put((uint8_t *) &len, sizeof(len));
-		_sb.put((uint8_t *) data, len);
+		T n = std::min(len, (unsigned long) std::numeric_limits<T>::max());
+		add_uint<T>(n);
+		_sb.put((uint8_t *) data, n);
+	}
+
+	template <typename T>
+	void add_str(const char *str, unsigned long len)
+	{
+		add_blob<T>(str, len);
 	}
 
 	template <typename T>
 	void add_str(const char *str)
 	{
-		add_blob<T>(str, strlen(str));
-	}
-
-	void add_data(const uint8_t *data, unsigned int len)
-	{
-		add_blob<uint16_t>(data, len);
+		add_str<T>(str, strlen(str));
 	}
 
 	void add_args(const record &r)
@@ -69,12 +74,17 @@ private:
 				return;
 
 			switch (type) {
-			case arg::CSTR:
 			case arg::HEXDUMP:
 			case arg::RAW:
 				data = r.get_arg_data(i, len);
-				add_data(data, len);
+				add_blob<uint32_t>(data, len);
 				break;
+
+			case arg::CSTR:
+				data = r.get_arg_data(i, len);
+				add_str<uint16_t>((const char *) data, len);
+				break;
+
 			case arg::GSTR:
 				if (arg::is_32bit(arg::GSTR))
 					add_str<uint16_t>((const char *) (unsigned long) r.get_arg_val32(i));

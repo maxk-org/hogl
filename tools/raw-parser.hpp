@@ -68,6 +68,8 @@ private:
 	raw_area           _area;        // raw area
 	char              *_ring_name;   // ringbuffer name for last record
 
+	unsigned int       _ver;
+
 	// Read uint from the input stream
 	template <typename T>
 	T read_uint(const char *stage = "")
@@ -83,11 +85,11 @@ private:
 
 	// Read a blob from the input stream
 	template <typename T>
-	T read_blob(char *data, const char *stage = "")
+	unsigned long read_blob(char *data, const char *stage = "")
 	{
 		if (_failed) return 0;
 
-		T len = read_uint<T>(stage);
+		unsigned long len = read_uint<T>(stage);
 		if (_failed || !len)
 			return 0;
 
@@ -103,11 +105,11 @@ private:
 	// Strings are guarantied to be null-terminated
 	// Returns string length including the null-terminator.
 	template <typename T>
-	T read_str(char *str, const char *stage = "")
+	unsigned long read_str(char *str, const char *stage = "")
 	{
 		if (_failed) return 0;
 
-		T len = read_blob<T>(str, stage);
+		unsigned long len = read_blob<T>(str, stage);
 
 		if (_failed) return 0;
 
@@ -119,8 +121,11 @@ private:
 	void read_args(hogl::record &r);
 
 public:
+	// Compatibility versions
+	enum versions { V1, V1_1 };
+
 	// Constructor
-	raw_parser(hogl::rdbuf &in, unsigned int max_record_size = 10 * 1024 * 1024);
+	raw_parser(hogl::rdbuf &in, unsigned int ver = V1_1, unsigned int max_record_size = 10 * 1024 * 1024);
 	~raw_parser();
 
 	// Check of the last operation failed
