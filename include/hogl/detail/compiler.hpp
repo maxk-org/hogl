@@ -37,7 +37,7 @@
 // 	Intel C++ compiler
 // 	Clang 3.0 and above
 
-// Branch likelyhood links
+// Branch likelihood hints
 #define hogl_likely(x)    __builtin_expect(!!(x), 1)
 #define hogl_unlikely(x)  __builtin_expect(!!(x), 0)
 
