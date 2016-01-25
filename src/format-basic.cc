@@ -175,7 +175,7 @@ private:
 
 	ffi_type    *_arg_type[MAX_DEPTH];
 	void        *_arg_val[MAX_DEPTH];
-	uint64_t     _arg_shadow[MAX_DEPTH];
+	void        *_arg_shadow[MAX_DEPTH];
 	unsigned int _depth;
 
 public:
@@ -212,7 +212,7 @@ void ffi_stack::add_arg(const record &r, unsigned int type, unsigned int i)
 
 	switch (type) {
 	case (arg::CSTR):
-		_arg_shadow[_depth] = (uint64_t) r.get_arg_data(i, len);
+		_arg_shadow[_depth] = (void*) r.get_arg_data(i, len);
 		if (!len)
 			_arg_shadow[_depth] = 0;
 
