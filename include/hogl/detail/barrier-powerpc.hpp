@@ -1,17 +1,17 @@
 /*
-   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com>
    All rights reserved.
-   
+
    Redistribution and use in source and binary forms, with or without modification,
    are permitted provided that the following conditions are met:
-   
+
    1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-   
+
    2. Redistributions in binary form must reproduce the above copyright notice,
       this list of conditions and the following disclaimer in the documentation
       and/or other materials provided with the distribution.
-   
+
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -25,38 +25,18 @@
 */
 
 /**
- * @file hogl/detail/barrier.hpp
- * Compiler and memory barriers.
+ * @file hogl/detail/barrier-powerpc.hpp
+ * POWERPC (32 and 64 bit) specific barriers.
+ * @warning do not include directly. @see hogl/detail/barrier.hpp
  */
 
-#ifndef HOGL_DETAIL_BARRIER_HPP
-#define HOGL_DETAIL_BARRIER_HPP
+// Memory barriers
+// This version requires POWERPC capable CPU.
 
-#include <hogl/detail/compiler.hpp>
+#define mb()   __asm__ __volatile__ ("sync" : : : "memory")
+#define rmb()  __asm__ __volatile__ ("sync" : : : "memory")
+#define wmb()  __asm__ __volatile__ ("sync" : : : "memory")
 
-namespace hogl {
-namespace barrier {
-
-// We're using inline function here instead of #defines to avoid 
-// name space clashes.
-
-/**
- * Compiler barrier
- */
-static hogl_force_inline void compiler() { asm volatile("": : :"memory"); }
-
-#if (defined(__i386__) || defined(__x86_64__))
-#include <hogl/detail/barrier-x86.hpp>
-#elif (defined(__ARM_ARCH_7A__))
-#include <hogl/detail/barrier-arm-v7.hpp>
-#elif (defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || \
-      defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__))
-#include <hogl/detail/barrier-powerpc.hpp>
-#else
-#error Unsupported CPU
-#endif
-
-} // namespace barrier
-} // namespace hogl
-
-#endif // HOGL_DETAIL_BARRIER_HPP
+static hogl_force_inline void memrw() { mb(); }
+static hogl_force_inline void memr()  { rmb(); }
+static hogl_force_inline void memw()  { wmb(); }
