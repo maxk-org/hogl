@@ -1,0 +1,110 @@
+#!/usr/bin/python
+#
+
+# Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# hogl-grep takes grep-like options and hogl text log and output
+# new records with the time diff in parenthesis corresponds to the
+# actual grepped records rather the original timediff.
+
+import sys, optparse, subprocess, re
+
+class log_converter:
+    def __init__(self):
+        self.last_secs = 0
+        self.last_nsec = 0
+
+    def process(self, line, log_out):
+        # Typical logging record looks like this:
+        # 01451508993.696685263 (257) LOG_DEBUG some message here
+        # (257) ts in nanoseconds and is relative to the previous logging record
+        # 01451508993.696685263 is seconds.nanoseconds
+
+        log_match = re.match( r'^([0-9]*)\.([0-9]*) \([0-9]*\) (.*)', line, re.M|re.I)
+        if log_match is None:
+            print "Failed to find a valid hogl record line"
+            return False
+
+        # first time just assign the current ts to self.secs/nsec
+        if self.last_secs == 0:
+            self.last_secs = int(log_match.group(1))
+            self.last_nsec = int(log_match.group(2))
+
+        secs_diff = int(log_match.group(1)) - self.last_secs
+        nsec_diff = abs(int(log_match.group(2)) - self.last_nsec)
+        if int(log_match.group(2)) < self.last_nsec:
+            nsec_diff = 1000*1000*1000 - nsec_diff
+            secs_diff = secs_diff - 1
+        new_diff = "(" + str(nsec_diff + secs_diff * 1000 *1000 * 1000)  + ")"
+        new_line = log_match.group(1) + "." + log_match.group(2) + " " + new_diff + " " + log_match.group(3)
+
+        log_out.write(new_line + "\n")
+        self.last_secs = int(log_match.group(1))
+        self.last_nsec = int(log_match.group(2))
+
+        return True
+
+# Option parsing
+parser = optparse.OptionParser(usage = "Usage: hogl-grep [options] <input log file>" )
+parser.add_option("-g", "--gopts", dest="grep_opts", type="string", action="store",
+                  help="grep options")
+parser.add_option("-o", "--output", dest="output", type="string", action="store",
+                  help="output log file")
+
+(options, args) = parser.parse_args()
+
+if not options.grep_opts or not len(args):
+    parser.print_help()
+    sys.exit(1)
+
+# Filter log file using external grep.
+# 'grep' is much faster at this.
+grep = subprocess.Popen(['/bin/grep', options.grep_opts] + args, stdout = subprocess.PIPE)
+data_in = grep.stdout
+
+try:
+    conv = log_converter()
+
+    # Open log output file
+    if options.output:
+        log_out = open(options.output, 'wb')
+    else:
+        log_out = sys.stdout
+
+    # Iterate over log records (one line at a time)
+    for line in data_in:
+        ret = conv.process(line, log_out)
+        if ret != True:
+            raise Exception("error in parsing log" + args)
+
+except IOError as err:
+    print err
+    grep.kill()
+    sys.exit(1)
+
+except:
+    grep.kill()
+
+sys.exit(0)
