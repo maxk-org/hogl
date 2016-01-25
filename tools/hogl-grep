@@ -32,79 +32,79 @@
 import sys, optparse, subprocess, re
 
 class log_converter:
-    def __init__(self):
-        self.last_secs = 0
-        self.last_nsec = 0
+	def __init__(self):
+		self.last_secs = 0
+		self.last_nsec = 0
 
-    def process(self, line, log_out):
-        # Typical logging record looks like this:
-        # 01451508993.696685263 (257) LOG_DEBUG some message here
-        # (257) ts in nanoseconds and is relative to the previous logging record
-        # 01451508993.696685263 is seconds.nanoseconds
+	def process(self, line, log_out):
+		# Typical logging record looks like this:
+		# 01451508993.696685263 (257) LOG_DEBUG some message here
+		# (257) ts in nanoseconds and is relative to the previous logging record
+		# 01451508993.696685263 is seconds.nanoseconds
 
-        log_match = re.match( r'^([0-9]*)\.([0-9]*) \([0-9]*\) (.*)', line, re.M|re.I)
-        if log_match is None:
-            print "Failed to find a valid hogl record line"
-            return False
+		log_match = re.match( r'^([0-9]*)\.([0-9]*) \([0-9]*\) (.*)', line, re.M|re.I)
+		if log_match is None:
+			print "Failed to find a valid hogl record line"
+			return False
 
-        # first time just assign the current ts to self.secs/nsec
-        if self.last_secs == 0:
-            self.last_secs = int(log_match.group(1))
-            self.last_nsec = int(log_match.group(2))
+		# first time just assign the current ts to self.secs/nsec
+		if self.last_secs == 0:
+			self.last_secs = int(log_match.group(1))
+			self.last_nsec = int(log_match.group(2))
 
-        secs_diff = int(log_match.group(1)) - self.last_secs
-        nsec_diff = abs(int(log_match.group(2)) - self.last_nsec)
-        if int(log_match.group(2)) < self.last_nsec:
-            nsec_diff = 1000*1000*1000 - nsec_diff
-            secs_diff = secs_diff - 1
-        new_diff = "(" + str(nsec_diff + secs_diff * 1000 *1000 * 1000)  + ")"
-        new_line = log_match.group(1) + "." + log_match.group(2) + " " + new_diff + " " + log_match.group(3)
+		secs_diff = int(log_match.group(1)) - self.last_secs
+		nsec_diff = abs(int(log_match.group(2)) - self.last_nsec)
+		if int(log_match.group(2)) < self.last_nsec:
+			nsec_diff = 1000*1000*1000 - nsec_diff
+			secs_diff = secs_diff - 1
+		new_diff = "(" + str(nsec_diff + secs_diff * 1000 *1000 * 1000)  + ")"
+		new_line = log_match.group(1) + "." + log_match.group(2) + " " + new_diff + " " + log_match.group(3)
 
-        log_out.write(new_line + "\n")
-        self.last_secs = int(log_match.group(1))
-        self.last_nsec = int(log_match.group(2))
+		log_out.write(new_line + "\n")
+		self.last_secs = int(log_match.group(1))
+		self.last_nsec = int(log_match.group(2))
 
-        return True
+		return True
 
 # Option parsing
-parser = optparse.OptionParser(usage = "Usage: hogl-grep [options] <input log file>" )
-parser.add_option("-g", "--gopts", dest="grep_opts", type="string", action="store",
-                  help="grep options")
-parser.add_option("-o", "--output", dest="output", type="string", action="store",
-                  help="output log file")
+parser = optparse.OptionParser(usage = "Usage: hogl-grep [options] [--] [grep-options] <pattern> [input log files]" )
+parser.add_option("-o", "--output", dest="output", type="string", action="store", help="output log file")
 
 (options, args) = parser.parse_args()
 
-if not options.grep_opts or not len(args):
-    parser.print_help()
-    sys.exit(1)
+if not len(args):
+	parser.print_help()
+	sys.exit(1)
 
 # Filter log file using external grep.
 # 'grep' is much faster at this.
-grep = subprocess.Popen(['/bin/grep', options.grep_opts] + args, stdout = subprocess.PIPE)
+grep = subprocess.Popen(['/bin/grep'] + args, bufsize=1, stdout = subprocess.PIPE)
 data_in = grep.stdout
 
 try:
-    conv = log_converter()
+	conv = log_converter()
 
-    # Open log output file
-    if options.output:
-        log_out = open(options.output, 'wb')
-    else:
-        log_out = sys.stdout
+	# Open log output file
+	if options.output:
+		log_out = open(options.output, 'wb')
+	else:
+		log_out = sys.stdout
 
-    # Iterate over log records (one line at a time)
-    for line in data_in:
-        ret = conv.process(line, log_out)
-        if ret != True:
-            raise Exception("error in parsing log" + args)
+	# Iterate over log records (one line at a time)
+	while True:
+		line = data_in.readline()
+		if line == '':
+			break
+		ret = conv.process(line, log_out)
+		if ret != True:
+			raise Exception("error in parsing log" + args)
 
 except IOError as err:
-    print err
-    grep.kill()
-    sys.exit(1)
+	print err
+	grep.kill()
+	sys.exit(1)
 
 except:
-    grep.kill()
+	grep.kill()
 
 sys.exit(0)
