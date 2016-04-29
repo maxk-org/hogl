@@ -155,16 +155,12 @@ class ostrbuf_validator : public ostrbuf
 public:
 	static bool fixup(coredump &core, void *ptr)
 	{
-		// Account for the vtable pointer that preceeds magic signature,
-		// ostrbuf class has virtual methods.
-		ptr = (uint8_t *) ptr - sizeof(void *);
-
 		ostrbuf_validator *s = (ostrbuf_validator *) ptr;
 
 		// Lets do some sanity checks here.
 		// Should be self-explanatory.
 
-		if (!s->_capacity || s->_capacity > 1 * 1024 * 1024)
+		if (!s->_capacity || s->_capacity > 256 * 1024 * 1024)
 			return false;
 		if (s->_size > s->_capacity)
 			return false;
