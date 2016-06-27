@@ -36,14 +36,15 @@ namespace hogl {
  	 * Magic signatures used for locating various HOGL objects in the coredumps.
  	 * These signatures must be updated when the layout of the coresponding
  	 * structure changes.
- 	 */ 
-	struct magic {
+ 	 */
+	union magic {
 		uint32_t u32[4];
+		uint64_t u64[2];
 	};
 
 	/**
 	 * Engine magic number
-	 */ 
+	 */
 	static const magic engine_magic = {
 		{ 0xe10f0f56, 0xba8a7dc8, 0xdd223344, 0x51691388 }
 	};
