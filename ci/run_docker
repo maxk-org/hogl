@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o verbose
+
+# Determine the directory this script is in.
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Go to the top-level directory.
+cd $THIS_DIR/..
+
+# Create a container from the base OS image.
+CONTAINER_ID=`docker create ${OS_DIST}:${OS_VERSION}`
+
+# Copy the source code into the container. Do not use a volume so that
+# multiple builds can run concurrently without overwriting files.
+docker cp `pwd` ${CONTAINER_ID}:/src
+
+# Create a new image that includes the source code.
+IMAGE_ID=`docker commit ${CONTAINER_ID}`
+docker rm ${CONTAINER_ID}
+
+# Run the build and test suite.
+docker run -e "OS_DIST=${OS_DIST}" -w /src --rm ${IMAGE_ID} ci/run
