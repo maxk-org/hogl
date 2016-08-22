@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o verbose
+
+apt-get update && apt-get install -y \
+  libtool \
+  automake \
+  pkg-config \
+  make \
+  git \
+  g++ \
+  binutils-dev \
+  libffi-dev \
+  libboost-test-dev

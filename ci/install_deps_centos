@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o verbose
+
+yum install -y \
+  libtool \
+  make \
+  git \
+  gcc-c++ \
+  binutils-devel \
+  libffi-devel \
+  boost-devel

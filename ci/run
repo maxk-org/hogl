@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o verbose
+
+# Determine the directory this script is in.
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Install OS-specific dependencies.
+$THIS_DIR/install_deps_$OS_DIST
+
+# Build and run the test suite
+cd $THIS_DIR/..
+./bootstrap
+./configure
+make -j check
+make install DESTDIR=`pwd`/out
+

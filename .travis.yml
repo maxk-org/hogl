@@ -1,0 +1,23 @@
+# We need sudo access because Docker is configured to
+# store images in a directory with root privileges.
+sudo: required
+
+# Tell the TravisCI that this is a C++ project. Because we're using Docker,
+# this doesn't need to be set, but if not, the UI labels it a Ruby project.
+language: cpp
+
+# Use Docker to test against multiple OSes.
+services:
+  - docker
+
+# Test all supported runtime environments.
+env:
+  matrix:
+  - OS_DIST=centos OS_VERSION=6.7
+  - OS_DIST=centos OS_VERSION=6.8
+  - OS_DIST=centos OS_VERSION=7
+  - OS_DIST=ubuntu OS_VERSION=14.04
+  - OS_DIST=ubuntu OS_VERSION=16.04
+
+# Build and run tests in container.
+script: ci/run_docker
