@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(default_mask)
 	hogl::output_stderr output(format);
 
 	hogl::engine::options opts = {
-		default_mask: hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0)
+		.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0)
 	};
 
 	hogl::engine eng(output, opts);

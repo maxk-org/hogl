@@ -43,9 +43,9 @@
 BOOST_AUTO_TEST_CASE(basic)
 {
 	hogl::ringbuf::options opts = {
-			capacity: 1024,
-			prio:     123, 
-			flags: hogl::ringbuf::REUSABLE
+			.capacity = 1024,
+			.prio = 123,
+			.flags = hogl::ringbuf::REUSABLE
 		};
 
 	hogl::ringbuf ring("DUMMY", opts);

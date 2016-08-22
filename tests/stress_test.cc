@@ -606,11 +606,11 @@ int main(int argc, char *argv[])
 		lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_buffer);
 	else if (log_output.find('#') != log_output.npos) {
 		hogl::output_file::options opts = {
-			perms: 0666,
-			max_size: rotate_size,
-			max_age: 0,
-			max_count: 20,
-			buffer_capacity: output_buffer,
+			.perms = 0666,
+			.max_size = rotate_size,
+			.max_age = 0,
+			.max_count = 20,
+			.buffer_capacity = output_buffer,
 		};
 		lo = new hogl::output_file(log_output.c_str(), *lf, opts);
 	} else
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
 	main_logarea = hogl::add_area("MAIN", main_logsect_names);
 
 	// Replace default TLS for the main thread	
-	hogl::ringbuf::options ringopts = { capacity: 1024, prio: 10 };
+	hogl::ringbuf::options ringopts = { .capacity = 1024, .prio = 10 };
 	hogl::tls *tls = new hogl::tls("MAIN", ringopts);
 
 	// Replace timesource if needed

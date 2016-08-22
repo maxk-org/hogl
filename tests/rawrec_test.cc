@@ -45,10 +45,10 @@
 // Replacement default ring options.
 // Must be shared and immortal.
 hogl::ringbuf::options hogl::default_ring_options = {
-        capacity: 2048,
-        prio:     0,
-        flags:    hogl::ringbuf::SHARED | hogl::ringbuf::IMMORTAL,
-        record_tailroom: 2048
+        .capacity = 2048,
+        .prio = 0,
+        .flags = hogl::ringbuf::SHARED | hogl::ringbuf::IMMORTAL,
+        .record_tailroom = 2048
 };
 
 class myformat : public hogl::format_basic {

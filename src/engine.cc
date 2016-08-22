@@ -54,12 +54,12 @@
 namespace hogl {
 
 engine::options engine::default_options = {
-	default_mask: hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0), // enable default sections in all areas
-	polling_interval_usec: 10000,           // polling interval usec
-	tso_buffer_capacity:   4096,            // tso buffer size (number of records)
-	internal_ring_capacity: 256,            // capacity of the internal ring buffer (number of records)
-	features: 0,                            // default feature set
-	timesource: 0,                          // timesource for this engine (0 means default timesource)
+	.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0), // enable default sections in all areas
+	.polling_interval_usec = 10000,           // polling interval usec
+	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
+	.internal_ring_capacity = 256,            // capacity of the internal ring buffer (number of records)
+	.features = 0,                            // default feature set
+	.timesource = 0,                          // timesource for this engine (0 means default timesource)
 };
 
 /**

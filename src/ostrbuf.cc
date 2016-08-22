@@ -50,10 +50,10 @@ static ssize_t stdio_write(void *cookie, const char *data, size_t size)
 }
 
 static cookie_io_functions_t stdio_ops = {
-	read : 0,
-	write: stdio_write,
-	seek : 0,
-	close: 0
+	.read = 0,
+	.write = stdio_write,
+	.seek = 0,
+	.close = 0
 };
 
 FILE* stdio_custom_open(void *ctx)

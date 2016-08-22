@@ -37,10 +37,10 @@ namespace hogl {
  * Default shared ring options
  */
 ringbuf::options default_ring_options = {
-	capacity: 2048,
-	prio:     0,
-	flags:    ringbuf::SHARED | ringbuf::IMMORTAL,
-	record_tailroom: 80
+	.capacity = 2048,
+	.prio = 0,
+	.flags = ringbuf::SHARED | ringbuf::IMMORTAL,
+	.record_tailroom = 80
 };
 
 } // namespace hogl

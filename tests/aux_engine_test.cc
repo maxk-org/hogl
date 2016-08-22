@@ -60,11 +60,11 @@ int main(void)
 	_aux_logfmt = new hogl::format_raw();
 
 	hogl::output_file::options aux_output_opts = {
-		        perms: 0666,
-		        max_size:  ONE_GB,
-		        max_age: 0,
-		        max_count: 5000,
-		        buffer_capacity: ONE_MB,
+		        .perms = 0666,
+		        .max_size = ONE_GB,
+		        .max_age = 0,
+		        .max_count = 5000,
+		        .buffer_capacity = ONE_MB,
 		};
 	_aux_logout = new hogl::output_file("bin.log", *_aux_logfmt, aux_output_opts);
 
@@ -74,10 +74,10 @@ int main(void)
 
 	// -- Create a ring with the aux engine
 	hogl::ringbuf::options aux_ring_opts = {
-			capacity: 10,
-			prio: 100,
-			flags: 0,
-			record_tailroom: sizeof(huge_buf)
+			.capacity = 10,
+			.prio = 100,
+			.flags = 0,
+			.record_tailroom = sizeof(huge_buf)
 		};
 	_aux_ring = _aux_engine->add_ring("AUX-RING", aux_ring_opts);
 
