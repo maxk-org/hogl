@@ -23,13 +23,13 @@ Most existing libraries use their own printf formatters with slightly incompatib
 
 * Fix everything that is wrong with existing libraries, or at least the most of it. See examples above.
 * Use latest compiler and platform features:
-** GCC and libc provide excellent, low overhead support for TLS (thread local storage)
-** Latest C++ compilers can optimize out all redundant code with just a little bit of help
-** LibFFI allows for generating stack frames and calling sprintf() directly
+  * GCC and libc provide excellent, low overhead support for TLS (thread local storage)
+  * Latest C++ compilers can optimize out all redundant code with just a little bit of help
+  * LibFFI allows for generating stack frames and calling sprintf() directly
 * Provide ultimate performance, scalability and flexibility:
-** Minimal overhead
-** All logging methods are safe for realtime code
-** Support for all native C/C++ types like strings, double, float, pointers, etc
+  * Minimal overhead
+  * All logging methods are safe for realtime code
+  * Support for all native C/C++ types like strings, double, float, pointers, etc
 * Minimal external dependencies
 
 ## Feature highlights
