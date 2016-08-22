@@ -150,9 +150,8 @@ unsigned int output_file::read_link()
 			_symlink.c_str(), strerror(errno), errno);
 		return 0;
 	}
-	cstr[rlen] = '\0';
 
-	std::string str(cstr);
+	std::string str(cstr, rlen);
 
 	size_t pos;
 
