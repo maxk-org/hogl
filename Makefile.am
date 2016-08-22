@@ -13,6 +13,10 @@ rpmbuild = $(topsrc)/rpm-build
 rpmdir   = $(top_srcdir)/pkg
 instdir  = $(top_srcdir)/usr/sbin
 
+CODE_COVERAGE_OUTPUT_DIRECTORY = coverage
+CODE_COVERAGE_BRANCH_COVERAGE = 1
+@CODE_COVERAGE_RULES@
+
 rpm: hogl.spec
 	rm -rf $(rpmbuild)
 	mkdir -p $(rpmdir)
@@ -106,9 +110,9 @@ HOGL_LIBS = $(LIBFFI_LIBS) -lpthread -lrt
 #
 lib_LTLIBRARIES = src/libhogl.la
 
-src_libhogl_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread
+src_libhogl_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread $(CODE_COVERAGE_CXXFLAGS)
 src_libhogl_la_LIBADD   = $(HOGL_LIBS)
-src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION)
+src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLAGS)
 src_libhogl_la_SOURCES  = \
 	src/area.cc \
 	src/internal.cc \
@@ -166,7 +170,7 @@ plugin_LTLIBRARIES = tests/libfmt-plugin_test.la
 AM_CPPFLAGS = -I include $(BOOST_CPPFLAGS)
 AM_CXXFLAGS = -pthread
 AM_CFLAGS   = -pthread
-LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) -lboost_unit_test_framework
+LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) -lboost_unit_test_framework $(CODE_COVERAGE_LDFLAGS)
 
 tests_args_test_SOURCES  = tests/args_test.cc 
 tests_area_test_SOURCES  = tests/area_test.cc

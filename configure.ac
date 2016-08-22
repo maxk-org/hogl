@@ -43,6 +43,8 @@ AC_SEARCH_LIBS(bfd_openr, bfd, [], [
 
 AC_SEARCH_LIBS(inotify_init, inotify)
 
+AX_CODE_COVERAGE()
+
 AX_BOOST_BASE(1.40.0)
 dnl AX_BOOST_UNIT_TEST_FRAMEWORK
 
