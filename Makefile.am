@@ -142,6 +142,7 @@ src_libhogl_la_SOURCES  = \
 #
 # Tests
 #
+if BUILD_TESTS
 TESTS = \
 	tests/args_test \
 	tests/area_test \
@@ -214,10 +215,12 @@ tests_libfmt_plugin_test_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread
 tests_libfmt_plugin_test_la_LIBADD   = $(HOGL_LIBS)
 tests_libfmt_plugin_test_la_SOURCES  = \
 	tests/fmt-plugin_test.cc
+endif
 
 #
 # Tools
 #
+if BUILD_TOOLS
 bin_PROGRAMS = tools/hogl-recover tools/hogl-cook
 
 tools_hogl_recover_SOURCES  = \
@@ -233,3 +236,4 @@ tools_hogl_cook_SOURCES  = \
 		tools/cook.cc
 tools_hogl_cook_CPPFLAGS = -I include
 tools_hogl_cook_LDADD    = src/libhogl.la $(HOGL_LIBS) $(LIBS)
+endif
