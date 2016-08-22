@@ -77,23 +77,26 @@ BOOST_AUTO_TEST_CASE(ring_ops)
 	hogl::ringbuf::options opts = { 0 };
 	opts.capacity = 64;
 
-	hogl::ringbuf ring("DUMMY", opts);
+	hogl::ringbuf *ring = new hogl::ringbuf("DUMMY", opts);
+	ring->hold();
 
-	ring.timesource(&hogl::default_timesource);
+	ring->timesource(&hogl::default_timesource);
 
-	BOOST_REQUIRE (ring.empty() == true);
+	BOOST_REQUIRE (ring->empty() == true);
 
 	unsigned int i;
 	for (i = 0; i < 100; i++)
-		hogl::push_unlocked(&ring, 0, 1, "push #%u", i);
+		hogl::push_unlocked(ring, 0, 1, "push #%u", i);
 
-	std::cout << ring;
+	std::cout << *ring;
 
-	BOOST_REQUIRE (ring.size() == 63);
-	BOOST_REQUIRE (ring.room() == 0);
-	BOOST_REQUIRE (ring.dropcnt() == (100 - 63));
-	BOOST_REQUIRE (ring.seqnum() == 100);
-	BOOST_REQUIRE (ring.empty() != true);
+	BOOST_REQUIRE (ring->size() == 63);
+	BOOST_REQUIRE (ring->room() == 0);
+	BOOST_REQUIRE (ring->dropcnt() == (100 - 63));
+	BOOST_REQUIRE (ring->seqnum() == 100);
+	BOOST_REQUIRE (ring->empty() != true);
 
-	ring.reset();
+	ring->reset();
+
+	ring->release();
 }

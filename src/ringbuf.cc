@@ -40,6 +40,21 @@ namespace hogl {
 
 extern timesource default_timesource;
 
+// Make sure ringbufs are always aligned to 64 bytes (most common cacheline size)
+void* ringbuf::operator new(size_t s)
+{
+	void *m = NULL;
+	if (posix_memalign(&m, 64, s) < 0)
+		throw std::bad_alloc();
+	return m;
+}
+
+// Deallocate with free() because overloaded new() uses posix_memalign()
+void ringbuf::operator delete(void *p)
+{
+	free(p);
+}
+
 // Round up to a power of two and return the exponent
 static unsigned int __roundup_log2(unsigned int v)
 {

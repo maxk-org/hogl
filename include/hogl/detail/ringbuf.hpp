@@ -523,14 +523,9 @@ public:
 		pop_iterator() : _head(0), _tail(0), _ring(0) { }
 	};
 
-	// Make sure ringbufs are always aligned to 64 bytes (most common cacheline size)
-	void* operator new(size_t s)
-	{
-		void *m = NULL;
-		if (posix_memalign(&m, 64, s) < 0)
-			throw std::bad_alloc();
-		return m;
-	}
+	// Custom new/delete to make make sure ringbufs are always aligned to 64 bytes (most common cacheline size)
+	static void* operator new(size_t s);
+	static void operator delete(void *p);
 
 private:
 	// No copies
