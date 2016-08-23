@@ -26,7 +26,7 @@
 
 /**
  * @file hogl/detail/barrier-arm.hpp
- * ARM specific barriers.
+ * ARM v7 and v8 specific barriers.
  * @warning do not include directly. @see hogl/detail/barrier.hpp
  */
 
@@ -34,16 +34,12 @@
 // This version requires ARM >= V7 capable CPU.
 // For more info see: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka14041.html
 
-static hogl_force_inline void dmb() { asm volatile("dmb" : : : "memory"); }
-static hogl_force_inline void dsb() { asm volatile("dsb" : : : "memory"); }
-static hogl_force_inline void isb() { asm volatile("isb" : : : "memory"); }
+static hogl_force_inline void memrw() { asm volatile("dmb sy" : : : "memory"); }
+static hogl_force_inline void memw()  { asm volatile("dmb st" : : : "memory"); }
 
-static hogl_force_inline void memrw() { dmb(); }
-static hogl_force_inline void memr()  { dmb(); }
-static hogl_force_inline void memw()  { dmb(); }
-
-// These might be useful for synchronization primitives.
-// Unused in HOGL at this point.
-static hogl_force_inline void sev() { asm volatile("sev" : : : "memory"); }
-static hogl_force_inline void wfe() { asm volatile("wfe" : : : "memory"); }
-static hogl_force_inline void wfi() { asm volatile("wfi" : : : "memory"); }
+#if (defined(__aarch64__))
+static hogl_force_inline void memr()  { asm volatile("dmb ld" : : : "memory"); }
+#else
+// Unfortunately 'dmb ld' is not supported on ARM V7
+static hogl_force_inline void memr()  { asm volatile("dmb sy" : : : "memory"); }
+#endif

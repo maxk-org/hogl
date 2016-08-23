@@ -47,8 +47,8 @@ static hogl_force_inline void compiler() { asm volatile("": : :"memory"); }
 
 #if (defined(__i386__) || defined(__x86_64__))
 #include <hogl/detail/barrier-x86.hpp>
-#elif (defined(__ARM_ARCH_7A__))
-#include <hogl/detail/barrier-arm-v7.hpp>
+#elif (defined(__ARM_ARCH_7A__)) || (defined(__aarch64__))
+#include <hogl/detail/barrier-arm.hpp>
 #elif (defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || \
       defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__))
 #include <hogl/detail/barrier-powerpc.hpp>
