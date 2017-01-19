@@ -171,7 +171,7 @@ plugin_LTLIBRARIES = tests/libfmt-plugin_test.la
 AM_CPPFLAGS = -I include $(BOOST_CPPFLAGS)
 AM_CXXFLAGS = -pthread
 AM_CFLAGS   = -pthread
-LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) -lboost_unit_test_framework $(CODE_COVERAGE_LDFLAGS)
+LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) $(CODE_COVERAGE_LDFLAGS)
 
 tests_args_test_SOURCES  = tests/args_test.cc 
 tests_area_test_SOURCES  = tests/area_test.cc
