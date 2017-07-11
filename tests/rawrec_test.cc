@@ -71,7 +71,17 @@ void myformat::output_raw(hogl::ostrbuf &sb, const hogl::record &r) const
 
 static const hogl::area *test_area;
 
-int doTest()
+static unsigned int custom_data(uint8_t *dst, unsigned int room)
+{
+	uint8_t data[256];
+
+	unsigned int len = sizeof(data) > room ? room : sizeof(data);
+	memcpy(dst, data, len);
+
+	return len;
+}
+
+static int doTest()
 {
 	uint8_t rawbuf[1024];
 
@@ -81,6 +91,23 @@ int doTest()
 	hogl::post(test_area, test_area->ERROR, "simple error message %u %u %u %u %u",
 			10, 20, 30, 40, 50);
 	hogl::post(test_area, test_area->INFO, "simple info message");
+
+	// Open-coded post example
+	{
+		hogl::ringbuf *ring = hogl::tls::ring();
+		hogl::record *r = hogl::post_impl::begin_locked(ring, test_area, test_area->INFO);
+
+		// Add two arguments: arg0 is raw data, arg1 is uint32_t
+		unsigned int offset = sizeof(uint64_t) * 2;
+		unsigned int room   = ring->record_tailroom() - offset;
+
+		r->set_arg_type(0, hogl::arg::RAW);
+		r->set_arg_data(0, offset, custom_data((uint8_t *) r->argval + offset, room));
+		r->set_arg_type(1, hogl::arg::UINT32);
+		r->set_arg_val32(1, 9895 /* dummy */);
+
+		hogl::post_impl::finish_locked(ring);
+	}
 
 	return 0;
 }
