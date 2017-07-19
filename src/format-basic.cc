@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include <boost/tokenizer.hpp>
+#include <sstream>
 
 #include "hogl/detail/ntos.hpp"
 #include "hogl/area.hpp"
@@ -49,22 +49,22 @@ format_basic::format_basic(const char *fields) :
 		return;
 	}
 
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep("|,");
-	std::string str(fields);
-	tokenizer tokens(str, sep);
-	for (tokenizer::iterator it = tokens.begin(); it != tokens.end(); ++it) {
-    		if      (*it == "timestamp") _fields |= TIMESTAMP;
-		else if (*it == "timedelta") _fields |= TIMEDELTA;
-		else if (*it == "timespec")  _fields |= TIMESPEC;
-		else if (*it == "ring")      _fields |= RING;
-		else if (*it == "seqnum")    _fields |= SEQNUM;
-		else if (*it == "area")      _fields |= AREA;
-		else if (*it == "section")   _fields |= SECTION;
-		else if (*it == "recdump")   _fields |= RECDUMP;
-		else if (*it == "default")   _fields = DEFAULT;
-		else if (*it == "fast0")     _fields = FAST0;
-		else if (*it == "fast1")     _fields = FAST1;
+	std::stringstream ss(fields);
+
+	char d = ss.str().find(',') != std::string::npos ? ',' : '|';
+
+	for (std::string s; std::getline(ss, s, d); ) {
+		if      (s == "timestamp") _fields |= TIMESTAMP;
+		else if (s == "timedelta") _fields |= TIMEDELTA;
+		else if (s == "timespec")  _fields |= TIMESPEC;
+		else if (s == "ring")      _fields |= RING;
+		else if (s == "seqnum")    _fields |= SEQNUM;
+		else if (s == "area")      _fields |= AREA;
+		else if (s == "section")   _fields |= SECTION;
+		else if (s == "recdump")   _fields |= RECDUMP;
+		else if (s == "default")   _fields = DEFAULT;
+		else if (s == "fast0")     _fields = FAST0;
+		else if (s == "fast1")     _fields = FAST1;
 	}
 }
 

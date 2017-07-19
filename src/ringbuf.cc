@@ -25,8 +25,8 @@
 */
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
-#include <boost/format.hpp>
 
 #include "hogl/detail/ringbuf.hpp"
 
@@ -118,6 +118,7 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 	// Enable priority inherintance.
 	pthread_mutexattr_t mattr;
 	pthread_mutexattr_init(&mattr);
+
 	pthread_mutexattr_setprotocol(&mattr, PTHREAD_PRIO_INHERIT);
 
 	err = pthread_mutex_init(&_mutex, &mattr);
@@ -179,19 +180,19 @@ std::ostream& operator<< (std::ostream& s, const ringbuf& ring)
 	if (ring.timesource())
 		ts_name = ring.timesource()->name();
 
-	s << boost::format("%s: { prio:%u, refcnt:%d, seqnum:%lu, dropcnt:%lu, capacity:%u, size:%u, room:%u, record_size: %u, record_tailroom: %u, timesource: \"%s\" }")
-			% ring.name()
-			% ring.prio()
-			% ring.refcnt()
-			% ring.seqnum()
-			% ring.dropcnt()
-			% ring.capacity()
-			% ring.size()
-			% ring.room()
-			% ring.record_size()
-			% ring.record_tailroom()
-			% ts_name;
-	s << std::endl;
+	s << "" << ring.name() << ": { "
+		<< "prio:"     << ring.prio()     << ", "
+		<< "refcnt:"   << ring.refcnt()   << ", "
+		<< "seqnum:"   << ring.seqnum()   << ", "
+		<< "dropcnt:"  << ring.dropcnt()  << ", "
+		<< "capacity:" << ring.capacity() << ", "
+		<< "size:"     << ring.size()     << ", "
+		<< "room:"     << ring.room()     << ", "
+		<< "record_size:"     << ring.record_size() << ", "
+		<< "record_tailroom:" << ring.record_tailroom() << ", "
+		<< "timesource:" << ts_name
+		<< " }" << std::endl;
+
 	return s;
 }
 

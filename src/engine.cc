@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <sys/time.h>
@@ -35,9 +36,6 @@
 #include <string>
 #include <map>
 #include <algorithm>
-
-#include <boost/format.hpp>
-#include <boost/io/ios_state.hpp>
 
 #include "hogl/detail/internal.hpp"
 #include "hogl/detail/engine.hpp"
@@ -765,22 +763,16 @@ void engine::list_areas(string_list &l) const
 
 std::ostream& operator<< (std::ostream& s, const engine::stats& stats)
 {
-	// First empty string arfgument is used to handle indentation based 
-	// on the current stream width setting.
-	s << boost::format("%s{ "
-		"tso_full: %lu, recs_out: %lu, recs_dropped: %lu, loops: %lu, rings_indexed: %lu, "
-		"areas_added: %lu, mask_changed: %lu, timesource_changed: %lu"
-		" }")
-			% ""
-			% stats.tso_full
-			% stats.recs_out
-			% stats.recs_dropped
-			% stats.loops
-			% stats.rings_indexed
-			% stats.areas_added
-			% stats.mask_changed
-			% stats.timesource_changed
-		<< std::endl;
+	s << "" << "{ "
+		<< "tso_full:"           << stats.tso_full           << ", "
+		<< "recs_out:"           << stats.recs_out           << ", "
+		<< "recs_dropped:"       << stats.recs_dropped       << ", "
+		<< "loops:"              << stats.loops              << ", "
+		<< "rings_indexed:"      << stats.rings_indexed      << ", "
+		<< "areas_added:"        << stats.areas_added        << ", "
+		<< "mask_changed:"       << stats.mask_changed       << ", "
+		<< "timesource_changed:" << stats.timesource_changed << ", "
+		<< " }"	<< std::endl;
 	return s;
 }
 
@@ -790,14 +782,14 @@ std::ostream& operator<< (std::ostream& s, const engine::options& opts)
 	if (opts.timesource)
 		ts_name = opts.timesource->name();
 
-	s << boost::format("%s{ polling_interval_usec: %lu, tso_buffer_capacity: %lu, internal_ring_capacity: %lu, features: %lx, timesource: %s }")
-			% "" 
-			% opts.polling_interval_usec
-			% opts.tso_buffer_capacity
-			% opts.tso_buffer_capacity
-			% opts.features
-			% ts_name
-		<< std::endl;
+	s << "" << "{ "
+		<< "polling_interval_usec:" << opts.polling_interval_usec << ", "
+		<< "tso_buffer_capacity:"   << opts.tso_buffer_capacity << ", "
+		<< "tso_buffer_capacity:"   << opts.tso_buffer_capacity << ", "
+		<< "features:" << std::hex  << opts.features << ", "
+		<< "timesource:"            << ts_name
+		<< " }"	<< std::endl;
+
 	return s;
 }
 

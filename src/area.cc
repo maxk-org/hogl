@@ -26,14 +26,12 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <map>
 #include <string>
 #include <sstream>
-
-#include <boost/format.hpp>
-#include <boost/io/ios_state.hpp>
 
 #include "hogl/detail/area.hpp"
 
@@ -104,18 +102,11 @@ bool area::operator== (const area &area) const
 // Dump area info into a stream
 std::ostream& operator<< (std::ostream& s, const area& area)
 {
-	boost::io::ios_all_saver ias(s);
-
-	unsigned int i;
+	unsigned int i, w = s.width();
 	for (i=0; i < area.count(); i++) {
-		s << boost::format("%s%s:%s")
-			% (area.test(i) ? "" : "!")
-			% area.name()
-			% area.section_name(i);
-		s << std::endl;
-		ias.restore();
+		s.width(w);
+		s << (area.test(i) ? "" : "!") << area.name() << ":" << area.section_name(i) << std::endl;
 	}
-
 	return s;
 }
 

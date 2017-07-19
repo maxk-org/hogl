@@ -116,7 +116,6 @@ src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLA
 src_libhogl_la_SOURCES  = \
 	src/area.cc \
 	src/internal.cc \
-	src/mask.cc \
 	src/ringbuf.cc \
 	src/tls.cc \
 	src/engine.cc \
@@ -138,6 +137,12 @@ src_libhogl_la_SOURCES  = \
 	src/output-file.cc \
 	src/output-pipe.cc \
 	src/c-api.cc
+
+if CXX11_ENABLED
+src_libhogl_la_SOURCES += src/mask.cc
+else
+src_libhogl_la_SOURCES += src/mask-boost.cc
+endif
 
 #
 # Tests

@@ -32,7 +32,6 @@
 #include <map>
 #include <string>
 #include <sstream>
-#include <regex>
 
 #include "hogl/detail/mask.hpp"
 #include "hogl/detail/area.hpp"
@@ -43,15 +42,18 @@
 #define dprint(a...)
 #endif
 
+#include <boost/xpressive/xpressive.hpp>
+namespace bx = boost::xpressive;
+
 namespace hogl {
 
 struct mask::data {
 	const std::string str;
-	const std::regex  area;
-	const std::regex  sect;
+	const bx::sregex  area;
+	const bx::sregex  sect;
 	bool  on;
 
-	data(const std::string& _str, const std::regex& _area, const std::regex& _sect, bool _on) :
+	data(const std::string &_str, const bx::sregex &_area, const bx::sregex &_sect, bool _on) :
 		str(_str), area(_area), sect(_sect), on(_on) { }
 };
 
@@ -77,19 +79,15 @@ void mask::add(const std::string &str)
 	if (areg.empty()) areg = ".*";
 	if (sreg.empty()) sreg = ".*";
 
-	_list->push_back(mask::data(str,
-				std::regex(areg, std::regex::extended | std::regex::optimize),
-				std::regex(sreg, std::regex::extended | std::regex::optimize),
-				on)
-			);
+	_list->push_back(mask::data(str, bx::sregex::compile(areg), bx::sregex::compile(sreg), on));
 }
 
-static void __apply(area &area, const std::regex &re, bool on)
+static void __apply(area &area, const bx::sregex &re, bool on)
 {
 	unsigned int i;
 	for (i=0; i < area.size(); i++) {
 		const std::string str(area.section_name(i));
-		if (std::regex_match(str, re))
+		if (bx::regex_match(str, re))
 			area.set(i, on);
 	}
 }
@@ -99,7 +97,7 @@ void mask::apply(area &area) const
 	data_list::const_iterator it;
 	for (it=_list->begin(); it != _list->end(); ++it) {
 		const std::string str(area.name());
-		if (std::regex_match(str, it->area)) {
+		if (bx::regex_match(str, it->area)) {
 			dprint("applying mask %p to area %p [%s]", this, &area, area.name());
 			__apply(area, it->sect, it->on);
 		}

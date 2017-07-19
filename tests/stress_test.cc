@@ -29,18 +29,12 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <sys/time.h>
 
 #include <algorithm>
 #include <sstream>
-#include <boost/format.hpp>
-
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-#include <boost/accumulators/statistics/min.hpp>
 
 #include "hogl/detail/format.hpp"
 #include "hogl/detail/output.hpp"
@@ -114,17 +108,17 @@ public:
 	}
 };
 
-namespace bacc = boost::accumulators;
-
 // Format that generates record stats
 class stats_format : public hogl::format {
 private:
 	uint64_t        _tmax_nsec;
+	uint64_t        _max;
+	uint64_t        _min;
+
 	hogl::timestamp _last;
-	bacc::accumulator_set<uint64_t, bacc::stats<bacc::tag::mean, bacc::tag::max, bacc::tag::min > > _acc;
 
 public:
-	stats_format(uint64_t tmax_nsec=0) : _tmax_nsec(tmax_nsec), _last(0)
+	stats_format(uint64_t tmax_nsec=0) : _tmax_nsec(tmax_nsec), _max(0), _min(~0ULL), _last(0)
 	{}
 
 	void process(hogl::ostrbuf &sb, const hogl::format::data &d)
@@ -132,8 +126,10 @@ public:
 		const hogl::record &r = *d.record;
 
 		hogl::timestamp delta = r.timestamp - _last;
-		if (delta.to_nsec() < _tmax_nsec)
-			_acc(delta.to_nsec());
+		if (delta.to_nsec() < _tmax_nsec) {
+			if (delta.to_nsec() < _min) _min = delta.to_nsec();
+			if (delta.to_nsec() > _max) _max = delta.to_nsec();
+		}
 
 		_last = r.timestamp;
 	}
@@ -141,9 +137,8 @@ public:
 	void dump()
 	{
 		std::cout << "Timestamp delta stats:" << std::endl;
-		std::cout << "\tMax:  " << bacc::max(_acc) << std::endl;
-		std::cout << "\tMin:  " << bacc::min(_acc) << std::endl;
-		std::cout << "\tMean: " << bacc::mean(_acc) << std::endl;
+		std::cout << "\tMax:  " << _max << std::endl;
+		std::cout << "\tMin:  " << _min << std::endl;
 	}
 };
 
