@@ -49,5 +49,15 @@ LOCAL_SHARED_LIBRARIES:= libhogl
 LOCAL_MODULE := hogl-basic-test
 include $(BUILD_EXECUTABLE)
 
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES := \
+	tests/stress_test.cc
+
+LOCAL_CXXFLAGS += -Wall -O3 -std=c++11
+LOCAL_CPP_FEATURES := exceptions
+LOCAL_SHARED_LIBRARIES:= libhogl
+LOCAL_MODULE := hogl-stress-test
+include $(BUILD_EXECUTABLE)
+
 # Import libffi
 $(call import-module,libffi)
