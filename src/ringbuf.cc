@@ -119,7 +119,9 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 	pthread_mutexattr_t mattr;
 	pthread_mutexattr_init(&mattr);
 
+	#ifndef __ANDROID__
 	pthread_mutexattr_setprotocol(&mattr, PTHREAD_PRIO_INHERIT);
+	#endif
 
 	err = pthread_mutex_init(&_mutex, &mattr);
 	if (err) {
