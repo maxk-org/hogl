@@ -36,7 +36,21 @@
 
 namespace hogl {
 
-#if defined(__linux__)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
+
+static int stdio_write(void *cookie, const char *data, int size)
+{
+	ostrbuf *ob = (ostrbuf *) cookie;
+	ob->put((const uint8_t *) data, size);
+	return size;
+}
+
+FILE* stdio_custom_open(void *ctx)
+{
+	return fwopen(ctx, stdio_write);
+}
+
+#elif defined(__linux__)
 
 // ssize_t reader (void *cookie, char *buffer, size_t size)
 // int seeker (void *cookie, off64_t *position, int whence)
@@ -60,20 +74,6 @@ FILE* stdio_custom_open(void *ctx)
 {
 	return fopencookie(ctx, "w", stdio_ops);
 } 
-
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-
-static int stdio_write(void *cookie, const char *data, int size)
-{
-	ostrbuf *ob = (ostrbuf *) cookie;
-	ob->put((const uint8_t *) data, size);
-	return size;
-}
-
-FILE* stdio_custom_open(void *ctx)
-{
-	return fwopen(ctx, stdio_write);
-}
 
 #else
 
