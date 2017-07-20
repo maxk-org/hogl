@@ -782,6 +782,8 @@ std::ostream& operator<< (std::ostream& s, const engine::options& opts)
 	if (opts.timesource)
 		ts_name = opts.timesource->name();
 
+	std::ios_base::fmtflags fmt = s.flags();
+
 	s << "" << "{ "
 		<< "polling_interval_usec:" << opts.polling_interval_usec << ", "
 		<< "tso_buffer_capacity:"   << opts.tso_buffer_capacity << ", "
@@ -789,6 +791,8 @@ std::ostream& operator<< (std::ostream& s, const engine::options& opts)
 		<< "features:" << std::hex  << opts.features << ", "
 		<< "timesource:"            << ts_name
 		<< " }"	<< std::endl;
+
+	s.flags(fmt);
 
 	return s;
 }
