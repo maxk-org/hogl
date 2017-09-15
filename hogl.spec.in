@@ -54,3 +54,4 @@ from the coredump files.
 %defattr(-, root, root)
 %{_bindir}/hogl-recover
 %{_bindir}/hogl-cook
+%{_bindir}/hogl-grep
