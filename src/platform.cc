@@ -111,7 +111,8 @@ void set_thread_title(const char *str)
 
 #else // OS
 
-#error "Unsupported OS"
+void set_thread_title(const char *str)
+{ }
 
 #endif // OS
 

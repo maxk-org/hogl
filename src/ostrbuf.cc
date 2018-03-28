@@ -50,7 +50,7 @@ FILE* stdio_custom_open(void *ctx)
 	return fwopen(ctx, stdio_write);
 }
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__CYGWIN__)
 
 // ssize_t reader (void *cookie, char *buffer, size_t size)
 // int seeker (void *cookie, off64_t *position, int whence)
