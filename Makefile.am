@@ -197,8 +197,7 @@ tests_ostrbuf_test_SOURCES = tests/ostrbuf_test.cc
 tests_basic_test_c_api_cc_SOURCES = tests/basic_test_c-api_cc.cc
 
 tests_basic_test_c_api_SOURCES = tests/basic_test_c-api.c
-tests_basic_test_c_api_LDADD   = -lstdc++ src/libhogl.la $(HOGL_LIBS)
-
+nodist_EXTRA_tests_basic_test_c_api_SOURCES = dummy.cc # force CXXLINK
 
 if OPENMP
 TESTS += tests/openmp_test
