@@ -43,6 +43,9 @@ namespace hogl {
         friend class config_builder;
         // all specific builders would directly access the below members
         friend class output_builder;
+        //
+        friend class config_builder;
+        // creation static function
         static config_builder create();
     private:
         enum struct formats : uint8_t {

@@ -32,6 +32,8 @@ include_directories(${INCLUDE_DIR})
 set(SRC_FILES
         area.cc
         c-api.cc
+        config.cc
+        config-builders.cc
         defring.cc
         deftimesource.cc
         engine.cc
@@ -59,5 +61,5 @@ set(SRC_FILES
 set(HOGL_STATIC_LIB ${LIB_NAME}Static)
 set(HOGL_DYNAMIC_LIB ${LIB_NAME})
 add_library(${HOGL_STATIC_LIB} STATIC ${SRC_FILES})
-add_library(${HOGL_DYNAMIC_LIB} SHARED ${SRC_FILES} ../include/hogl/config.hpp config.cc ../include/hogl/config-builder.hpp config-builders.cc)
+add_library(${HOGL_DYNAMIC_LIB} SHARED ${SRC_FILES})
 install(TARGETS ${LIB_NAME} DESTINATION lib)
