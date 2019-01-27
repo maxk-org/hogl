@@ -56,7 +56,7 @@ namespace hogl {
             TEXT_FILE
         };
         config() = default;
-        uint32_t    _output_bufsize = 10 * 1024 * 1024
+        static constexpr uint32_t    _output_bufsize = 10 * 1024 * 1024;
         formats     _log_format;
         outputs     _log_output;
         hogl::ringbuf::options _ring_options;
