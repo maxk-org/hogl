@@ -29,6 +29,11 @@
  * Efficient output string buffer used for record formatting
  */
 
+#if defined(__linux__) || defined(__CYGWIN__)
+// On linux and cygwin we're using fopencookie() which is a GNU extension
+#define _GNU_SOURCE 1
+#endif
+
 #include <stdarg.h>
 #include <assert.h>
 
