@@ -131,7 +131,7 @@ public:
 	void flip()
 	{
 		unsigned int s = size();
-		memmove(_entry, _entry + _head, s * sizeof(entry));
+		memmove(static_cast<void*>(_entry), _entry + _head, s * sizeof(entry));
 		_head = 0;
 		_tail = s;
 	}
@@ -149,7 +149,7 @@ public:
 	tsobuf(const tsobuf &t) : _head(0), _tail(0), _entry(0)
 	{
 		resize(t._capacity);
-		memcpy(_entry, t._entry, _capacity * sizeof(entry));
+		memcpy(static_cast<void*>(_entry), t._entry, _capacity * sizeof(entry));
 	}
 
 	~tsobuf()
