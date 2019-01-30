@@ -51,27 +51,37 @@ tls::tls(const char *name, ringbuf::options &opts, engine *engine) :
 	hogl::post(engine->internal_area(), internal::TLS_DEBUG,
 		"created tls %p. ring %s(%p)", this, name, r);
 
-	// Set TLS ring pointer
-	_ring = r;
+	// hold a reference to the previous ring
+	_previous_ring = _ring->hold();
 
+	// Set TLS ring pointer
+	_current_ring = r;
+	_ring = _current_ring;
 }
 
 tls::tls(ringbuf *r, engine *engine) :
 	_engine(engine)
 {
+	// hold a reference to save the previous ring
+	_previous_ring = _ring->hold();
+
 	hogl::post(engine->internal_area(), internal::TLS_DEBUG,
 		"created tls %p. name %s ring %p", this, r->name(), r);
 
 	// Set TLS ring pointer
-	_ring = r->hold();
+	_current_ring = r->hold();
+	_ring = _current_ring;
 }
 
 tls::~tls()
 {
-	// Set TLS ring pointer back to default
-	ringbuf *r = _ring;
-	_ring = &default_ring;
+	// Set TLS ring pointer back to the previous ring
+	_ring = _previous_ring;
 
+	// release the reference to the previous ring
+	_previous_ring->release();
+
+	ringbuf *r = _current_ring;
 	hogl::post(_engine->internal_area(), internal::TLS_DEBUG,
 		"destroyed tls %p ring %p (empty %u)", this, r, r->empty());
 

@@ -55,6 +55,16 @@ private:
 	 */ 
 	engine *_engine;
 
+	/**
+	 * Pointer to the previous ring
+	 */
+	ringbuf *_previous_ring;
+
+	/**
+	 * Pointer to the current ring
+	 */
+	ringbuf *_current_ring;
+
 	// No copies
 	tls(const tls&);
 	tls& operator=( const tls& );
