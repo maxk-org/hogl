@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
             .format().basic()
             .output().stdout()
             .mask().set(".*", "DEBUG:.*")
-            .activate()
+            .activate() // activate is needed before calling add area
             .area().add(test_area, "TEST-AREA", test_sect_names);
 
     std::clog << config.mask() << std::endl;
