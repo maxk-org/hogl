@@ -57,6 +57,8 @@ namespace hogl {
 
         format_builder format() const;
 
+        mask_builder mask() const;
+
         /*
         mask_builder mask() const;
         area_builder area() const;
@@ -83,16 +85,6 @@ namespace hogl {
     public:
         explicit output_builder(config &cfg) : config_builder_base{cfg} {}
 
-        /*
-        if (log_output == "stderr")
-        lo = new hogl::output_stderr(*lf, output_bufsize);
-        else if (log_output == "stdout")
-        lo = new hogl::output_stdout(*lf, output_bufsize);
-        else if (log_output[0] == '|')
-        lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_bufsize);
-        else
-        lo = new hogl::output_textfile(log_output.c_str(), *lf, output_bufsize);
-        */
         self& stdout(uint32_t output_bufsize = 0) {
 
             _config._log_output.reset(new hogl::output_stdout(*_config._log_format,

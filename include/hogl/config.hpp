@@ -45,6 +45,7 @@ namespace hogl {
         // all specific builders would directly access the below members
         friend class output_builder;
         friend class format_builder;
+        friend class mask_builder;
         friend class ringbuf_builder;
         friend class engine_builder;
 
@@ -60,6 +61,7 @@ namespace hogl {
         static constexpr uint32_t     _output_bufsize = 10 * 1024 * 1024;
         std::unique_ptr<hogl::format> _log_format;
         std::unique_ptr<hogl::output> _log_output;
+        hogl::mask                    _mask;
         hogl::ringbuf::options        _ring_options;
         hogl::engine::options         _engine_options;
     };

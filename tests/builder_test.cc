@@ -36,27 +36,11 @@ int main(int argc, char *argv[])
 
     auto config = hogl::config::create()
             .format().basic()
-            .output().stdout();
+            .output().stdout()
+            .mask(".*");
 
 
 /*
-    hogl::format *lf;
-    hogl::output *lo;
-
-    if (log_format == "raw")
-        lf = new hogl::format_raw();
-    else
-        lf = new hogl::format_basic(log_format.c_str());
-
-    if (log_output == "stderr")
-        lo = new hogl::output_stderr(*lf, output_bufsize);
-    else if (log_output == "stdout")
-        lo = new hogl::output_stdout(*lf, output_bufsize);
-    else if (log_output[0] == '|')
-        lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_bufsize);
-    else
-        lo = new hogl::output_textfile(log_output.c_str(), *lf, output_bufsize);
-
     hogl::mask logmask(".*", 0);
 
     hogl::activate(*lo);
