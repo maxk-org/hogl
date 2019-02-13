@@ -25,9 +25,7 @@
 set(LIB_NAME hogl)
 project(${LIB_NAME})
 
-set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../include)
-
-include_directories(${INCLUDE_DIR})
+set(INCLUDE_DIR ${hoglsuite_SOURCE_DIR}/include)
 
 set(SRC_FILES
         area.cc
@@ -41,7 +39,6 @@ set(SRC_FILES
         format-basic.cc
         format-raw.cc
         internal.cc
-#        mask-boost.cc FIXME this depends on CXX11
         mask.cc
         ostrbuf-fd.cc
         ostrbuf-stdio.cc
@@ -62,4 +59,8 @@ set(HOGL_STATIC_LIB ${LIB_NAME}Static)
 set(HOGL_DYNAMIC_LIB ${LIB_NAME})
 add_library(${HOGL_STATIC_LIB} STATIC ${SRC_FILES})
 add_library(${HOGL_DYNAMIC_LIB} SHARED ${SRC_FILES})
+
+target_include_directories(${HOGL_STATIC_LIB}  PUBLIC ${INCLUDE_DIR})
+target_include_directories(${HOGL_DYNAMIC_LIB} PUBLIC ${INCLUDE_DIR})
+
 install(TARGETS ${LIB_NAME} DESTINATION lib)
