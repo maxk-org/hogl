@@ -36,6 +36,7 @@
 #include "hogl/output-stderr.hpp"
 #include "hogl/output-textfile.hpp"
 #include "hogl/output-pipe.hpp"
+#include "hogl/area.hpp"
 
 #include "hogl/config.hpp"
 
@@ -45,6 +46,7 @@ namespace hogl {
     class output_builder;
     class format_builder;
     class mask_builder;
+    class area_builder;
 
     /**
      * @class config_builder_base just holds a reference to the actual config instance
@@ -60,10 +62,13 @@ namespace hogl {
             return std::move(_config);
         }
 
+        config_builder_base& activate() { _config.activate(); return *this;}
+
         // builder facets here
         output_builder output() const;
         format_builder format() const;
         mask_builder mask() const;
+        area_builder area() const;
 
         /*
         area_builder area() const;
@@ -104,23 +109,27 @@ namespace hogl {
         explicit output_builder(config &cfg) : config_builder_base{cfg} {}
 
         self& stdout(uint32_t output_bufsize = 0) {
-            _config._log_output.reset(new hogl::output_stdout(*_config._log_format,
-                    _config.get_output_bufsize(output_bufsize)));
+            auto *lo = new hogl::output_stdout(*_config._log_format,
+                                               _config.get_output_bufsize(output_bufsize));
+            _config._log_output.reset(lo);
             return *this;
         }
         self& stderr(uint32_t output_bufsize = 0) {
-            _config._log_output.reset(new hogl::output_stderr(*_config._log_format,
-                    _config.get_output_bufsize(output_bufsize)));
+            auto *lo = new hogl::output_stderr(*_config._log_format,
+                                               _config.get_output_bufsize(output_bufsize));
+            _config._log_output.reset(lo);
             return *this;
         }
         self& pipe(const std::string& filename, uint32_t output_bufsize = 0) {
-            _config._log_output.reset(new hogl::output_pipe(filename.c_str(),
-                    *_config._log_format, _config.get_output_bufsize(output_bufsize)));
+            auto *lo = new hogl::output_pipe(filename.c_str(),
+                                             *_config._log_format, _config.get_output_bufsize(output_bufsize));
+            _config._log_output.reset(lo);
             return *this;
         }
         self& textfile(const std::string& filename, uint32_t output_bufsize = 0) {
-            _config._log_output.reset(new hogl::output_textfile(filename.c_str(),
-                    *_config._log_format, _config.get_output_bufsize(output_bufsize)));
+            auto *lo = new hogl::output_textfile(filename.c_str(),
+                                                 *_config._log_format, _config.get_output_bufsize(output_bufsize));
+            _config._log_output.reset(lo);
             return *this;
         }
     };
@@ -157,6 +166,17 @@ namespace hogl {
         template <typename Arg>
         void print(Arg mask) {
             _config._mask << mask;
+        }
+    };
+
+    class area_builder final : public config_builder_base {
+        using self = area_builder;
+    public:
+        explicit area_builder(config& cfg) : config_builder_base{cfg} {}
+
+        self& add(hogl::area *&area, const char* name, const char** sections) {
+            area = add_area(name, sections);
+            return *this;
         }
     };
 

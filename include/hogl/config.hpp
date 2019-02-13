@@ -33,6 +33,11 @@
 #include "hogl/detail/mask.hpp"
 #include "hogl/detail/ringbuf.hpp"
 #include "hogl/detail/engine.hpp"
+#include "hogl/engine.hpp"
+#include "hogl/mask.hpp"
+
+#include "hogl/format-basic.hpp"
+#include "hogl/output-stderr.hpp"
 
 namespace hogl {
 
@@ -53,9 +58,17 @@ namespace hogl {
         // creation static function
         static config_builder create();
 
+        void activate() { hogl::activate(*_log_output);}
+        void apply_mask() { hogl::apply_mask(_mask); }
         hogl::mask mask() const { return _mask; }
     private:
-        config() = default;
+        static constexpr auto FAST = "fast1";
+        // log_format/output can be created once per config
+        // otherwise when trying to change the underlying format and then the output
+        // the reference "&_format" in output class would dangle
+        config() : _ring_options{ringbuf::default_options},
+        _engine_options{engine::default_options}
+        {}
 
         uint32_t get_output_bufsize(const uint32_t output_bufsize) const noexcept {
                 return output_bufsize ? output_bufsize : _output_bufsize;

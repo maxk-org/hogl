@@ -26,51 +26,55 @@
 
 #include <memory>
 
+#include "hogl/post.hpp"
+
 #include "hogl/config-builder.hpp"
+
+enum test_sect_id {
+    TEST_DEBUG,
+    TEST_INFO,
+    TEST_WARN,
+    TEST_ERROR,
+    TEST_EXTRA_DEBUG,
+    TEST_EXTRA_INFO,
+    TEST_TRACE,
+    TEST_HEXDUMP,
+};
+
+static const char *test_sect_names[] = {
+        "DEBUG",
+        "INFO",
+        "WARN",
+        "ERROR",
+        "EXTRA:DEBUG",
+        "EXTRA:INFO",
+        "TRACE",
+        "HEXDUMP",
+        0,
+};
 
 int main(int argc, char *argv[])
 {
     std::string log_output("stdout");
     std::string log_format("fast1");
     constexpr unsigned int output_bufsize = 10 * 1024 * 1024;
+    hogl::area *test_area = nullptr;
 
     hogl::config config = hogl::config::create()
             .format().basic()
             .output().stdout()
-            .mask().set(".*", "DEBUG:.*");
+            .mask().set(".*", "DEBUG:.*")
+            .activate()
+            .area().add(test_area, "TEST-AREA", test_sect_names);
 
     std::clog << config.mask() << std::endl;
+    config.apply_mask();
+    assert(test_area);
 
-/*
-    hogl::mask logmask(".*", 0);
-
-    hogl::activate(*lo);
-
-    test_area = hogl::add_area("TEST-AREA", test_sect_names);
-
-    // Test double add (with reuse)
-    test_area = hogl::add_area("TEST-AREA", test_sect_names);
-
-    // Test double add (failed)
-    const char *a0_sections[] = { "X", 0 };
-    const hogl::area *a0 = hogl::add_area("TEST-AREA", a0_sections);
-    assert(a0 == 0);
-
-    hogl::apply_mask(logmask);
-
-    printf("sizeof(hogl::record)  = %lu\n", (unsigned long) sizeof(hogl::record));
-    printf("sizeof(hogl::ringbuf) = %lu\n", (unsigned long) sizeof(hogl::ringbuf));
-
-    fflush(stdout);
-    fflush(stderr);
-
-    std::cerr << *hogl::default_engine;
+    hogl::post(test_area, TEST_INFO, "some string\n%s", "hello world");
 
     hogl::deactivate();
 
-    delete lo;
-    delete lf;
-*/
     printf("Passed\n");
     return 0;
 }
