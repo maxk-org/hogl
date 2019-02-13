@@ -34,6 +34,7 @@
 namespace hogl {
 
     class output_builder;
+    class format_builder;
 
     class config_builder_base {
     public:
@@ -45,8 +46,10 @@ namespace hogl {
 
         // builder facets here
         output_builder output() const;
-        /*
+
         format_builder format() const;
+
+        /*
         mask_builder mask() const;
         area_builder area() const;
         engine_options_builder engine_options() const;
@@ -86,6 +89,22 @@ namespace hogl {
         }
         self& textfile() {
             _config._log_output = config::outputs::TEXT_FILE;
+            return *this;
+        }
+    };
+
+    class format_builder final : public config_builder_base {
+        using self = format_builder;
+    public:
+        explicit format_builder(config& cfg) : config_builder_base{cfg} {}
+
+        self& raw(){
+            _config._log_format = config::formats::RAW;
+            return *this;
+        }
+
+        self& basic(){
+            _config._log_format = config::formats::RAW;
             return *this;
         }
     };

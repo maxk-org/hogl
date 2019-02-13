@@ -43,8 +43,8 @@ namespace hogl {
         friend class config_builder;
         // all specific builders would directly access the below members
         friend class output_builder;
-        //
-        friend class config_builder;
+        friend class format_builder;
+
         // creation static function
         static config_builder create();
     private:
@@ -60,8 +60,8 @@ namespace hogl {
         };
         config() = default;
         static constexpr uint32_t    _output_bufsize = 10 * 1024 * 1024;
-        formats     _log_format;
-        outputs     _log_output;
+        formats     _log_format = formats::BASIC;
+        outputs     _log_output = outputs::STDOUT;
         hogl::ringbuf::options _ring_options;
         hogl::engine::options  _mask_options;
     };
