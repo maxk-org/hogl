@@ -10,5 +10,7 @@ target_include_directories(builder-test
 )
 
 target_link_libraries(builder-test
-    hogl
+        hogl
+        ffi
+        pthread
 )

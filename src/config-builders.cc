@@ -37,4 +37,8 @@ namespace hogl {
         return format_builder{_config};
     }
 
+    mask_builder config_builder_base::mask() const {
+        return mask_builder{_config};
+    }
+
 } // ns hogl

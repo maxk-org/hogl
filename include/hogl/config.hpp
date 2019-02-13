@@ -30,6 +30,7 @@
 #include <memory>
 #include <string>
 
+#include "hogl/detail/mask.hpp"
 #include "hogl/detail/ringbuf.hpp"
 #include "hogl/detail/engine.hpp"
 
@@ -51,6 +52,8 @@ namespace hogl {
 
         // creation static function
         static config_builder create();
+
+        hogl::mask mask() const { return _mask; }
     private:
         config() = default;
 
@@ -59,11 +62,12 @@ namespace hogl {
         }
 
         static constexpr uint32_t     _output_bufsize = 10 * 1024 * 1024;
-        std::unique_ptr<hogl::format> _log_format;
-        std::unique_ptr<hogl::output> _log_output;
-        hogl::mask                    _mask;
-        hogl::ringbuf::options        _ring_options;
-        hogl::engine::options         _engine_options;
+        // FIXME TODO need defaults here
+        std::unique_ptr<format> _log_format;
+        std::unique_ptr<output> _log_output;
+        hogl::mask              _mask;
+        ringbuf::options        _ring_options;
+        engine::options         _engine_options;
     };
 
 } // ns hogl

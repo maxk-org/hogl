@@ -34,11 +34,12 @@ int main(int argc, char *argv[])
     std::string log_format("fast1");
     constexpr unsigned int output_bufsize = 10 * 1024 * 1024;
 
-    auto config = hogl::config::create()
+    hogl::config config = hogl::config::create()
             .format().basic()
             .output().stdout()
-            .mask(".*");
+            .mask().set(".*", "DEBUG:.*");
 
+    std::clog << config.mask() << std::endl;
 
 /*
     hogl::mask logmask(".*", 0);
