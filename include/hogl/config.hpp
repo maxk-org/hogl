@@ -27,6 +27,7 @@
 #ifndef PROJECT_CONFIG_HPP
 #define PROJECT_CONFIG_HPP
 
+#include <memory>
 #include <string>
 
 #include "hogl/detail/ringbuf.hpp"
@@ -44,26 +45,23 @@ namespace hogl {
         // all specific builders would directly access the below members
         friend class output_builder;
         friend class format_builder;
+        friend class ringbuf_builder;
+        friend class engine_builder;
 
         // creation static function
         static config_builder create();
     private:
-        enum struct formats : uint8_t {
-            RAW,
-            BASIC
-        };
-        enum struct outputs : uint8_t  {
-            STDOUT,
-            STDERR,
-            PIPE,
-            TEXT_FILE
-        };
         config() = default;
-        static constexpr uint32_t    _output_bufsize = 10 * 1024 * 1024;
-        formats     _log_format = formats::BASIC;
-        outputs     _log_output = outputs::STDOUT;
-        hogl::ringbuf::options _ring_options;
-        hogl::engine::options  _mask_options;
+
+        uint32_t get_output_bufsize(const uint32_t output_bufsize) const noexcept {
+                return output_bufsize ? output_bufsize : _output_bufsize;
+        }
+
+        static constexpr uint32_t     _output_bufsize = 10 * 1024 * 1024;
+        std::unique_ptr<hogl::format> _log_format;
+        std::unique_ptr<hogl::output> _log_output;
+        hogl::ringbuf::options        _ring_options;
+        hogl::engine::options         _engine_options;
     };
 
 } // ns hogl

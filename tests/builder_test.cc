@@ -34,7 +34,10 @@ int main(int argc, char *argv[])
     std::string log_format("fast1");
     constexpr unsigned int output_bufsize = 10 * 1024 * 1024;
 
-    //hogl::config_builder builder;
+    auto config = hogl::config::create()
+            .format().basic()
+            .output().stdout();
+
 
 /*
     hogl::format *lf;

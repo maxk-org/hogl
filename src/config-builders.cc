@@ -32,4 +32,9 @@ namespace hogl {
         return output_builder{_config};
     }
 
+
+    format_builder config_builder_base::format() const {
+        return format_builder{_config};
+    }
+
 } // ns hogl

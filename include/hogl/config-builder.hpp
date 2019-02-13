@@ -29,6 +29,14 @@
 
 #include <utility> // std::move
 
+#include "hogl/format-basic.hpp"
+#include "hogl/format-raw.hpp"
+
+#include "hogl/output-stdout.hpp"
+#include "hogl/output-stderr.hpp"
+#include "hogl/output-textfile.hpp"
+#include "hogl/output-pipe.hpp"
+
 #include "hogl/config.hpp"
 
 namespace hogl {
@@ -61,7 +69,7 @@ namespace hogl {
         config& _config;
     };
 
-    class config_builder final : private config_builder_base {
+    class config_builder final : public config_builder_base {
     public:
         explicit config_builder() : config_builder_base{_config} {}
     private:
@@ -75,20 +83,35 @@ namespace hogl {
     public:
         explicit output_builder(config &cfg) : config_builder_base{cfg} {}
 
-        self& stdout() {
-            _config._log_output = config::outputs::STDOUT;
+        /*
+        if (log_output == "stderr")
+        lo = new hogl::output_stderr(*lf, output_bufsize);
+        else if (log_output == "stdout")
+        lo = new hogl::output_stdout(*lf, output_bufsize);
+        else if (log_output[0] == '|')
+        lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_bufsize);
+        else
+        lo = new hogl::output_textfile(log_output.c_str(), *lf, output_bufsize);
+        */
+        self& stdout(uint32_t output_bufsize = 0) {
+
+            _config._log_output.reset(new hogl::output_stdout(*_config._log_format,
+                    _config.get_output_bufsize(output_bufsize)));
             return *this;
         }
-        self& stderr() {
-            _config._log_output = config::outputs::STDERR;
+        self& stderr(uint32_t output_bufsize = 0) {
+            _config._log_output.reset(new hogl::output_stderr(*_config._log_format,
+                    _config.get_output_bufsize(output_bufsize)));
             return *this;
         }
-        self& pipe() {
-            _config._log_output = config::outputs::PIPE;
+        self& pipe(const std::string& filename, uint32_t output_bufsize = 0) {
+            _config._log_output.reset(new hogl::output_pipe(filename.c_str(),
+                    *_config._log_format, _config.get_output_bufsize(output_bufsize)));
             return *this;
         }
-        self& textfile() {
-            _config._log_output = config::outputs::TEXT_FILE;
+        self& textfile(const std::string& filename, uint32_t output_bufsize = 0) {
+            _config._log_output.reset(new hogl::output_textfile(filename.c_str(),
+                    *_config._log_format, _config.get_output_bufsize(output_bufsize)));
             return *this;
         }
     };
@@ -99,12 +122,12 @@ namespace hogl {
         explicit format_builder(config& cfg) : config_builder_base{cfg} {}
 
         self& raw(){
-            _config._log_format = config::formats::RAW;
+            _config._log_format.reset(new hogl::format_raw);
             return *this;
         }
 
         self& basic(){
-            _config._log_format = config::formats::RAW;
+            _config._log_format.reset(new hogl::format_basic);
             return *this;
         }
     };
