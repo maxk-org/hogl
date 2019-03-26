@@ -46,7 +46,7 @@ cpu_set_t set_cpu_masks(cpu_set_t cpuset, uint64_t core_id_mask) {
    dprint("hogl::setaffinity core mask %lu", core_id_mask);
    int bit = sizeof(core_id_mask) * CHAR_BIT - 1;
    while (bit >= 0) {
-      if (core_id_mask & (1UL << bit)) {
+      if (core_id_mask & (1ULL << bit)) {
          dprint("hogl::setaffinity core id is %d", bit);
          CPU_SET(bit, &cpuset);
       }
