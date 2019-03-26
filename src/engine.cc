@@ -37,6 +37,7 @@
 #include <algorithm>
 
 #include "hogl/detail/internal.hpp"
+#include "hogl/detail/utils.hpp"
 #include "hogl/detail/engine.hpp"
 #include "hogl/detail/barrier.hpp"
 #include "hogl/platform.hpp"
@@ -56,6 +57,7 @@ engine::options engine::default_options = {
 	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 	.internal_ring_capacity = 256,            // capacity of the internal ring buffer (number of records)
 	.features = 0,                            // default feature set
+	.cpu = -1,                                // default CPU affinity
 	.timesource = 0,                          // timesource for this engine (0 means default timesource)
 };
 
@@ -124,6 +126,11 @@ engine::engine(output &out, const engine::options &opts) :
 	err = pthread_create(&_thread, NULL, entry, (void *) this);
 	if (err) {
 		fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
+		abort();
+	}
+	err = setaffinity(_thread, _opts.cpu);
+	if (err) {
+		fprintf(stderr, "hogl::engine: failed to set affinity for engine thread. %d\n", err);
 		abort();
 	}
 }

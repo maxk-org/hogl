@@ -67,6 +67,7 @@ public:
 		unsigned int tso_buffer_capacity;
 		unsigned int internal_ring_capacity; // obsolete
 		unsigned int features;
+		int          cpu; // CPU affinity
 		hogl::timesource  *timesource;
 	};
 

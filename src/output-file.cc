@@ -40,6 +40,7 @@
 #include <sstream>
 #include <iomanip>
 
+#include "hogl/detail/utils.hpp"
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/output-file.hpp"
@@ -90,7 +91,8 @@ output_file::options output_file::default_options = {
 	.max_size = 1 * 1024 * 1024 * 1024, /// 1GB
 	.max_age = 0, /// Unlimited
 	.max_count = 128,
-	.buffer_capacity = 8192
+	.buffer_capacity = 8192,
+	.cpu = -1
 };
 
 std::string output_file::name() const
@@ -214,6 +216,11 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
 	if (err) {
 		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
+		abort();
+	}
+	err = setaffinity(_rotate_thread, opts.cpu);
+	if(err) {
+		fprintf(stderr, "hogl::output_file: failed to set affinity for helper thread. %d\n", err);
 		abort();
 	}
 

@@ -58,6 +58,30 @@ hogl_output_t hogl_new_output_stdout(hogl_format_t fmt);
 hogl_output_t hogl_new_output_stderr(hogl_format_t fmt);
 
 /**
+ * File output options
+ * @note -  this is copied from output-file.hpp.
+ *          so everything that is changed in output-file.hpp needs
+ *          to be reflected also here
+ */
+struct hogl_output_options {
+	unsigned int perms;           /// File permissions
+	size_t       max_size;        /// Max size of each file chunk (bytes)
+	unsigned int max_age;         /// Max age of each file chunk (seconds)
+	unsigned int max_count;       /// Max file count. Index goes back to zero after it reaches max_count.
+	unsigned int buffer_capacity; /// Max capacity of the output buffer (bytes)
+	int          cpu;             /// The CPU number to be used
+};
+
+/**
+ * Allocate new generic output handler.
+ * @param name filename
+ * @param fmt format handle @see hogl_new_format_basic
+ * @param opts options to use for output file. if null, defaults will be used
+ * @return new format handle, or zero on failure
+ */
+hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _fmt, struct hogl_output_options *opts);
+
+/**
  * Allocate new textfile output handler.
  * @param name filename
  * @param fmt format handle @see hogl_new_format_basic

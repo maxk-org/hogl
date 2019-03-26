@@ -55,6 +55,7 @@ struct hogl_engine_options {
 	hogl_mask_t  default_mask;
 	unsigned int polling_interval_usec;
 	unsigned int tso_buffer_capacity;
+	int          cpu;
 	unsigned int internal_ring_capacity; /* obsolete */
 };
 
