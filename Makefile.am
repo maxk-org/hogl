@@ -180,9 +180,9 @@ plugin_LTLIBRARIES = tests/libfmt-plugin_test.la
 AM_CPPFLAGS = -I include $(BOOST_CPPFLAGS)
 AM_CXXFLAGS = -pthread
 AM_CFLAGS   = -pthread
-LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) -lboost_regex $(CODE_COVERAGE_LDFLAGS)
+LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) $(CODE_COVERAGE_LDFLAGS)
 
-tests_affinity_test_SOURCES  = tests/affinity_test.cc 
+tests_affinity_test_SOURCES  = tests/affinity_test.cc
 tests_args_test_SOURCES  = tests/args_test.cc 
 tests_area_test_SOURCES  = tests/area_test.cc
 tests_mask_test_SOURCES  = tests/mask_test.cc
@@ -239,12 +239,12 @@ tools_hogl_recover_SOURCES  = \
 		tools/recovery-engine.hpp tools/recovery-engine.cc \
 		tools/recover.cc
 tools_hogl_recover_CPPFLAGS = -I include
-tools_hogl_recover_LDADD    = src/libhogl.la -lboost_regex $(HOGL_LIBS) $(LIBS)
+tools_hogl_recover_LDADD    = src/libhogl.la $(HOGL_LIBS) $(LIBS)
 
 tools_hogl_cook_SOURCES  = \
 		tools/rdbuf.hpp tools/rdbuf.cc \
 		tools/raw-parser.hpp tools/raw-parser.cc \
 		tools/cook.cc
 tools_hogl_cook_CPPFLAGS = -I include
-tools_hogl_cook_LDADD    = src/libhogl.la -lboost_regex $(HOGL_LIBS) $(LIBS)
+tools_hogl_cook_LDADD    = src/libhogl.la $(HOGL_LIBS) $(LIBS)
 endif
