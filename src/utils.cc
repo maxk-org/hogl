@@ -42,23 +42,7 @@
 namespace hogl
 {
 
-cpu_set_t set_cpu_masks(cpu_set_t cpuset, uint64_t core_id_mask) {
-   dprint("hogl::setaffinity core mask %lu", core_id_mask);
-   int bit = sizeof(core_id_mask) * CHAR_BIT - 1;
-   while (bit >= 0) {
-      if (core_id_mask & (1ULL << bit)) {
-         dprint("hogl::setaffinity core id is %d", bit);
-         CPU_SET(bit, &cpuset);
-      }
-      --bit;
-   }
-   return cpuset;
-}
-
-int setaffinity(pthread_t thread_id, uint64_t core_id_mask) {
-   cpu_set_t cpuset;
-   CPU_ZERO(&cpuset);
-   cpuset = set_cpu_masks(cpuset, core_id_mask);
+int setaffinity(pthread_t thread_id, cpu_set_t cpuset) {
    if (CPU_COUNT(&cpuset)) {
       return pthread_setaffinity_np(thread_id, sizeof(cpu_set_t), &cpuset);
    }

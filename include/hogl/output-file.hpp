@@ -83,7 +83,7 @@ public:
 		unsigned int max_age;           /// Max age of each file chunk (seconds)
 		unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
 		unsigned int buffer_capacity;   /// Max capacity of the output buffer (bytes)
-		uint64_t     cpu_affinity_mask; /// The CPU number to be used
+		cpu_set_t    cpu_affinity_mask; /// The CPU number to be used
 	};
 
 	// Default options

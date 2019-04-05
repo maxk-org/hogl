@@ -88,9 +88,10 @@ BOOST_AUTO_TEST_CASE(default_mask)
 		.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 		.internal_ring_capacity = 256,            // capacity of the internal ring buffer (number of records)
 		.features = 0,                            // default feature set
-		.cpu_affinity_mask = 1,                                // default CPU affinity
+		.cpu_affinity_mask = {0},                                // default CPU affinity
 		.timesource = 0,                          // timesource for this engine (0 means default timesource)
 	};
+	CPU_SET(1, &opts.cpu_affinity_mask);
 
 	hogl::engine eng(output, opts);
 

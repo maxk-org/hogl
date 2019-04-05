@@ -57,7 +57,7 @@ engine::options engine::default_options = {
 	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 	.internal_ring_capacity = 256,            // capacity of the internal ring buffer (number of records)
 	.features = 0,                            // default feature set
-	.cpu_affinity_mask = 0,                                // default CPU affinity
+	.cpu_affinity_mask = {0},                 // default CPU affinity
 	.timesource = 0,                          // timesource for this engine (0 means default timesource)
 };
 

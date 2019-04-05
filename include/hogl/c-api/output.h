@@ -64,12 +64,12 @@ hogl_output_t hogl_new_output_stderr(hogl_format_t fmt);
  *          to be reflected also here
  */
 struct hogl_output_options {
-	unsigned int perms;           /// File permissions
-	size_t       max_size;        /// Max size of each file chunk (bytes)
-	unsigned int max_age;         /// Max age of each file chunk (seconds)
-	unsigned int max_count;       /// Max file count. Index goes back to zero after it reaches max_count.
-	unsigned int buffer_capacity; /// Max capacity of the output buffer (bytes)
-	int          cpu;             /// The CPU number to be used
+	unsigned int perms;             /// File permissions
+	size_t       max_size;          /// Max size of each file chunk (bytes)
+	unsigned int max_age;           /// Max age of each file chunk (seconds)
+	unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
+	unsigned int buffer_capacity;   /// Max capacity of the output buffer (bytes)
+	cpu_set_t    cpu_affinity_mask; /// The CPU number to be used
 };
 
 /**

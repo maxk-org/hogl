@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(all_zero)
 {
     printf("all_zero test\n");
     pthread_t t = pthread_self();
-    uint64_t mask = 0;
+    cpu_set_t mask = {0};
     int ret = hogl::setaffinity(t, mask);
     if (ret) {
         printf("ret is %d %s\n", ret, strerror(errno));
@@ -49,24 +49,11 @@ BOOST_AUTO_TEST_CASE(first_and_third)
 {
     printf("first_and_third test\n");
     pthread_t t = pthread_self();
-    uint64_t mask = (1ULL << 0) | (1ULL << 2) ;
+    cpu_set_t mask = {0};
+    CPU_SET(0, &mask); CPU_SET(2, &mask) ;
     int ret = hogl::setaffinity(t, mask);
     if (ret) {
         printf("ret is %d %s\n", ret, strerror(errno));
     }
     BOOST_ASSERT(ret == 0);
-}
-
-BOOST_AUTO_TEST_CASE(cpuset_value)
-{
-    printf("cpuset_value test\n");
-    uint64_t mask = (1ULL << 0) | (1ULL << 2) ;
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    cpuset = hogl::set_cpu_masks(cpuset, mask);
-    BOOST_REQUIRE(CPU_COUNT(&cpuset) == 2);
-    int v = CPU_ISSET(0, &cpuset);
-    BOOST_REQUIRE(v == 1);
-    v = CPU_ISSET(2, &cpuset);
-    BOOST_REQUIRE(v == 1);
 }

@@ -32,6 +32,6 @@ namespace hogl
     
 // return non-zero on error
 // core_id < 0 would not do anything and just return 0
-int setaffinity(pthread_t thread_id, uint64_t core_id_mask);
+int setaffinity(pthread_t thread_id, cpu_set_t cpuset);
 
 } // hogl
