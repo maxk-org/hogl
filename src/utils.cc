@@ -42,11 +42,12 @@
 namespace hogl
 {
 
-int setaffinity(pthread_t thread_id, cpu_set_t cpuset) {
-   if (CPU_COUNT(&cpuset)) {
-      return pthread_setaffinity_np(thread_id, sizeof(cpu_set_t), &cpuset);
-   }
-   return 0;
+int setaffinity(pthread_t thread_id, cpu_set_t cpuset)
+{
+	if (CPU_COUNT(&cpuset)) {
+		return pthread_setaffinity_np(thread_id, sizeof(cpu_set_t), &cpuset);
+	}
+	return 0;
 }
 
 } // ns hogl

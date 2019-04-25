@@ -50,7 +50,8 @@ BOOST_AUTO_TEST_CASE(first_and_third)
     printf("first_and_third test\n");
     pthread_t t = pthread_self();
     cpu_set_t mask = {0};
-    CPU_SET(0, &mask); CPU_SET(2, &mask) ;
+    CPU_SET(0, &mask);
+    CPU_SET(2, &mask);
     int ret = hogl::setaffinity(t, mask);
     if (ret) {
         printf("ret is %d %s\n", ret, strerror(errno));
