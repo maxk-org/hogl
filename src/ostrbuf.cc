@@ -39,6 +39,7 @@
 
 #include <hogl/detail/ostrbuf.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
@@ -140,3 +141,5 @@ void ostrbuf::printf(const char* fmt, ...)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

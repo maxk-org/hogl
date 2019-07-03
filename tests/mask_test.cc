@@ -38,6 +38,8 @@
 #define BOOST_TEST_MODULE mask_test 
 #include <boost/test/included/unit_test.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 enum sect_id {
 	DEBUG,
 	INFO,

@@ -11,6 +11,8 @@
 #include "hogl/output-stderr.hpp"
 #include "hogl/format-basic.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // This test is basically an example of how to use HOGL with OpenMP.
 // Nothing special needs to be done for the default configuration
 // where OpenMP threads just use the default shared ring. However for 

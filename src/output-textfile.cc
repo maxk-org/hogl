@@ -32,6 +32,7 @@
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/output-textfile.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 output_textfile::output_textfile(const char *name, format &fmt, unsigned int buffer_capacity) :
@@ -54,3 +55,5 @@ output_textfile::~output_textfile()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

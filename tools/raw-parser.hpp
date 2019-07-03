@@ -37,6 +37,7 @@
 
 #include "rdbuf.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // RAW area.
@@ -143,5 +144,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_RAW_PARSER_HPP

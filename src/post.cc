@@ -26,6 +26,7 @@
 
 #include "hogl/detail/post.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 namespace post_impl {
 
@@ -109,3 +110,5 @@ __hogl_post_impl_attrs void locked(ringbuf *ring, const area *a, unsigned int s,
 
 } // namespace post_impl
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

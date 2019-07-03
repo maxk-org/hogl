@@ -35,6 +35,8 @@
 #include <hogl/flush.hpp>
 #include <hogl/engine.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 const unsigned int ONE_KB = 1024;
 const unsigned int ONE_MB = ONE_KB * 1024;
 const unsigned int ONE_GB = ONE_MB * 1024;

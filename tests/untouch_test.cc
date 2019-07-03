@@ -49,6 +49,8 @@
 #include "hogl/output-pipe.hpp"
 #include "hogl/output-file.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // Test engine
 class test_thread {
 private:

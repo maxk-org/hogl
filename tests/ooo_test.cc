@@ -44,6 +44,8 @@
 
 #define SKIP 77
 
+__HOGL_PRIV_NS_USING__;
+
 // Test output that verifies seq numbers
 class test_format : public hogl::format {
 private:

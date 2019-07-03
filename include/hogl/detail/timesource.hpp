@@ -37,6 +37,7 @@
 #include <hogl/detail/preproc.hpp>
 #include <hogl/detail/timestamp.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -74,5 +75,7 @@ protected:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_TIMESOURCE_HPP

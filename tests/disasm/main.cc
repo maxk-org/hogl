@@ -40,6 +40,8 @@
 #include "hogl/post.hpp"
 #include "hogl/c-api/area.h"
 
+__HOGL_PRIV_NS_USING__;
+
 enum test_sect_id {
 	TEST_INFO
 };

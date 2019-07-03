@@ -31,6 +31,7 @@
 #include "hogl/timesource.hpp"
 #include "hogl/post.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 timesource::timesource(const char *name, callback cb)
@@ -103,3 +104,5 @@ bool change_timesource(timesource *ts, unsigned int to_usec)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

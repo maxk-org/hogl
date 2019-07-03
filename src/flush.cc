@@ -36,6 +36,7 @@
  * Parts of the flush API
  */
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 bool timeout(uint64_t &to, uint64_t usec)
@@ -95,3 +96,5 @@ bool flush(unsigned int to_usec)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

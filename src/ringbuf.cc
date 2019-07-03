@@ -36,6 +36,7 @@
 #define dprint(a...)
 #endif
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 extern timesource default_timesource;
@@ -199,3 +200,5 @@ std::ostream& operator<< (std::ostream& s, const ringbuf& ring)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

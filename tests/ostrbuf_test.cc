@@ -37,6 +37,8 @@
 #define BOOST_TEST_MODULE ostrbuf_test 
 #include <boost/test/included/unit_test.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 class my_ostrbuf : public hogl::ostrbuf {
 private:
 	void dump(const char *how, const uint8_t* data, size_t len)

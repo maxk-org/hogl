@@ -42,6 +42,8 @@
 #include "hogl/post.hpp"
 #include "hogl/ring.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // Replacement default ring options.
 // Must be shared and immortal.
 hogl::ringbuf::options hogl::default_ring_options = {

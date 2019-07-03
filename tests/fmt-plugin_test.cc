@@ -1,6 +1,8 @@
 #include "hogl/format-basic.hpp"
 #include "hogl/plugin/format.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // Basic test for the loadable format plugin
 
 // Custom format handler

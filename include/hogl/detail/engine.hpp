@@ -44,6 +44,7 @@
 #include <hogl/detail/mask.hpp>
 #include <hogl/detail/timesource.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -240,5 +241,7 @@ std::ostream& operator<< (std::ostream& s, const engine::stats& stats);
 std::ostream& operator<< (std::ostream& s, const engine::options& opts);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_ENGINE_HPP

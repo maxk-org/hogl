@@ -42,6 +42,8 @@
 #include "hogl/post.hpp"
 #include "hogl/ring.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 enum test_sect_id {
 	TEST_DEBUG,
 	TEST_INFO,

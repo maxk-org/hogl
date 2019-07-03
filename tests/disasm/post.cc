@@ -27,6 +27,8 @@
 #include "hogl/detail/area.hpp"
 #include "hogl/post.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 extern hogl::area *test_area;
 
 void __attribute__((noinline)) post_cstr_no_args()

@@ -33,6 +33,7 @@
 
 #include <hogl/detail/format.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 namespace plugin {
 
@@ -47,5 +48,7 @@ extern "C" struct format {
 
 } // namespace plugin
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_PLUGIN_FORMAT_HPP

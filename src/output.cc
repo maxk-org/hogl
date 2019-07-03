@@ -38,6 +38,7 @@
 #include "hogl/detail/ostrbuf-null.hpp"
 #include "hogl/detail/output.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 void output::init(ostrbuf *sb)
@@ -60,3 +61,5 @@ output::~output()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

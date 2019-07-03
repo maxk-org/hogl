@@ -34,6 +34,7 @@
 #include <hogl/detail/ringbuf.hpp>
 #include <hogl/detail/timesource.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -65,5 +66,7 @@ bool change_timesource(ringbuf *r, timesource *ts, unsigned int to_usec = 100000
 bool change_timesource(timesource *ts, unsigned int to_usec = 10000000);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_TIMESOURCE_HPP

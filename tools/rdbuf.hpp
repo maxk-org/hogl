@@ -27,9 +27,12 @@
 #ifndef HOGL_RDBUF_HPP
 #define HOGL_RDBUF_HPP
 
+#include <hogl/detail/compiler.hpp>
+
 #include <stdint.h>
 #include <string>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Simple buffered reader interface
@@ -104,5 +107,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_RDBUF_HPP

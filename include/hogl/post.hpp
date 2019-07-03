@@ -40,6 +40,7 @@
 #include <hogl/detail/post.hpp>
 #include <hogl/tls.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -127,5 +128,7 @@ static hogl_force_inline void post_unlocked(
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_POST_HPP

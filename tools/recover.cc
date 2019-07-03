@@ -41,6 +41,8 @@
 #include "tools/coredump.hpp"
 #include "tools/recovery-engine.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // Command line args {
 static struct option main_lopts[] = {
    {"help",    0, 0, 'h'},

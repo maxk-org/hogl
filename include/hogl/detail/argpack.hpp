@@ -38,6 +38,7 @@
 #include <hogl/detail/args.hpp>
 #include <hogl/detail/preproc.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -173,5 +174,7 @@ struct argpack {
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_ARGPACK_HPP

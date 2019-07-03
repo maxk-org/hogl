@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <limits>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class raw_packer {
@@ -138,3 +139,5 @@ void format_raw::process(ostrbuf &sb, const format::data &d)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

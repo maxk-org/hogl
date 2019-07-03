@@ -31,6 +31,7 @@
 #ifndef HOGL_PLATFORM_HPP
 #define HOGL_PLATFORM_HPP
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 namespace platform {
 
@@ -50,5 +51,7 @@ bool enable_verbose_coredump();
 
 } // namespace platform
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_PLATFORM_HPP

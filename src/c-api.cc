@@ -47,6 +47,8 @@
 #include "hogl/c-api/engine.h"
 #include "hogl/c-api/tls.h"
 
+__HOGL_PRIV_NS_USING__;
+
 // ---- Area wrappers ----
 extern "C" bool hogl_area_test(const hogl_area_t _area, unsigned int sect)
 {

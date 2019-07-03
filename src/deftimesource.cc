@@ -28,6 +28,7 @@
 
 #include "hogl/detail/timesource.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Default 
@@ -47,3 +48,5 @@ static hogl::timestamp do_clock_gettime(const hogl::timesource *unused)
 timesource default_timesource("clock_gettime", do_clock_gettime);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

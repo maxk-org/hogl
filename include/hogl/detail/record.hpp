@@ -40,6 +40,7 @@
 #include <hogl/detail/argpack.hpp>
 #include <hogl/detail/preproc.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class area;
@@ -368,5 +369,7 @@ struct record {
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_RECORD_HPP

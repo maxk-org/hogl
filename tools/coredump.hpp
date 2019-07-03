@@ -27,6 +27,8 @@
 #ifndef HOGL_COREDUMP_H
 #define HOGL_COREDUMP_H
 
+#include <hogl/detail/compiler.hpp>
+
 #include <stdint.h>
 
 #include <string>
@@ -36,6 +38,7 @@
 
 #include <bfd.h>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -94,5 +97,7 @@ private:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif

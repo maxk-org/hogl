@@ -31,9 +31,12 @@
 #ifndef HOGL_DETAIL_INTERNAL_HPP
 #define HOGL_DETAIL_INTERNAL_HPP
 
+#include <hogl/detail/compiler.hpp>
+
 #include <stdint.h>
 #include <time.h>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 namespace internal {
@@ -69,5 +72,7 @@ enum special_records {
 } // namespace internal
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_INTERNAL_HPP

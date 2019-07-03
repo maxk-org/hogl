@@ -31,6 +31,9 @@
 #ifndef HOGL_DETAIL_REFCOUNT_HPP
 #define HOGL_DETAIL_REFCOUNT_HPP
 
+#include <hogl/detail/compiler.hpp>
+
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -96,5 +99,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_REFCOUNT_HPP

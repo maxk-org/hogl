@@ -43,6 +43,7 @@
 #define dprint(a...)
 #endif
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 struct mask::data {
@@ -190,3 +191,5 @@ mask::~mask()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

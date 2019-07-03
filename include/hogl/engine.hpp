@@ -33,6 +33,7 @@
 
 #include <hogl/detail/engine.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -64,5 +65,7 @@ void activate(output &out, const engine::options &engine_opts = engine::default_
 void deactivate();
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_ENGINE_HPP

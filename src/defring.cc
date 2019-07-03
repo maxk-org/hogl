@@ -28,6 +28,7 @@
 #include "hogl/detail/engine.hpp"
 #include "hogl/post.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Make it a weak symbol
@@ -44,3 +45,5 @@ ringbuf::options default_ring_options = {
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

@@ -187,6 +187,8 @@ void hogl_flush();
  */
 #include <hogl/post.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 #define hogl_post(a, s, args...) hogl::post(static_cast<const hogl::area *>(a), s, ##args)
 
 /**

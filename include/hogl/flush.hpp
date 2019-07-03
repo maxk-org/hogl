@@ -38,6 +38,7 @@
 #include <hogl/detail/timestamp.hpp>
 #include <hogl/detail/ringbuf.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /*
@@ -56,5 +57,7 @@ bool flush(ringbuf *r, unsigned int to_usec = 10000000);
 bool flush(unsigned int to_usec = 10000000);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_FLUSH_HPP

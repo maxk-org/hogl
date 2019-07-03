@@ -41,6 +41,7 @@
 #define dprint(a...)
 #endif
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 static const char *default_section_names[] = {
@@ -111,3 +112,5 @@ std::ostream& operator<< (std::ostream& s, const area& area)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

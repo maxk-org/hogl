@@ -34,6 +34,7 @@
 #include "hogl/tls.hpp"
 #include "hogl/post.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 /**
  * Per thread ring pointer
@@ -89,3 +90,5 @@ tls::~tls()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

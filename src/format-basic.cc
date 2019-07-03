@@ -35,6 +35,7 @@
 #include "hogl/area.hpp"
 #include "hogl/format-basic.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 format_basic::format_basic(uint32_t fields) :
@@ -546,3 +547,5 @@ void format_basic::process(ostrbuf &sb, const format::data &d)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

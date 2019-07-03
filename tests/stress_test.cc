@@ -53,6 +53,8 @@
 #include "hogl/timesource.hpp"
 #include "hogl/platform.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 // Burst data struct.
 // Used for storing burst data in the stress threads, and with RAW records.
 struct burst_data {

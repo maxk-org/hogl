@@ -45,6 +45,7 @@
 #include <boost/xpressive/xpressive.hpp>
 namespace bx = boost::xpressive;
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 struct mask::data {
@@ -188,3 +189,5 @@ mask::~mask()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

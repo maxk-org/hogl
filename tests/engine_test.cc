@@ -39,6 +39,8 @@
 #define BOOST_TEST_MODULE engine_test 
 #include <boost/test/included/unit_test.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 BOOST_AUTO_TEST_CASE(default_opts)
 {
 	hogl::format_basic  format;

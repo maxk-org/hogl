@@ -38,6 +38,8 @@
 #define BOOST_TEST_MODULE area_test 
 #include <boost/test/included/unit_test.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 BOOST_AUTO_TEST_CASE(basic)
 {
 	hogl::format_basic fmt0(

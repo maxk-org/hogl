@@ -37,6 +37,7 @@
 
 #include <hogl/detail/compiler.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -168,5 +169,7 @@ struct arg {
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_ARGS_HPP

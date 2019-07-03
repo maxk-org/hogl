@@ -26,6 +26,7 @@
 
 #include "hogl/detail/internal.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Section names.
@@ -44,3 +45,5 @@ const char *internal::section_names[] = {
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

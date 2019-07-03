@@ -31,6 +31,9 @@
 #ifndef HOGL_DETAIL_MAGIC_HPP
 #define HOGL_DETAIL_MAGIC_HPP
 
+#include <hogl/detail/compiler.hpp>
+
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 	/**
  	 * Magic signatures used for locating various HOGL objects in the coredumps.
@@ -71,5 +74,7 @@ namespace hogl {
 	};
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_MAGIC_HPP

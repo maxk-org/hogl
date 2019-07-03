@@ -31,6 +31,8 @@
 
 #include <boost/dynamic_bitset.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 extern hogl::area *test_area;
 
 enum {

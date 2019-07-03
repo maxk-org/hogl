@@ -37,6 +37,7 @@
 #include "hogl/platform.hpp"
 #include "hogl/post.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 namespace platform {
 
@@ -118,3 +119,5 @@ void set_thread_title(const char *str)
 
 } // namespace platform
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2019, Max Krasnyansky <max.krasnyansky@gmail.com> 
    All rights reserved.
    
    Redistribution and use in source and binary forms, with or without modification,
@@ -25,41 +25,21 @@
 */
 
 /**
- * @file hogl/detail/barrier.hpp
- * Compiler and memory barriers.
+ * @file hogl/detail/privns.h
+ * Macros and wrappers related to private namespace
  */
 
-#ifndef HOGL_DETAIL_BARRIER_HPP
-#define HOGL_DETAIL_BARRIER_HPP
+#ifndef HOGL_DETAIL_PRIVNS_HPP
+#define HOGL_DETAIL_PRIVNS_HPP
 
-#include <hogl/detail/compiler.hpp>
-
-__HOGL_PRIV_NS_OPEN__
-namespace hogl {
-namespace barrier {
-
-// We're using inline function here instead of #defines to avoid 
-// name space clashes.
-
-/**
- * Compiler barrier
- */
-static hogl_force_inline void compiler() { asm volatile("": : :"memory"); }
-
-#if (defined(__i386__) || defined(__x86_64__))
-#include <hogl/detail/barrier-x86.hpp>
-#elif (defined(__ARM_ARCH_7A__)) || (defined(__aarch64__))
-#include <hogl/detail/barrier-arm.hpp>
-#elif (defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || \
-      defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__))
-#include <hogl/detail/barrier-powerpc.hpp>
+#ifdef HOGL_PRIV_NS
+#define __HOGL_PRIV_NS_OPEN__  namespace HOGL_PRIV_NS {
+#define __HOGL_PRIV_NS_CLOSE__ } // namespace HOGL_PRIV_NS
+#define __HOGL_PRIV_NS_USING__ using namespace HOGL_PRIV_NS;
 #else
-#error Unsupported CPU
+#define __HOGL_PRIV_NS_OPEN__ 
+#define __HOGL_PRIV_NS_CLOSE__
+#define __HOGL_PRIV_NS_USING__
 #endif
 
-} // namespace barrier
-} // namespace hogl
-__HOGL_PRIV_NS_CLOSE__
-
-
-#endif // HOGL_DETAIL_BARRIER_HPP
+#endif // HOGL_DETAIL_PRIVNS_HPP

@@ -32,6 +32,8 @@
 #ifndef HOGL_DETAIL_COMPILER_HPP
 #define HOGL_DETAIL_COMPILER_HPP
 
+#include <hogl/detail/privns.hpp>
+
 // Note: Currently supported compilers are:
 // 	GCC 4.0 and above
 // 	Intel C++ compiler

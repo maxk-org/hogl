@@ -26,6 +26,8 @@
 
 #include "hogl/detail/ringbuf.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 void ring_push(hogl::ringbuf *ring)
 {
 	hogl::record *r = ring->push_begin();

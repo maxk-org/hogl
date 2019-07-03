@@ -43,6 +43,7 @@
 #include "raw-parser.hpp"
 #include "rdbuf.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 raw_area::raw_area() : hogl::area("dummy")
@@ -182,3 +183,5 @@ const hogl::format::data* raw_parser::next()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

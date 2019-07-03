@@ -49,6 +49,8 @@
 #define BOOST_TEST_MODULE c_api_test 
 #include <boost/test/included/unit_test.hpp>
 
+__HOGL_PRIV_NS_USING__;
+
 BOOST_AUTO_TEST_CASE(args)
 {
 	// Make sure argument types match

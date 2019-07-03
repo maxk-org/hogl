@@ -40,6 +40,7 @@
 
 #include <hogl/detail/compiler.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -173,5 +174,7 @@ private:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_OSTRBUF_HPP

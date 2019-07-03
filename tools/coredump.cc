@@ -36,6 +36,7 @@
 
 #include "tools/coredump.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 coredump::section::section(uint64_t _vma, unsigned long _size, bfd *b) :
@@ -288,3 +289,5 @@ void* coredump::remap(const void *ptr, unsigned long n)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

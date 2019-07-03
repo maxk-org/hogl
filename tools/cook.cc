@@ -46,6 +46,8 @@
 #include "raw-parser.hpp"
 #include "rdbuf.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 using hogl::raw_parser;
 
 unsigned int max_record_size = 10 * 1024 * 1024; // 10MB should be plenty for all cases

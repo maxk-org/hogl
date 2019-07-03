@@ -44,6 +44,7 @@
 #include "hogl/platform.hpp"
 #include "hogl/output-file.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class ostrbuf_file : public ostrbuf
@@ -405,3 +406,5 @@ void output_file::thread_loop()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

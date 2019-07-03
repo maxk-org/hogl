@@ -39,6 +39,7 @@
 
 #include "tools/coredump.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class recovery_engine 
@@ -90,5 +91,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif

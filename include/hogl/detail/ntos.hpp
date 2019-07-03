@@ -31,8 +31,11 @@
 #ifndef HOGL_DETAIL_NTOS_HPP
 #define HOGL_DETAIL_NTOS_HPP
 
+#include <hogl/detail/compiler.hpp>
+
 #include <stdint.h>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Simple "uint64_t to hex string" converter
@@ -74,5 +77,7 @@ static inline void u64tod(uint64_t v, uint8_t *str, unsigned int &i, unsigned in
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_NTOS_HPP

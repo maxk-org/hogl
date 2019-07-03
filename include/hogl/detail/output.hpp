@@ -35,6 +35,7 @@
 #include <hogl/detail/format.hpp>
 #include <hogl/detail/magic.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -108,5 +109,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_OUTPUT_HPP

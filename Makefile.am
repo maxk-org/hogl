@@ -53,6 +53,7 @@ incdet_HEADERS = \
 	include/hogl/detail/barrier.hpp \
 	include/hogl/detail/barrier-x86.hpp \
 	include/hogl/detail/compiler.hpp \
+	include/hogl/detail/privns.hpp \
 	include/hogl/detail/record.hpp \
 	include/hogl/detail/ringbuf.hpp \
 	include/hogl/detail/post.hpp \

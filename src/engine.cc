@@ -48,6 +48,7 @@
 #define dprint(a...)
 #endif
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 engine::options engine::default_options = {
@@ -884,3 +885,5 @@ void deactivate()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

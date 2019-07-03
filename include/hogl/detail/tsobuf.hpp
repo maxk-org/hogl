@@ -37,6 +37,7 @@
 #include <hogl/detail/timestamp.hpp>
 #include <hogl/detail/ringbuf.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -159,5 +160,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_TSOBUF_HPP

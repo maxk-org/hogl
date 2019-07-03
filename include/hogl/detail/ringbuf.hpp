@@ -49,6 +49,7 @@
 #include <hogl/detail/preproc.hpp>
 #include <hogl/detail/timesource.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class engine;
@@ -536,5 +537,7 @@ private:
 std::ostream& operator<< (std::ostream& s, const ringbuf& ring);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_RING_HPP

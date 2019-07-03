@@ -38,6 +38,7 @@
 
 #include <hogl/detail/area.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -93,5 +94,7 @@ std::ostream& operator<< (std::ostream& s, const mask& mask);
 std::istream& operator>> (std::istream &s, mask &mask);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_MASK_HPP

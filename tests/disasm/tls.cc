@@ -26,6 +26,8 @@
 
 #include "hogl/tls.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 extern hogl::area *test_area;
 
 int __attribute__((noinline)) tls_get_ring()

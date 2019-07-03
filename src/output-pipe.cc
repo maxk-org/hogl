@@ -30,6 +30,7 @@
 #include "hogl/detail/ostrbuf-stdio.hpp"
 #include "hogl/output-pipe.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 output_pipe::output_pipe(const char *command, format &fmt, unsigned int buffer_capacity) :
@@ -55,3 +56,5 @@ output_pipe::~output_pipe()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

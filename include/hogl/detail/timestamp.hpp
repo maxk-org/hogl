@@ -38,6 +38,7 @@
 
 #include <hogl/detail/compiler.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 class timestamp {
@@ -251,5 +252,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_TIMESTAMP_HPP

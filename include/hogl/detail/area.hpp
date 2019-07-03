@@ -37,6 +37,7 @@
 #include <hogl/detail/bitmap.hpp>
 #include <hogl/detail/magic.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -186,5 +187,7 @@ private:
 std::ostream& operator<< (std::ostream& s, const area& area);
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_AREA_HPP

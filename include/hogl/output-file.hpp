@@ -38,6 +38,7 @@
 #include <string>
 #include <cstring>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -161,5 +162,7 @@ private:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_OUTPUT_FILE_HPP

@@ -36,6 +36,7 @@
 
 #include <hogl/detail/ostrbuf.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -68,5 +69,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_OSTRBUF_NULL_HPP

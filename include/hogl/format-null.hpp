@@ -33,6 +33,7 @@
 
 #include <hogl/detail/format.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -45,5 +46,7 @@ public:
 };
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_FORMAT_NULL_HPP

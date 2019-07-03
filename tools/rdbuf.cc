@@ -38,6 +38,7 @@
 
 #include "rdbuf.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 file_rdbuf::file_rdbuf(const std::string &filename, unsigned int flags, unsigned int capacity) :
@@ -133,3 +134,5 @@ bool file_rdbuf::read(void *ptr, unsigned int len)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

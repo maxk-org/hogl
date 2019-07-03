@@ -34,6 +34,7 @@
 #include <hogl/detail/mask.hpp>
 #include <hogl/detail/engine.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 extern engine *default_engine;
@@ -48,5 +49,7 @@ static inline void apply_mask(const mask &m)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_MASK_HPP

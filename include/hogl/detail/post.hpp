@@ -39,6 +39,7 @@
 #include <hogl/detail/record.hpp>
 #include <hogl/detail/ringbuf.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 namespace post_impl {
@@ -54,5 +55,7 @@ void locked(ringbuf *ring, const area *a, unsigned int s, const argpack &ap);
 } // namespace post_impl
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_DETAIL_POST_HPP

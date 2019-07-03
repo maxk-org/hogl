@@ -31,10 +31,13 @@
 #ifndef HOGL_DETAIL_TYPES_HPP
 #define HOGL_DETAIL_TYPES_HPP
 
+#include <hogl/detail/compiler.hpp>
+
 #include <stdint.h>
 #include <string>
 #include <list>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
@@ -43,5 +46,7 @@ namespace hogl {
 typedef std::list<std::string> string_list;
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_TYPES_HPP

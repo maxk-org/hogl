@@ -37,6 +37,7 @@
 
 #include "hogl/detail/ostrbuf-stdio.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 void ostrbuf_stdio::do_flush(const uint8_t *data, size_t len)
@@ -71,3 +72,5 @@ ostrbuf_stdio::~ostrbuf_stdio()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

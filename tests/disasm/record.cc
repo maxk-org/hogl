@@ -27,6 +27,8 @@
 #include "hogl/detail/record.hpp"
 #include "hogl/detail/area.hpp"
 
+__HOGL_PRIV_NS_USING__;
+
 extern hogl::area *test_area;
 
 void __attribute__((noinline)) record_3_ints(hogl::record *r)

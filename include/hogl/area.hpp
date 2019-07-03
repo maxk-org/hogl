@@ -35,6 +35,7 @@
 #include <hogl/detail/area.hpp>
 #include <hogl/detail/engine.hpp>
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 extern engine *default_engine;
@@ -70,5 +71,7 @@ static inline void list_areas(string_list &l)
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
 
 #endif // HOGL_AREA_HPP

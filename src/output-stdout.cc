@@ -29,6 +29,7 @@
 #include "hogl/detail/ostrbuf-stdio.hpp"
 #include "hogl/output-stdout.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 output_stdout::output_stdout(format &fmt, unsigned int buffer_capacity) :
@@ -45,3 +46,5 @@ output_stdout::~output_stdout()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

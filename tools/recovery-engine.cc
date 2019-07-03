@@ -31,6 +31,7 @@
 
 #include "tools/recovery-engine.hpp"
 
+__HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Bitmap validation and fixup 
@@ -420,3 +421,5 @@ recovery_engine::~recovery_engine()
 }
 
 } // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
