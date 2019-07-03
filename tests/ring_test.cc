@@ -102,3 +102,63 @@ BOOST_AUTO_TEST_CASE(ring_ops)
 
 	ring->release();
 }
+
+void *run_blocking_thread(void *priv)
+{
+	hogl::ringbuf *ring = (hogl::ringbuf *) priv;
+	for (unsigned int i = 0; i < 100; i++)
+		hogl::push(ring, 0, 1, "push #%u", i);
+	return 0;
+}
+
+BOOST_AUTO_TEST_CASE(ring_block)
+{
+	hogl::ringbuf::options opts = { 0 };
+	opts.capacity = 64;
+	opts.flags = hogl::ringbuf::BLOCKING;
+
+	hogl::ringbuf *ring = new hogl::ringbuf("DUMMY", opts);
+	ring->hold();
+
+	BOOST_REQUIRE (ring->empty() == true);
+
+	pthread_t t;
+	if (pthread_create(&t, 0, run_blocking_thread, ring) < 0) {
+		perror("Failed to create test thread");
+		exit(1);
+	}
+
+	while (ring->room() != 0) 
+		usleep(100);
+
+	// At this point the test thread will have blocked
+
+	std::cout << *ring;
+
+	BOOST_REQUIRE (ring->size() == 63);
+	BOOST_REQUIRE (ring->dropcnt() == 0);
+	BOOST_REQUIRE (ring->seqnum() == 64);
+	BOOST_REQUIRE (ring->empty() != true);
+
+	// Call unblock without poping records (blocked thread must retry)
+	for (unsigned int i = 0; i < 100; i++)
+		ring->unblock();
+
+	// Pop records and unblock
+	unsigned int n = 0;
+	while (n != 100) {
+		hogl::record *r = ring->pop_begin();
+		if (!r)
+			continue;
+		ring->pop_commit();
+		ring->unblock();
+		n++;
+	}
+
+	pthread_join(t, NULL);
+
+	BOOST_REQUIRE (ring->dropcnt() == 0);
+	BOOST_REQUIRE (ring->seqnum() == 100);
+
+	ring->release();
+}

@@ -92,12 +92,17 @@ protected:
 	// Protects push in shared rings
    	pthread_mutex_t _mutex;
 
+	// Mutex and condition for blocked writers
+	pthread_mutex_t _block_mutex;
+	pthread_cond_t  _block_cond;
+	volatile bool   _block_active; /// At least one blocked writer
+
 	// Timesource
 	hogl::timesource* volatile _timesource;
 
 	// R/W access by the writer
 	// R/O access by the reader
-	vo_uint         _tail __attribute__ ((aligned(64)));
+	vo_uint         _tail; // __attribute__ ((aligned(64)));
 	uint64_t        _seqnum;
 	uint64_t        _dropcnt;
 
@@ -179,7 +184,10 @@ public:
 		IMMORTAL   = (1<<1),
 
 		/** Can be reused */
-		REUSABLE   = (1<<2)
+		REUSABLE   = (1<<2),
+
+		/** Writers will block if the ring is full */
+		BLOCKING   = (1<<3)
 	};
 
 	enum {
@@ -303,6 +311,11 @@ public:
 	bool reusable() const { return _flags & REUSABLE; }
 
 	/**
+	 * Check if the ring must never be deleted
+	 */
+	bool blocking() const { return _flags & BLOCKING; }
+
+	/**
 	 * Get the number of references to this ring
 	 */
 	int refcnt() const { return _refcnt.get(); }
@@ -381,6 +394,30 @@ public:
 			pthread_mutex_unlock(&_mutex);
 	}
 
+	/**
+	 * Block on full ring buffer. Writer's interface.
+	 */
+	void block()
+	{
+		pthread_mutex_lock(&_block_mutex);
+		_block_active = true;
+		pthread_cond_wait(&_block_cond, &_block_mutex);
+		pthread_mutex_unlock(&_block_mutex);
+	}
+
+	/**
+	 * Unblock waiting writer (if any). Reader's interface.
+	 */
+	void unblock()
+	{
+		if (hogl_unlikely(_block_active)) {
+			pthread_mutex_lock(&_block_mutex);
+			pthread_cond_signal(&_block_cond);
+			_block_active = false;
+			pthread_mutex_unlock(&_block_mutex);
+		}
+	}
+
 	// -------- Writer interface ---------
 	/**
 	 * Begin push transaction. Grabs tail item. Writer's interface.
@@ -393,15 +430,20 @@ public:
 	}
 
 	/**
-	 * Commit push transaction. Increments drop count if the ring is full.
+	 * Commit push transaction.
+	 * For non-blocking rings increments drop count if the ring is full,
+	 * otherwise blocks and waits for available room.
 	 * Writer's interface.
 	 */
 	void push_commit(bool bar = true)
 	{
 		unsigned int t = _tail;
-		if (hogl_unlikely(_head == t)) {
-			inc_dropcnt();
-			return;
+		while (hogl_unlikely(_head == t)) {
+			if (!blocking()) {
+				inc_dropcnt();
+				return;
+			}
+			block();
 		}
 		commit_tail((t + 1) & _capacity, bar);
 	}

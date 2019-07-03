@@ -468,6 +468,7 @@ void engine::process_rings_tso()
 			continue;
 		it.rewind(_ring_index(i)->lastrec);
 		it.commit(ringbuf::NOBARRIER);
+		it.ring()->unblock();
 		_ring_index(i)->lastrec = 0;
 	}
 }
@@ -488,6 +489,7 @@ void engine::process_rings_notso()
 		while ((r = it.next()))
 			flush_record(i, r);
 		it.commit();
+		it.ring()->unblock();
 
 		// Check for orphans and kill them.
 		// Only empty rings are killed.

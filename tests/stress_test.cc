@@ -208,6 +208,7 @@ private:
 	unsigned int    _nloops;
 	bool            _flush;
 	bool            _use_raw;
+	bool            _use_blocking;
 	bool            _use_cstr;
 
 	struct burst_data *_burst_data;
@@ -228,7 +229,7 @@ private:
 
 public:
 	test_thread(const char *name, unsigned int ring_capacity, unsigned int burst_size,
-				bool use_raw, bool use_cstr,
+				bool use_raw, bool use_blocking, bool use_cstr,
 				unsigned int interval_usec, unsigned int nloops, bool flush);
 	~test_thread();
 
@@ -251,7 +252,7 @@ const char *test_thread::_log_sections[] = {
 };
 
 test_thread::test_thread(const char *name, unsigned int ring_capacity, unsigned int burst_size,
-	bool use_raw, bool use_cstr,
+	bool use_raw, bool use_blocking, bool use_cstr,
 	unsigned int interval_usec, unsigned int nloops, bool flush) :
 	_name(name),
 	_running(true),
@@ -263,6 +264,7 @@ test_thread::test_thread(const char *name, unsigned int ring_capacity, unsigned 
 	_nloops(nloops),
 	_flush(flush),
 	_use_raw(use_raw),
+	_use_blocking(use_blocking),
 	_use_cstr(use_cstr),
 	_burst_data(0)
 {
@@ -319,6 +321,9 @@ void test_thread::loop()
 				(unsigned int) sizeof(burst_data) * _burst_size);
 	else
 		ring_opts.record_tailroom = 0;
+
+	if (_use_blocking)
+		ring_opts.flags |= hogl::ringbuf::BLOCKING;
 
 	hogl::tls tls(_name.c_str(), ring_opts);
 
@@ -397,6 +402,7 @@ static unsigned int output_buffer = 64 * 1024;
 static unsigned int rotate_size   = 1024 * 1024 * 1024;
 static bool         flush         = false;
 static bool         use_raw       = false;
+static bool         use_blocking  = false;
 static bool         use_cstr      = false;
 static int64_t      ts_badness    = 0;
 
@@ -414,7 +420,7 @@ int doTest()
 		char name[100];
 		sprintf(name, "THREAD%u", i);
 		hogl::post(main_logarea, MAIN_INFO, "starting thread #%u (%s)", i, name);
-		thread[i] = new test_thread(name, ring_capacity, burst_size, use_raw, use_cstr,
+		thread[i] = new test_thread(name, ring_capacity, burst_size, use_raw, use_blocking, use_cstr,
 						interval_usec, nloops, i == 0 ? flush : false);
 	}
 
@@ -457,6 +463,7 @@ static struct option main_lopts[] = {
    {"ring-size",   1, 0, 'r'},
    {"burst-size",  1, 0, 'b'},
    {"raw",         0, 0, 'W'},
+   {"blocking",    0, 0, 'w'},
    {"cstr",        0, 0, 'C'},
    {"interval",    1, 0, 'i'},
    {"nloops",      1, 0, 'l'},
@@ -469,7 +476,7 @@ static struct option main_lopts[] = {
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:R:n:r:b:i:l:p:N:T:O:FB:WC";
+static char main_sopts[] = "hf:o:R:n:r:b:wi:l:p:N:T:O:FB:WC";
 
 static char main_help[] =
    "Hogl stress test 0.1 \n"
@@ -485,6 +492,7 @@ static char main_help[] =
       "\t--ring -r <N>           Ring size (number of records)\n"
       "\t--burst-size -b <N>     Burst size (number of records)\n"
       "\t--raw -W                Use RAW records for bursting. Each record contains 'burst-size' number of entries\n"
+      "\t--blocking -w           Use Blocking mode for per-thread rings\n"
       "\t--cstr -C               Use CSTR instead of GSTR\n"
       "\t--interval -i <N>       Interval between bursts (in usec)\n"
       "\t--nloops -l <N>         Number of loops in each thread\n"
@@ -528,6 +536,10 @@ int main(int argc, char *argv[])
 
 		case 'W':
 			use_raw = true;
+			break;
+
+		case 'w':
+			use_blocking = true;
 			break;
 
 		case 'C':

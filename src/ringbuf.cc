@@ -74,7 +74,7 @@ static unsigned int __roundup_power2(unsigned int size)
  * Allocate ringbuf with specified options
  */
 ringbuf::ringbuf(const char *name, const options &opts) :
-	_refcnt(0)
+	_refcnt(0), _block_active(0)
 {
 	int err;
 
@@ -130,7 +130,15 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 		abort();
 	}
 
+	err = pthread_mutex_init(&_block_mutex, &mattr);
+	if (err) {
+		fprintf(stderr, "hogl::ring: failed to init ring block mutex. err %u\n", err);
+		abort();
+	}
+
 	pthread_mutexattr_destroy(&mattr);
+
+	pthread_cond_init(&_block_cond, NULL);
 
 	dprint("created ringbuf %p. name %s capacity %u prio %u", this, _name, _capacity, _prio);
 }
@@ -155,6 +163,11 @@ ringbuf::~ringbuf()
 
 	if (!empty())
 		fprintf(stderr, "hogl::ring: warning: destroying non-empty ringbuf %s(%p)\n", _name, this);
+
+
+	pthread_cond_destroy(&_block_cond);
+	pthread_mutex_destroy(&_block_mutex);
+	pthread_mutex_destroy(&_mutex);
 
 	dprint("destroyed ringbuf %p. name %s (empty %u)", this, _name, empty());
 
