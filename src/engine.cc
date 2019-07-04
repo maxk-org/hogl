@@ -82,7 +82,7 @@ void engine::add_internal_area()
 	_internal_area->enable(internal::TSOFULLMARK);
 
 	_area_map.insert(area_map::value_type(name, _internal_area));
-	_opts.default_mask.apply(_internal_area);
+	_mask.apply(_internal_area);
 }
 
 extern timesource default_timesource;
@@ -117,6 +117,7 @@ engine::engine(output &out, const engine::options &opts) :
 
 	memset(&_stats, 0, sizeof(_stats));
 
+	_mask = opts.default_mask;
 	add_internal_area();
 
 	dprint("created engine %p", this);
@@ -604,8 +605,8 @@ area *engine::add_area(const char *name, const char **sections)
 
 	if (s.second != false) {
 		// New area.
-		// Apply default mask before returning the area to the caller.
-		_opts.default_mask.apply(a);
+		// Apply current mask before returning the area to the caller.
+		_mask.apply(a);
 
 		hogl::post(internal_area(), internal::AREA_DEBUG,
 			"new area %s(%p): number-of-sections %u", a->name(), a, a->count());
@@ -741,6 +742,8 @@ void engine::apply_mask(const mask &m)
 {
 	pthread_mutex_lock(&_area_mutex);
 
+	_mask = m;
+
 	area_map::const_iterator it;
 	for (it = _area_map.begin(); it != _area_map.end(); ++it)
 		m.apply(it->second);
@@ -809,6 +812,10 @@ std::ostream& operator<< (std::ostream& s, const engine& engine)
 	s << "Default mask: " << std::endl;
 	s.width(4);
 	s << engine.get_options().default_mask;
+
+	s << "Current mask: " << std::endl;
+	s.width(4);
+	s << engine.get_mask();
 
 	s << "Stats: " << std::endl;
 	s.width(4);

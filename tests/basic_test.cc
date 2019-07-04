@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 	else
 		lo = new hogl::output_textfile(log_output.c_str(), *lf, output_bufsize);
 
-	hogl::mask logmask(".*", 0);
+	hogl::mask logmask(".*", ".*:DEBUG", 0);
 
 	hogl::activate(*lo);
 

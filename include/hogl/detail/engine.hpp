@@ -119,6 +119,9 @@ private:
 	area_map        _area_map;
 	mutable mutex   _area_mutex;
 
+	// Current mask
+	mask            _mask;
+
 	/**
 	 * Container for rings
 	 */
@@ -196,6 +199,11 @@ public:
  	 * Get engine options
  	 */
 	const options& get_options() const { return _opts; }
+
+	/**
+ 	 * Get current mask
+ 	 */
+	const mask& get_mask() const { return _mask; }
 
 	/**
 	 * Add new log area.
