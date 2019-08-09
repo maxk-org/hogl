@@ -23,15 +23,25 @@
    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+/**
+ * @file hogl/detail/utils.hpp
+ * Engine implementation details
+ */
+#ifndef HOGL_DETAIL_UTILS_HPP
+#define HOGL_DETAIL_UTILS_HPP
 
 #include <stdint.h> // uint64_t
 #include <pthread.h>
 
-namespace hogl
-{
-    
+#include <hogl/detail/compiler.hpp>
+
+__HOGL_PRIV_NS_OPEN__
+namespace hogl {
+ 
 // return non-zero on error
-// core_id < 0 would not do anything and just return 0
 int setaffinity(pthread_t thread_id, cpu_set_t cpuset);
 
-} // hogl
+} // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+
+#endif // HOGL_DETAIL_UTILS_HPP

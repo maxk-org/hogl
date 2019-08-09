@@ -33,14 +33,16 @@
 
 #include <climits>
 
+#include <hogl/detail/utils.hpp>
+
 #ifdef HOGL_DEBUG
 #define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
 #else
 #define dprint(a...)
 #endif
 
-namespace hogl
-{
+__HOGL_PRIV_NS_OPEN__
+namespace hogl {
 
 int setaffinity(pthread_t thread_id, cpu_set_t cpuset)
 {
@@ -50,4 +52,5 @@ int setaffinity(pthread_t thread_id, cpu_set_t cpuset)
 	return 0;
 }
 
-} // ns hogl
+} // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
