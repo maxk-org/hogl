@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2019, Max Krasnyansky <max.krasnyansky@gmail.com> 
    All rights reserved.
    
    Redistribution and use in source and binary forms, with or without modification,
@@ -24,53 +24,14 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @file hogl/c-api/engine.h
- * Top level C-API interface for the engine.
- */
-#ifndef HOGL_CAPI_ENGINE_H
-#define HOGL_CAPI_ENGINE_H
+#include <stdint.h> // uint64_t
+#include <pthread.h>
 
-#include <stdint.h>
-#include <stdbool.h>
+namespace hogl
+{
+    
+// return non-zero on error
+// core_id < 0 would not do anything and just return 0
+int setaffinity(pthread_t thread_id, cpu_set_t cpuset);
 
-#include <hogl/c-api/mask.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * Engine feature flags
- */ 	
-enum hogl_engine_features {
-	HOGL_DISABLE_TSO = (1<<0)
-};
-
-/**
- * Engine options.
- */
-struct hogl_engine_options {
-	unsigned int features;
-	hogl_mask_t  default_mask;
-	unsigned int polling_interval_usec;
-	unsigned int tso_buffer_capacity;
-	cpu_set_t    cpu_affinity_mask;
-	unsigned int internal_ring_capacity; /* obsolete */
-};
-
-/**
- * Activate default holg engine.
- */
-void hogl_activate(hogl_output_t out, struct hogl_engine_options *opts);
-
-/**
- * Deactivate default holg engine
- */
-void hogl_deactivate();
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
-#endif // HOGL_CAPI_ENGINE_H
+} // hogl

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2019, Max Krasnyansky <max.krasnyansky@gmail.com> 
    All rights reserved.
    
    Redistribution and use in source and binary forms, with or without modification,
@@ -24,53 +24,37 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @file hogl/c-api/engine.h
- * Top level C-API interface for the engine.
- */
-#ifndef HOGL_CAPI_ENGINE_H
-#define HOGL_CAPI_ENGINE_H
+#include "hogl/detail/utils.hpp"
 
-#include <stdint.h>
-#include <stdbool.h>
+#define BOOST_TEST_MODULE area_test 
+#include <boost/test/included/unit_test.hpp>
 
-#include <hogl/c-api/mask.h>
+namespace hogl {
+    cpu_set_t set_cpu_masks(cpu_set_t cpuset, uint64_t core_id_mask);
+}
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BOOST_AUTO_TEST_CASE(all_zero)
+{
+    printf("all_zero test\n");
+    pthread_t t = pthread_self();
+    cpu_set_t mask = {0};
+    int ret = hogl::setaffinity(t, mask);
+    if (ret) {
+        printf("ret is %d %s\n", ret, strerror(errno));
+    }
+    BOOST_ASSERT(ret == 0);
+}
 
-/**
- * Engine feature flags
- */ 	
-enum hogl_engine_features {
-	HOGL_DISABLE_TSO = (1<<0)
-};
-
-/**
- * Engine options.
- */
-struct hogl_engine_options {
-	unsigned int features;
-	hogl_mask_t  default_mask;
-	unsigned int polling_interval_usec;
-	unsigned int tso_buffer_capacity;
-	cpu_set_t    cpu_affinity_mask;
-	unsigned int internal_ring_capacity; /* obsolete */
-};
-
-/**
- * Activate default holg engine.
- */
-void hogl_activate(hogl_output_t out, struct hogl_engine_options *opts);
-
-/**
- * Deactivate default holg engine
- */
-void hogl_deactivate();
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
-#endif // HOGL_CAPI_ENGINE_H
+BOOST_AUTO_TEST_CASE(first_and_third)
+{
+    printf("first_and_third test\n");
+    pthread_t t = pthread_self();
+    cpu_set_t mask = {0};
+    CPU_SET(0, &mask);
+    CPU_SET(2, &mask);
+    int ret = hogl::setaffinity(t, mask);
+    if (ret) {
+        printf("ret is %d %s\n", ret, strerror(errno));
+    }
+    BOOST_ASSERT(ret == 0);
+}

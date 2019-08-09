@@ -96,12 +96,35 @@ void *run_thread(void *unused)
 	return NULL;
 }
 
-int main(void)
-{
+enum output_type {
+	STDOUT_OUTPUT_TYPE,
+	FILE_OUTPUT_TYPE
+};
+
+hogl_output_t get_output_file(hogl_format_t fmt, int output) {
+	static const char filename[] = "basic-c-api-test.log";
+	hogl_output_t out;
+
+	switch (output)
+	{
+		default:
+			printf("unknown output type\n");
+			abort();
+		case STDOUT_OUTPUT_TYPE:
+			out = hogl_new_output_stdout(fmt);
+			break;
+		case FILE_OUTPUT_TYPE:
+			out = hogl_new_output_file(filename, fmt, 0);
+			break;
+	}
+	return out;
+}
+
+void setup_and_run(int output) {
 	pthread_t thread;
 
 	hogl_format_t fmt = hogl_new_format_basic("timestamp|timedelta|ring|seqnum|area|section");
-	hogl_output_t out = hogl_new_output_stdout(fmt);
+	hogl_output_t out = get_output_file(fmt, output);
 
 	hogl_mask_t nodbg_mask = hogl_new_mask(".*:.*", "!.*:DEBUG", 0);
 	hogl_mask_t allon_mask = hogl_new_mask(".*:.*", 0);
@@ -157,6 +180,11 @@ int main(void)
 
 	hogl_delete_mask(nodbg_mask);
 	hogl_delete_mask(allon_mask);
+}
 
+int main(void)
+{
+	setup_and_run(STDOUT_OUTPUT_TYPE);
+	setup_and_run(FILE_OUTPUT_TYPE);
 	return 0;
 }
