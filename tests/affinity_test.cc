@@ -26,35 +26,33 @@
 
 #include "hogl/detail/utils.hpp"
 
-#define BOOST_TEST_MODULE area_test 
+#define BOOST_TEST_MODULE affinity_test 
 #include <boost/test/included/unit_test.hpp>
 
-namespace hogl {
-    cpu_set_t set_cpu_masks(cpu_set_t cpuset, uint64_t core_id_mask);
-}
+__HOGL_PRIV_NS_USING__;
 
 BOOST_AUTO_TEST_CASE(all_zero)
 {
-    printf("all_zero test\n");
-    pthread_t t = pthread_self();
-    cpu_set_t mask = {0};
-    int ret = hogl::setaffinity(t, mask);
-    if (ret) {
-        printf("ret is %d %s\n", ret, strerror(errno));
-    }
-    BOOST_ASSERT(ret == 0);
+	printf("all_zero test\n");
+	pthread_t t = pthread_self();
+	cpu_set_t mask = {0};
+	int ret = hogl::setaffinity(t, mask);
+	if (ret) {
+		printf("ret is %d %s\n", ret, strerror(errno));
+	}
+	BOOST_ASSERT(ret == 0);
 }
 
 BOOST_AUTO_TEST_CASE(first_and_third)
 {
-    printf("first_and_third test\n");
-    pthread_t t = pthread_self();
-    cpu_set_t mask = {0};
-    CPU_SET(0, &mask);
-    CPU_SET(2, &mask);
-    int ret = hogl::setaffinity(t, mask);
-    if (ret) {
-        printf("ret is %d %s\n", ret, strerror(errno));
-    }
-    BOOST_ASSERT(ret == 0);
+	printf("first_and_third test\n");
+	pthread_t t = pthread_self();
+	cpu_set_t mask = {0};
+	CPU_SET(0, &mask);
+	CPU_SET(2, &mask);
+	int ret = hogl::setaffinity(t, mask);
+	if (ret) {
+		printf("ret is %d %s\n", ret, strerror(errno));
+	}
+	BOOST_ASSERT(ret == 0);
 }
