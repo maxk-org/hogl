@@ -40,7 +40,6 @@
 #include <sstream>
 #include <iomanip>
 
-#include "hogl/detail/utils.hpp"
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/output-file.hpp"
@@ -219,7 +218,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
 		abort();
 	}
-	err = setaffinity(_rotate_thread, opts.cpu_affinity_mask);
+	err = platform::set_cpu_affinity(_rotate_thread, opts.cpu_affinity_mask);
 	if(err) {
 		fprintf(stderr, "hogl::output_file: failed to set affinity for helper thread. %d\n", err);
 		abort();

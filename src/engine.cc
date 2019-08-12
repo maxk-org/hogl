@@ -37,7 +37,6 @@
 #include <algorithm>
 
 #include "hogl/detail/internal.hpp"
-#include "hogl/detail/utils.hpp"
 #include "hogl/detail/engine.hpp"
 #include "hogl/detail/barrier.hpp"
 #include "hogl/platform.hpp"
@@ -130,7 +129,7 @@ engine::engine(output &out, const engine::options &opts) :
 		fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
 		abort();
 	}
-	err = setaffinity(_thread, _opts.cpu_affinity_mask);
+	err = platform::set_cpu_affinity(_thread, _opts.cpu_affinity_mask);
 	if (err) {
 		fprintf(stderr, "hogl::engine: failed to set affinity for engine thread. %d\n", err);
 		abort();

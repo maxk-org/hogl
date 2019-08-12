@@ -24,7 +24,7 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "hogl/detail/utils.hpp"
+#include "hogl/platform.hpp"
 
 #define BOOST_TEST_MODULE affinity_test 
 #include <boost/test/included/unit_test.hpp>
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(all_zero)
 	printf("all_zero test\n");
 	pthread_t t = pthread_self();
 	cpu_set_t mask = {0};
-	int ret = hogl::setaffinity(t, mask);
+	int ret = hogl::platform::set_cpu_affinity(t, mask);
 	if (ret) {
 		printf("ret is %d %s\n", ret, strerror(errno));
 	}
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(first_and_third)
 	cpu_set_t mask = {0};
 	CPU_SET(0, &mask);
 	CPU_SET(2, &mask);
-	int ret = hogl::setaffinity(t, mask);
+	int ret = hogl::platform::set_cpu_affinity(t, mask);
 	if (ret) {
 		printf("ret is %d %s\n", ret, strerror(errno));
 	}

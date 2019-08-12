@@ -24,6 +24,9 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <pthread.h>
+#include <hogl/detail/compiler.hpp>
+
 /**
  * @file hogl/platform.hpp
  * Platform specific features and functions.
@@ -49,9 +52,14 @@ void set_thread_title(const char *str);
  */
 bool enable_verbose_coredump();
 
+/**
+ * Set CPU affinity for the thread with specified id.
+ * return non-zero on error
+ */
+int set_cpu_affinity(pthread_t tid, cpu_set_t cpuset);
+
 } // namespace platform
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-
 
 #endif // HOGL_PLATFORM_HPP

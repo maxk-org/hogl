@@ -95,6 +95,14 @@ bool enable_verbose_coredump()
 	return false;
 }
 
+int set_cpu_affinity(pthread_t tid, cpu_set_t cpuset)
+{
+	if (CPU_COUNT(&cpuset)) {
+		return pthread_setaffinity_np(tid, sizeof(cpu_set_t), &cpuset);
+	}
+	return 0;
+}
+
 #if defined(__linux__) // OS
 
 #include <sys/prctl.h>

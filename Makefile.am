@@ -42,7 +42,6 @@ incdetdir = $(includedir)/hogl/detail
 incplugdir = $(includedir)/hogl/plugin
 inccapidir = $(includedir)/hogl/c-api
 incdet_HEADERS = \
-	include/hogl/detail/utils.hpp \
 	include/hogl/detail/types.hpp \
 	include/hogl/detail/magic.hpp \
 	include/hogl/detail/preproc.hpp \
@@ -116,7 +115,6 @@ src_libhogl_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread $(CODE_COVERAGE_C
 src_libhogl_la_LIBADD   = $(HOGL_LIBS)
 src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLAGS)
 src_libhogl_la_SOURCES  = \
-	src/utils.cc \
 	src/area.cc \
 	src/internal.cc \
 	src/ringbuf.cc \
