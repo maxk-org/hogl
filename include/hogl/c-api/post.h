@@ -83,45 +83,45 @@ do {									\
 			float    flt;						\
 		} un;								\
 		typeof (a) __hogl_x = (a);					\
-		const uint8_t *p = (const uint8_t *) &__hogl_x;			\
+		const uint8_t *__hogl_p = (const uint8_t *) &__hogl_x;			\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), float)) {	\
-			un.dbl = *(float *)p;					\
+			un.dbl = *(float *)__hogl_p;					\
 			args[i].type = HOGL_ARG_DOUBLE;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), double)) {	\
-			un.dbl = *(double *)p;					\
+			un.dbl = *(double *)__hogl_p;					\
 			args[i].type = HOGL_ARG_DOUBLE;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), uint64_t)) {\
-			un.u64 = *(uint64_t *)p;				\
+			un.u64 = *(uint64_t *)__hogl_p;				\
 			args[i].type = HOGL_ARG_UINT64;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), int64_t)) {	\
-			un.s64 = *(int64_t *)p;					\
+			un.s64 = *(int64_t *)__hogl_p;					\
 			args[i].type = HOGL_ARG_INT64;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), uint32_t)) {\
-			un.u64 = *(uint32_t *)p;				\
+			un.u64 = *(uint32_t *)__hogl_p;				\
 			args[i].type = HOGL_ARG_UINT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), int32_t)) {	\
-			un.s64 = *(int32_t *)p;					\
+			un.s64 = *(int32_t *)__hogl_p;					\
 			args[i].type = HOGL_ARG_INT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), uint16_t)) {\
-			un.u64 = *(uint16_t *)p;				\
+			un.u64 = *(uint16_t *)__hogl_p;				\
 			args[i].type = HOGL_ARG_UINT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), int16_t)) {	\
-			un.s64 = *(int16_t *)p;					\
+			un.s64 = *(int16_t *)__hogl_p;					\
 			args[i].type = HOGL_ARG_INT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), uint8_t)) {	\
-			un.u64 = *(uint8_t *)p;					\
+			un.u64 = *(uint8_t *)__hogl_p;					\
 			args[i].type = HOGL_ARG_UINT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), int8_t)) {	\
-			un.s64 = *(int8_t *)p;					\
+			un.s64 = *(int8_t *)__hogl_p;					\
 			args[i].type = HOGL_ARG_INT32;				\
 		} else								\
 		if (__builtin_types_compatible_p (typeof(__hogl_x), void *)) {	\
