@@ -52,6 +52,8 @@ incdet_HEADERS = \
 	include/hogl/detail/bitmap.hpp \
 	include/hogl/detail/barrier.hpp \
 	include/hogl/detail/barrier-x86.hpp \
+	include/hogl/detail/barrier-arm.hpp \
+	include/hogl/detail/barrier-powerpc.hpp \
 	include/hogl/detail/compiler.hpp \
 	include/hogl/detail/privns.hpp \
 	include/hogl/detail/record.hpp \
