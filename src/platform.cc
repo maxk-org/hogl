@@ -98,7 +98,12 @@ bool enable_verbose_coredump()
 int set_cpu_affinity(pthread_t tid, cpu_set_t cpuset)
 {
 	if (CPU_COUNT(&cpuset)) {
+#if defined(__ANDROID__)
+		post_early(internal::WARN, "set-affinity not supported");
+		return -1;
+#else
 		return pthread_setaffinity_np(tid, sizeof(cpu_set_t), &cpuset);
+#endif
 	}
 	return 0;
 }

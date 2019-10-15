@@ -120,7 +120,7 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 	pthread_mutexattr_t mattr;
 	pthread_mutexattr_init(&mattr);
 
-	#if (_POSIX_THREAD_PRIO_INHERIT - 0) >= 1
+	#if (_POSIX_THREAD_PRIO_INHERIT - 0) >= 1 && !defined(__ANDROID__)
 	pthread_mutexattr_setprotocol(&mattr, PTHREAD_PRIO_INHERIT);
 	#endif
 
