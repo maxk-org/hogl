@@ -7,8 +7,6 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	src/area.cc \
 	src/c-api.cc \
-	src/defring.cc \
-	src/deftimesource.cc \
 	src/engine.cc \
 	src/flush.cc \
 	src/format-basic.cc \
@@ -28,7 +26,10 @@ LOCAL_SRC_FILES := \
 	src/post.cc \
 	src/ringbuf.cc \
 	src/timesource.cc \
-	src/tls.cc
+	src/tls.cc \
+	src/default-ringopts.cc \
+	src/default-timesource.cc \
+	src/default-engine.cc
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include

@@ -24,26 +24,28 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "hogl/detail/internal.hpp"
-#include "hogl/detail/engine.hpp"
-#include "hogl/post.hpp"
+#include <time.h>
+
+#include "hogl/detail/timesource.hpp"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
+// Default 
+static hogl::timestamp do_clock_gettime(const hogl::timesource *unused)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return hogl::timestamp(ts);
+}
+
 // Make it a weak symbol
-#pragma weak default_ring_options
+#pragma weak default_timesource
 
 /**
- * Default shared ring options
+ * Default timesource instance
  */
-ringbuf::options default_ring_options = {
-	.capacity = 2048,
-	.prio = 0,
-	.flags = ringbuf::SHARED | ringbuf::IMMORTAL,
-	.record_tailroom = 80
-};
+timesource default_timesource("clock_gettime", do_clock_gettime);
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-

@@ -51,11 +51,11 @@
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
+// Defaults for engine options
 engine::options engine::default_options = {
 	.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0), // enable default sections in all areas
 	.polling_interval_usec = 10000,           // polling interval usec
 	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
-	.internal_ring_capacity = 256,            // capacity of the internal ring buffer (number of records)
 	.features = 0,                            // default feature set
 	.cpu_affinity_mask = {0},                 // default CPU affinity
 	.timesource = 0,                          // timesource for this engine (0 means default timesource)
@@ -815,11 +815,7 @@ std::ostream& operator<< (std::ostream& s, const engine& engine)
 	s.width(4);
 	s << engine.get_options();
 
-	s << "Default mask: " << std::endl;
-	s.width(4);
-	s << engine.get_options().default_mask;
-
-	s << "Current mask: " << std::endl;
+	s << "Mask: " << std::endl;
 	s.width(4);
 	s << engine.get_mask();
 
@@ -855,50 +851,5 @@ std::ostream& operator<< (std::ostream& s, const engine& engine)
 	return s;
 }
 
-// Default engine instance
-engine *default_engine;
-
-// Default ringbuf
-ringbuf default_ring("DEFAULT", default_ring_options);
-
-void activate(output &out, const engine::options &engine_opts)
-{
-	assert(default_engine == 0);
-
-	// Default ringbuf must be shared and immortal.
-	// We check here because user app is allowed to replace
-	// default options.
-	assert(default_ring.immortal() && default_ring.shared());
-
-	// Initialize default engine
-	engine *e = new engine(out, engine_opts);
-
-	// Indicate that default ring is in use
-	default_ring.hold();
-
-	// Register default shared ringbuf
-	e->add_ring(&default_ring);
-
-	default_engine = e;
-
-	// Call deactivate on exit
-	atexit(hogl::deactivate);
-}
-
-void deactivate()
-{
-	if (!default_engine)
-		return;
-
-	// Release the default ring.
-	// So that it becomes an orphan and the engine could
-	// drop it from its list.
-	default_ring.release();
-
-	delete default_engine;
-	default_engine = 0;
-}
-
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-

@@ -66,7 +66,6 @@ public:
 		mask         default_mask;
 		unsigned int polling_interval_usec;
 		unsigned int tso_buffer_capacity;
-		unsigned int internal_ring_capacity; // obsolete
 		unsigned int features;
 		cpu_set_t    cpu_affinity_mask; // CPU affinity
 		hogl::timesource  *timesource;

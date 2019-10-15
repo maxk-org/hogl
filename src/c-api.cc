@@ -96,7 +96,6 @@ extern "C" void hogl_activate(hogl_output_t _out, struct hogl_engine_options *_o
 		opts.polling_interval_usec = _opts->polling_interval_usec;
 		opts.features            = _opts->features;
 		opts.tso_buffer_capacity = _opts->tso_buffer_capacity;
-		opts.internal_ring_capacity = _opts->internal_ring_capacity;
 		if (_opts->default_mask) {
 			hogl::mask *mask = (hogl::mask *) _opts->default_mask;
 			opts.default_mask = *mask;

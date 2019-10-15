@@ -85,8 +85,16 @@ BOOST_AUTO_TEST_CASE(default_mask)
 	hogl::output_stderr output(format);
 
 	hogl::engine::options opts = {
-		.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0)
+		.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0),
+		.polling_interval_usec = 10000,           // polling interval usec
+		.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
+		.features = 0,                            // default feature set
+		.cpu_affinity_mask = {0},                 // default CPU affinity
+		.timesource = 0,                          // timesource for this engine (0 means default timesource)
 	};
+
+	// Set affinity mask
+	CPU_SET(1, &opts.cpu_affinity_mask);
 
 	hogl::engine eng(output, opts);
 

@@ -24,52 +24,25 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "hogl/detail/internal.hpp"
+#include "hogl/detail/engine.hpp"
+#include "hogl/post.hpp"
+
+__HOGL_PRIV_NS_OPEN__
+namespace hogl {
+
+// Make it a weak symbol
+#pragma weak default_ring_options
+
 /**
- * @file hogl/c-api/engine.h
- * Top level C-API interface for the engine.
+ * Default shared ring options
  */
-#ifndef HOGL_CAPI_ENGINE_H
-#define HOGL_CAPI_ENGINE_H
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <hogl/c-api/mask.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * Engine feature flags
- */ 	
-enum hogl_engine_features {
-	HOGL_DISABLE_TSO = (1<<0)
+ringbuf::options default_ring_options = {
+	.capacity = 2048,
+	.prio = 0,
+	.flags = ringbuf::SHARED | ringbuf::IMMORTAL,
+	.record_tailroom = 80
 };
 
-/**
- * Engine options.
- */
-struct hogl_engine_options {
-	unsigned int features;
-	hogl_mask_t  default_mask;
-	unsigned int polling_interval_usec;
-	unsigned int tso_buffer_capacity;
-	cpu_set_t    cpu_affinity_mask;
-};
-
-/**
- * Activate default holg engine.
- */
-void hogl_activate(hogl_output_t out, struct hogl_engine_options *opts);
-
-/**
- * Deactivate default holg engine
- */
-void hogl_deactivate();
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
-#endif // HOGL_CAPI_ENGINE_H
+} // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
