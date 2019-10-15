@@ -91,7 +91,7 @@ extern "C" void hogl_activate(hogl_output_t _out, struct hogl_engine_options *_o
 
 	struct hogl::engine::options opts(hogl::engine::default_options);
 	if (_opts) {
-		static_assert(sizeof(opts.cpu_affinity_mask) == sizeof(_opts->cpu_affinity_mask));
+		static_assert(sizeof(opts.cpu_affinity_mask) == sizeof(_opts->cpu_affinity_mask),"");
 		std::memcpy(&opts.cpu_affinity_mask, &_opts->cpu_affinity_mask, sizeof(_opts->cpu_affinity_mask));
 		opts.polling_interval_usec = _opts->polling_interval_usec;
 		opts.features            = _opts->features;
@@ -189,7 +189,7 @@ extern "C" hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _f
 		opts.max_age = _opts->max_age;
 		opts.max_count = _opts->max_count;
 		opts.buffer_capacity = _opts->buffer_capacity;
-		static_assert(sizeof(opts.cpu_affinity_mask) == sizeof(_opts->cpu_affinity_mask));
+		static_assert(sizeof(opts.cpu_affinity_mask) == sizeof(_opts->cpu_affinity_mask),"");
 		std::memcpy(&opts.cpu_affinity_mask, &_opts->cpu_affinity_mask, sizeof(_opts->cpu_affinity_mask));
 	}
 	hogl::format *fmt = (hogl::format *) _fmt;
