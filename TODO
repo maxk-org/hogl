@@ -1,26 +1,9 @@
 ----
-Medim priority:
 - Document all the tunables
 
 - Improvements to hogl-recover tool
   o Use mmap() instead of reading entire corefile
   o Support for loading shared libraries
-
-- Update to C++11
-
-----
-Low priority:
-- Improve C-API performance
-
-- Engine should use condition variable instead of a simple sleep.
-  This would allow app threads to wake up the engine if needed.
-
-----
-Ideas:
-- Consider using area id instead of the pointer
-  Requires safe and fast access for mapping id back to pointer.
-
-- Separate output file per ring (as an option)
 
 - Consider supporting something like this 
   hogl::stream(my_area, my_section) hs;
