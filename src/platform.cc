@@ -106,6 +106,9 @@ int set_cpu_affinity(pthread_t tid, const std::string& cpuset_str)
 	cpu_set_t cpuset;
 	CPU_ZERO(&cpuset);
 
+	if (cpuset_str.empty())
+		return 0;
+
 	// FIXME: add support for lists and Linux kernel cpusets
 	unsigned long long mask = std::stoull(cpuset_str, 0, 0);
 	for (unsigned int i=0; i < 64; i++)
