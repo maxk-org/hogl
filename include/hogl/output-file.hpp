@@ -84,7 +84,7 @@ public:
 		unsigned int max_age;           /// Max age of each file chunk (seconds)
 		unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
 		unsigned int buffer_capacity;   /// Max capacity of the output buffer (bytes)
-		cpu_set_t    cpu_affinity_mask; /// The CPU number to be used
+		std::string  cpu_affinity;      /// The CPU mask or list to use for rotation thread
 	};
 
 	// Default options

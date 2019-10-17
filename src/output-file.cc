@@ -92,7 +92,7 @@ output_file::options output_file::default_options = {
 	.max_age = 0, /// Unlimited
 	.max_count = 128,
 	.buffer_capacity = 8192,
-	.cpu_affinity_mask = {0}
+	.cpu_affinity = std::string()
 };
 
 std::string output_file::name() const
@@ -218,7 +218,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
 		abort();
 	}
-	err = platform::set_cpu_affinity(_rotate_thread, opts.cpu_affinity_mask);
+	err = platform::set_cpu_affinity(_rotate_thread, opts.cpu_affinity);
 	if(err) {
 		fprintf(stderr, "hogl::output_file: failed to set affinity for helper thread. %d\n", err);
 		abort();

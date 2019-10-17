@@ -27,6 +27,8 @@
 #include <pthread.h>
 #include <hogl/detail/compiler.hpp>
 
+#include <string>
+
 /**
  * @file hogl/platform.hpp
  * Platform specific features and functions.
@@ -55,8 +57,10 @@ bool enable_verbose_coredump();
 /**
  * Set CPU affinity for the thread with specified id.
  * return non-zero on error
+ * Currently only simple hex masks are supported, eventually this
+ * method will support CPU lists with ranges.
  */
-int set_cpu_affinity(pthread_t tid, cpu_set_t cpuset);
+int set_cpu_affinity(pthread_t tid, const std::string& cpuset);
 
 } // namespace platform
 } // namespace hogl

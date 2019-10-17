@@ -67,7 +67,7 @@ public:
 		unsigned int polling_interval_usec;
 		unsigned int tso_buffer_capacity;
 		unsigned int features;
-		cpu_set_t    cpu_affinity_mask; // CPU affinity
+		std::string  cpu_affinity; // CPU affinity
 		hogl::timesource  *timesource;
 	};
 

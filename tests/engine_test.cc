@@ -89,12 +89,11 @@ BOOST_AUTO_TEST_CASE(default_mask)
 		.polling_interval_usec = 10000,           // polling interval usec
 		.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 		.features = 0,                            // default feature set
-		.cpu_affinity_mask = {0},                 // default CPU affinity
 		.timesource = 0,                          // timesource for this engine (0 means default timesource)
 	};
 
 	// Set affinity mask
-	CPU_SET(1, &opts.cpu_affinity_mask);
+	opts.cpu_affinity = std::to_string(0x1);
 
 	hogl::engine eng(output, opts);
 

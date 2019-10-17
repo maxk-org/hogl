@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(all_zero)
 {
 	printf("all_zero test\n");
 	pthread_t t = pthread_self();
-	cpu_set_t mask = {0};
+	std::string mask;
 	int ret = hogl::platform::set_cpu_affinity(t, mask);
 	if (ret) {
 		printf("ret is %d %s\n", ret, strerror(errno));
@@ -47,10 +47,7 @@ BOOST_AUTO_TEST_CASE(first_and_third)
 {
 	printf("first_and_third test\n");
 	pthread_t t = pthread_self();
-	cpu_set_t mask = {0};
-	CPU_SET(0, &mask);
-	CPU_SET(2, &mask);
-	int ret = hogl::platform::set_cpu_affinity(t, mask);
+	int ret = hogl::platform::set_cpu_affinity(t, std::to_string((1<<0) | (1<<2)));
 	if (ret) {
 		printf("ret is %d %s\n", ret, strerror(errno));
 	}

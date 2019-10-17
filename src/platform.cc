@@ -32,6 +32,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <string>
+
 #include "hogl/detail/internal.hpp"
 #include "hogl/detail/engine.hpp"
 #include "hogl/platform.hpp"
@@ -95,17 +97,21 @@ bool enable_verbose_coredump()
 	return false;
 }
 
-int set_cpu_affinity(pthread_t tid, cpu_set_t cpuset)
+int set_cpu_affinity(pthread_t tid, const std::string& cpuset_str)
 {
-	if (CPU_COUNT(&cpuset)) {
-#if defined(__ANDROID__)
-		post_early(internal::WARN, "set-affinity not supported");
-		return -1;
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
+	post_early(internal::WARN, "set-affinity not supported");
+	return -1;
 #else
-		return pthread_setaffinity_np(tid, sizeof(cpu_set_t), &cpuset);
+	cpu_set_t cpuset;
+	CPU_ZERO(&cpuset);
+
+	// FIXME: add support for lists and Linux kernel cpusets
+	unsigned long long mask = std::stoull(cpuset_str, 0, 0);
+	for (unsigned int i=0; i < 64; i++)
+		if (mask & (1<<i)) CPU_SET(i, &cpuset);
+	return pthread_setaffinity_np(tid, sizeof(cpu_set_t), &cpuset);
 #endif
-	}
-	return 0;
 }
 
 #if defined(__linux__) // OS
