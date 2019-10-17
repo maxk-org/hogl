@@ -101,7 +101,7 @@ int set_cpu_affinity(pthread_t tid, const std::string& cpuset_str)
 {
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
 	post_early(internal::WARN, "set-affinity not supported");
-	return -1;
+	return 0;
 #else
 	cpu_set_t cpuset;
 	CPU_ZERO(&cpuset);

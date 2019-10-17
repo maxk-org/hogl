@@ -24,6 +24,7 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "hogl/detail/compiler.hpp"
 #include "hogl/detail/internal.hpp"
 #include "hogl/detail/engine.hpp"
 #include "hogl/post.hpp"
@@ -31,13 +32,10 @@
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
-// Make it a weak symbol
-#pragma weak default_ring_options
-
 /**
  * Default shared ring options
  */
-ringbuf::options default_ring_options = {
+ringbuf::options hogl_weak_symbol default_ring_options = {
 	.capacity = 2048,
 	.prio = 0,
 	.flags = ringbuf::SHARED | ringbuf::IMMORTAL,

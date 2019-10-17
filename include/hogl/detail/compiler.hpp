@@ -38,6 +38,7 @@
 // 	GCC 4.0 and above
 // 	Intel C++ compiler
 // 	Clang 3.0 and above
+// FIXME: switch to C++11 attributes
 
 // Branch likelihood hints
 #define hogl_likely(x)    __builtin_expect(!!(x), 1)
@@ -46,11 +47,8 @@
 // Forced inlining 
 #define hogl_force_inline inline __attribute__ ((always_inline))
 
-// Forced out of lining 
-#define hogl_force_outofline __attribute__ ((noinline))
-
 // Don't warn about unused function
-#define hogl_maybe_unused __attribute__ ((unused))
+#define hogl_weak_symbol __attribute__ ((weak))
 
 // Frequently used function
 #ifdef __clang__

@@ -39,13 +39,10 @@ static hogl::timestamp do_clock_gettime(const hogl::timesource *unused)
 	return hogl::timestamp(ts);
 }
 
-// Make it a weak symbol
-#pragma weak default_timesource
-
 /**
  * Default timesource instance
  */
-timesource default_timesource("clock_gettime", do_clock_gettime);
+timesource hogl_weak_symbol default_timesource("clock_gettime", do_clock_gettime);
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
