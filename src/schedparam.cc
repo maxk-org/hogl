@@ -117,10 +117,8 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 	CPU_ZERO_S(nbytes, cpuset);
 
 	err = parse_cpu_affinity(cpuset_str, nbytes, cpuset);
-	if (!err && !dryrun) {
+	if (!err && !dryrun)
 		err = sched_setaffinity(0 /* curr thread */, nbytes, cpuset);
-		std::cout << "affinity apply \n";
-	}
 
 	CPU_FREE(cpuset);
 	return err;
@@ -131,7 +129,8 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 {
 	platform::post_early(internal::WARN, "cpu-affinity not supported on this platform");
-	return 0; // just warn but don't fail
+	errno = ENOSUP;
+	return -1;
 }
 
 #endif // if linux

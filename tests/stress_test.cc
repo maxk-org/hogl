@@ -471,12 +471,14 @@ static struct option main_lopts[] = {
    {"tso-buffer",  1, 0, 'T'},
    {"output-buffer",  1, 0, 'O'},
    {"poll-interval",  1, 0, 'p'},
+   {"eng-cpu-affi",   1, 0, 'A'},
+   {"eng-prio",    1, 0, 'P'},
    {"flush",       0, 0, 'F'},
    {"ts-badness",  1, 0, 'B'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:R:n:r:b:wi:l:p:N:T:O:FB:WC";
+static char main_sopts[] = "hf:o:R:n:r:b:wi:l:p:N:T:O:A:P:FB:WC";
 
 static char main_help[] =
    "Hogl stress test 0.1 \n"
@@ -500,6 +502,8 @@ static char main_help[] =
       "\t--tso-buffer -T <N>     TSO buffer size (number of records)\n"
       "\t--output-buffer -O <N>  Output buffer size (number of bytes)\n"
       "\t--flush -F              Make one of the threads call flush every iteration\n"
+      "\t--eng-cpu-affi -A <A>   Set hogl::engine CPU affinity\n"
+      "\t--eng-prio -P <N>       Set hogl::engine scheduling priority (with SCHED_FIFO)\n"
       "\t--ts-badness -B <N>     Timesource badness N (0 - perfect, +/- badness delta)\n";
 // }
 
@@ -576,6 +580,16 @@ int main(int argc, char *argv[])
 
 		case 'B':
 			ts_badness = strtol(optarg, 0, 0);
+			break;
+
+		case 'P':
+			log_eng_opts.schedparam.priority = strtol(optarg, 0, 0);
+			if (log_eng_opts.schedparam.priority)
+				log_eng_opts.schedparam.policy = SCHED_FIFO;
+			break;
+
+		case 'A':
+			log_eng_opts.schedparam.cpu_affinity = optarg;
 			break;
 
 		case 'h':
