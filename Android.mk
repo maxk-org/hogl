@@ -13,6 +13,7 @@ LOCAL_SRC_FILES := \
 	src/format-raw.cc \
 	src/internal.cc \
 	src/mask.cc \
+	src/schedparam.cc \
 	src/ostrbuf.cc \
 	src/ostrbuf-fd.cc \
 	src/ostrbuf-stdio.cc \
