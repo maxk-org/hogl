@@ -32,7 +32,7 @@
 #include "hogl/output-file.hpp"
 #include "hogl/output-stdout.hpp"
 #include "hogl/output-stderr.hpp"
-#include "hogl/output-textfile.hpp"
+#include "hogl/output-plainfile.hpp"
 #include "hogl/output-pipe.hpp"
 #include "hogl/post.hpp"
 #include "hogl/flush.hpp"
@@ -198,10 +198,10 @@ extern "C" hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _f
 }
 
 
-extern "C" hogl_output_t hogl_new_output_textfile(const char *name, hogl_format_t _fmt)
+extern "C" hogl_output_t hogl_new_output_plainfile(const char *name, hogl_format_t _fmt)
 {
 	hogl::format *fmt = (hogl::format *) _fmt;
-	hogl::output_textfile *out = new hogl::output_textfile(name, *fmt);
+	hogl::output_plainfile *out = new hogl::output_plainfile(name, *fmt);
 	return out;
 }
 

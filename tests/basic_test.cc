@@ -37,8 +37,9 @@
 #include "hogl/format-raw.hpp"
 #include "hogl/output-stdout.hpp"
 #include "hogl/output-stderr.hpp"
-#include "hogl/output-textfile.hpp"
+#include "hogl/output-plainfile.hpp"
 #include "hogl/output-pipe.hpp"
+#include "hogl/output-tee.hpp"
 #include "hogl/engine.hpp"
 #include "hogl/area.hpp"
 #include "hogl/mask.hpp"
@@ -302,16 +303,31 @@ int doTest()
 	return 0;
 }
 
+hogl::output* create_output(std::string& out, hogl::format& fmt, size_t bufsize)
+{
+	if (out == "stderr")
+		return new hogl::output_stderr(fmt, bufsize);
+
+	if (out == "stdout")
+		return new hogl::output_stdout(fmt, bufsize);
+
+	if (out[0] == '|')
+		return new hogl::output_pipe(out.substr(1).c_str(), fmt, bufsize);
+
+	return new hogl::output_plainfile(out.c_str(), fmt, bufsize);
+}
+
 // Command line args {
 static struct option main_lopts[] = {
    {"help",    0, 0, 'h'},
    {"format",  1, 0, 'f'},
    {"output",  1, 0, 'o'},
+   {"tee",     1, 0, 't'},
    {"output-bufsize", 1, 0, 'O'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:O:";
+static char main_sopts[] = "hf:o:O:t:";
 
 static char main_help[] =
    "HOGL basic test 0.1 \n"
@@ -320,13 +336,15 @@ static char main_help[] =
    "Options:\n"
       "\t--help -h            Display help text\n"
       "\t--format -f <name>   Log format (basic, raw)\n"
-      "\t--output -o <name>        Log output (file name, stderr, pipe)\n"
+      "\t--output -o <name>   Log output: file name, stdout, stderr, pipe\n"
+      "\t--tee -t <name>      Tee the main output into: file name, stderr, stderror, pipe\n"
       "\t--output-bufsize -O <N>   Output buffer size (in bytes)\n";
 // }
 
 int main(int argc, char *argv[])
 {
 	std::string log_output("stdout");
+	std::string log_tee;
 	std::string log_format("fast1");
 	unsigned int output_bufsize = 10 * 1024 * 1024;
 	int opt;
@@ -341,7 +359,11 @@ int main(int argc, char *argv[])
 		case 'o':
 			log_output = optarg;
 			break;
-	
+
+		case 't':
+			log_tee = optarg;
+			break;
+
 		case 'O':
 			output_bufsize = atoi(optarg);
 			break;
@@ -361,26 +383,25 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	hogl::format *lf;
-	hogl::output *lo;
+	hogl::format *lf = 0;
+	hogl::output *lo[3] = { 0, 0, 0 };
 
 	if (log_format == "raw")
 		lf = new hogl::format_raw();
 	else
 		lf = new hogl::format_basic(log_format.c_str());
 
-	if (log_output == "stderr")
-		lo = new hogl::output_stderr(*lf, output_bufsize);
-	else if (log_output == "stdout")
-		lo = new hogl::output_stdout(*lf, output_bufsize);
-	else if (log_output[0] == '|')
-		lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_bufsize);
-	else
-		lo = new hogl::output_textfile(log_output.c_str(), *lf, output_bufsize);
+	if (log_tee.empty()) {
+		lo[0] = create_output(log_output, *lf, output_bufsize);
+	} else {
+		lo[1] = create_output(log_output, *lf, 0);
+		lo[2] = create_output(log_tee, *lf, 0);
+		lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
+	}
 
 	hogl::mask logmask(".*", ".*:DEBUG", 0);
 
-	hogl::activate(*lo);
+	hogl::activate(*lo[0]);
 
 	test_area = hogl::add_area("TEST-AREA", test_sect_names);
 
@@ -411,7 +432,7 @@ int main(int argc, char *argv[])
 
 	hogl::deactivate();
 
-	delete lo;
+	for (auto o : lo) delete o;
 	delete lf;
 
 	printf("Passed\n");

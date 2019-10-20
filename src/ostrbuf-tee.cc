@@ -24,36 +24,61 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <unistd.h>
 #include <stdio.h>
-#include <fcntl.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <unistd.h>
 #include <errno.h>
+#include <sys/uio.h>
 
-#include "hogl/detail/ostrbuf-fd.hpp"
-#include "hogl/output-textfile.hpp"
+#include <string>
+
+#include "hogl/detail/compiler.hpp"
+#include "hogl/detail/ostrbuf-tee.hpp"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
-output_textfile::output_textfile(const char *name, format &fmt, unsigned int buffer_capacity) :
-	output(fmt)
+bool ostrbuf_tee::failed() const
 {
-	int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	if (fd < 0) {
-		fprintf(stderr, "hogl::output_textfile: failed to open %s for writing. %s(%d)\n", name, strerror(errno), errno);
-		abort();
-	}
-
-	init(new ostrbuf_fd(fd, ostrbuf_fd::CLOSE_ON_DELETE, buffer_capacity));
-
-	output::header(name);
+	return (_o0->failed() || _o1->failed());
 }
 
-output_textfile::~output_textfile()
+const char* ostrbuf_tee::error() const 
 {
-	output::footer();
+	return _o0->failed() ? _o0->error() : _o1->error();
+}
+
+void ostrbuf_tee::do_flush(const uint8_t *data, size_t len)
+{
+	if (failed())
+		return;
+
+	// Flush buffered data
+	if (_size) {
+		_o0->flush(_data, _size);
+		_o1->flush(_data, _size);
+	}
+
+	// Flush un-buffered data
+	if (len) {
+		_o0->flush(data, len);
+		_o1->flush(data, len);
+	}
+
+	this->reset();
+}
+
+ostrbuf_tee::ostrbuf_tee(ostrbuf* o0, ostrbuf* o1, unsigned int buffer_capacity) :
+	ostrbuf(buffer_capacity), _o0(o0), _o1(o1)
+{ }
+
+ostrbuf_tee::~ostrbuf_tee()
+{
+	// We don't own underlying ostrbufs
 }
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-

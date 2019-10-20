@@ -84,12 +84,12 @@ struct hogl_output_options {
 hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _fmt, struct hogl_output_options *opts);
 
 /**
- * Allocate new textfile output handler.
+ * Allocate new plainfile output handler.
  * @param name filename
  * @param fmt format handle @see hogl_new_format_basic
  * @return new format handle, or zero on failure
  */
-hogl_output_t hogl_new_output_textfile(const char *name, hogl_format_t fmt);
+hogl_output_t hogl_new_output_plainfile(const char *name, hogl_format_t fmt);
 
 /**
  * Allocate new pipe output handler.

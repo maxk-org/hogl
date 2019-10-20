@@ -24,60 +24,36 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <unistd.h>
 #include <stdio.h>
-#include <string.h>
-#include <errno.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <getopt.h>
-#include <sys/time.h>
+#include <errno.h>
 
-#include "hogl/format-basic.hpp"
-#include "hogl/output-stderr.hpp"
-#include "hogl/engine.hpp"
-#include "hogl/area.hpp"
-#include "hogl/post.hpp"
-#include "hogl/c-api/area.h"
+#include "hogl/detail/ostrbuf-fd.hpp"
+#include "hogl/output-plainfile.hpp"
 
-__HOGL_PRIV_NS_USING__;
+__HOGL_PRIV_NS_OPEN__
+namespace hogl {
 
-enum test_sect_id {
-	TEST_INFO
-};
-
-static const char *test_sect_names[] = {
-	"INFO",
-	0,
-};
-
-hogl::area *test_area;
-hogl_area_t c_api_area;
-
-extern void init_record(hogl::record *r);
-extern void init_post(hogl::record *r);
-extern void init_tls();
-extern void init_bitmap();
-extern "C" void init_c_api_post();
-
-int main(int argc, char *argv[])
+output_plainfile::output_plainfile(const char *name, format &fmt, unsigned int buffer_capacity) :
+	output(fmt)
 {
-	hogl::format_basic  logfmt;
-	hogl::output_stderr logout(logfmt);
-	hogl::activate(logout);
+	int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	if (fd < 0) {
+		fprintf(stderr, "hogl::output_plainfile: failed to open %s for writing. %s(%d)\n", name, strerror(errno), errno);
+		abort();
+	}
 
-	test_area = hogl::add_area("TEST-AREA", test_sect_names);
-	test_area->set();
+	init(new ostrbuf_fd(fd, ostrbuf_fd::CLOSE_ON_DELETE, buffer_capacity));
 
-	c_api_area = (void *) test_area;
-
-	hogl::record r;
-
-	init_record(&r);
-	init_post(&r);
-	init_tls();
-	init_bitmap();
-	init_c_api_post();
-
-	hogl::deactivate();
-	return 0;
+	output::header(name);
 }
+
+output_plainfile::~output_plainfile()
+{
+	output::footer();
+}
+
+} // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
+

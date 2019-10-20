@@ -63,6 +63,7 @@ incdet_HEADERS = \
 	include/hogl/detail/ostrbuf-fd.hpp \
 	include/hogl/detail/ostrbuf-stdio.hpp \
 	include/hogl/detail/ostrbuf-null.hpp \
+	include/hogl/detail/ostrbuf-tee.hpp \
 	include/hogl/detail/tsobuf.hpp \
 	include/hogl/detail/refcount.hpp \
 	include/hogl/detail/engine.hpp \
@@ -100,9 +101,10 @@ inc_HEADERS = \
 	include/hogl/output-null.hpp \
 	include/hogl/output-stdout.hpp \
 	include/hogl/output-stderr.hpp \
-	include/hogl/output-textfile.hpp \
+	include/hogl/output-plainfile.hpp \
 	include/hogl/output-file.hpp \
 	include/hogl/output-pipe.hpp \
+	include/hogl/output-tee.hpp \
 	include/hogl/format-null.hpp \
 	include/hogl/format-basic.hpp \
 	include/hogl/format-raw.hpp
@@ -133,13 +135,15 @@ src_libhogl_la_SOURCES  = \
 	src/ostrbuf.cc \
 	src/ostrbuf-fd.cc \
 	src/ostrbuf-stdio.cc \
+	src/ostrbuf-tee.cc \
 	src/format-basic.cc \
 	src/format-raw.cc \
 	src/output-stdout.cc \
 	src/output-stderr.cc \
-	src/output-textfile.cc \
+	src/output-plainfile.cc \
 	src/output-file.cc \
 	src/output-pipe.cc \
+	src/output-tee.cc \
 	src/default-ringopts.cc \
 	src/default-timesource.cc \
 	src/default-engine.cc \

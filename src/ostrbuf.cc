@@ -94,6 +94,10 @@ void ostrbuf::failure(const char *err)
 	_failed = true;
 }
 
+bool ostrbuf::failed() const { return _failed; }
+
+const char* ostrbuf::error() const { return _error; }
+
 ostrbuf::ostrbuf(size_t capacity, bool nostdio) :
 	_data(0), _capacity(0), _size(0), _stdio(0),
 	_failed(false)

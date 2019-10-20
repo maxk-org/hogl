@@ -24,60 +24,29 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <getopt.h>
-#include <sys/time.h>
+/**
+ * @file hogl/output-plainfile.h
+ * Simple text file output handler.
+ */
+#ifndef HOGL_OUTPUT_PLAINFILE_HPP
+#define HOGL_OUTPUT_PLAINFILE_HPP
 
-#include "hogl/format-basic.hpp"
-#include "hogl/output-stderr.hpp"
-#include "hogl/engine.hpp"
-#include "hogl/area.hpp"
-#include "hogl/post.hpp"
-#include "hogl/c-api/area.h"
+#include <hogl/detail/output.hpp>
+	
+__HOGL_PRIV_NS_OPEN__
+namespace hogl {
 
-__HOGL_PRIV_NS_USING__;
-
-enum test_sect_id {
-	TEST_INFO
+/**
+ * Text file output handler
+ */
+class output_plainfile : public output {
+public:
+	output_plainfile(const char *filename, format &fmt, unsigned int buffer_capacity = 8129);
+	virtual ~output_plainfile();
 };
 
-static const char *test_sect_names[] = {
-	"INFO",
-	0,
-};
+} // namespace hogl
+__HOGL_PRIV_NS_CLOSE__
 
-hogl::area *test_area;
-hogl_area_t c_api_area;
 
-extern void init_record(hogl::record *r);
-extern void init_post(hogl::record *r);
-extern void init_tls();
-extern void init_bitmap();
-extern "C" void init_c_api_post();
-
-int main(int argc, char *argv[])
-{
-	hogl::format_basic  logfmt;
-	hogl::output_stderr logout(logfmt);
-	hogl::activate(logout);
-
-	test_area = hogl::add_area("TEST-AREA", test_sect_names);
-	test_area->set();
-
-	c_api_area = (void *) test_area;
-
-	hogl::record r;
-
-	init_record(&r);
-	init_post(&r);
-	init_tls();
-	init_bitmap();
-	init_c_api_post();
-
-	hogl::deactivate();
-	return 0;
-}
+#endif // HOGL_OUTPUT_PLAINFILE_HPP

@@ -105,11 +105,11 @@ public:
 	 */
 	virtual ~ostrbuf();
 
-	// Check if the underlying stream has failed
-	bool failed() const { return _failed; }
-
 	// Get error message that explains stream failure cause
-	const char* error() const { return _error; }
+	virtual const char* error() const;
+
+	// Check if the underlying stream has failed
+	virtual bool failed() const;
 
 	// Get read-only pointer to the head of the data buffer
 	const uint8_t *head() const { return _data; }
@@ -126,6 +126,9 @@ public:
 
 	// Flush any buffered data
 	void flush() { do_flush(0, 0); }
+
+	// Flush any buffered data and new data
+	void flush(const uint8_t* data, size_t n) { do_flush(data, n); }
 
 	// Put (append) data into the buffer
 	void put(const uint8_t* data, size_t n)

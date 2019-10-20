@@ -17,12 +17,14 @@ LOCAL_SRC_FILES := \
 	src/ostrbuf.cc \
 	src/ostrbuf-fd.cc \
 	src/ostrbuf-stdio.cc \
+	src/ostrbuf-tee.cc \
 	src/output.cc \
 	src/output-file.cc \
 	src/output-pipe.cc \
 	src/output-stderr.cc \
 	src/output-stdout.cc \
-	src/output-textfile.cc \
+	src/output-plainfile.cc \
+	src/output-tee.cc \
 	src/platform.cc \
 	src/post.cc \
 	src/ringbuf.cc \

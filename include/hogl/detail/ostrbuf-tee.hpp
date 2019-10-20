@@ -25,28 +25,42 @@
 */
 
 /**
- * @file hogl/output-txtfile.h
- * Simple text file output handler.
+ * @file hogl/detail/ostrbuf-tee.h
+ * String buffer with output to two outher ostrbufs
  */
-#ifndef HOGL_OUTPUT_TXTFILE_HPP
-#define HOGL_OUTPUT_TXTFILE_HPP
 
-#include <hogl/detail/output.hpp>
-	
+#ifndef HOGL_DETAIL_OSTRBUF_TEE_HPP
+#define HOGL_DETAIL_OSTRBUF_TEE_HPP
+
+#include <hogl/detail/ostrbuf.hpp>
+
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
- * Text file output handler
+ * String buffer with output to two other ostrbufs
  */
-class output_textfile : public output {
+class ostrbuf_tee : public ostrbuf
+{
+private:
+	ostrbuf* _o0;
+	ostrbuf* _o1;
+
+	virtual void do_flush(const uint8_t *data, size_t len);
+
 public:
-	output_textfile(const char *filename, format &fmt, unsigned int buffer_capacity = 8129);
-	virtual ~output_textfile();
+	ostrbuf_tee(ostrbuf* o0, ostrbuf* o1, unsigned int buffer_capacity = 8192);
+
+	// Get error message that explains stream failure cause
+	virtual const char* error() const;
+
+	// Check if the underlying stream has failed
+	virtual bool failed() const;
+
+	virtual ~ostrbuf_tee();
 };
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
 
-
-#endif // HOGL_OUTPUT_TXTFILE_HPP
+#endif // HOGL_DETAIL_OSTRBUF_TEE_HPP

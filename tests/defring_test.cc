@@ -35,7 +35,7 @@
 
 #include "hogl/format-basic.hpp"
 #include "hogl/output-stderr.hpp"
-#include "hogl/output-textfile.hpp"
+#include "hogl/output-plainfile.hpp"
 #include "hogl/engine.hpp"
 #include "hogl/area.hpp"
 #include "hogl/mask.hpp"
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 
 	hogl::output *logout;
 	if (file)
-		logout = new hogl::output_textfile(file, logfmt, 16 * 1024);
+		logout = new hogl::output_plainfile(file, logfmt, 16 * 1024);
 	else
 		logout = new hogl::output_stderr(logfmt, 16 * 1024);
 	hogl::activate(*logout);

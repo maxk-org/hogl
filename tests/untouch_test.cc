@@ -45,7 +45,7 @@
 #include "hogl/format-raw.hpp"
 #include "hogl/format-basic.hpp"
 #include "hogl/output-stderr.hpp"
-#include "hogl/output-textfile.hpp"
+#include "hogl/output-plainfile.hpp"
 #include "hogl/output-pipe.hpp"
 #include "hogl/output-file.hpp"
 
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 		};
 		lo = new hogl::output_file(log_output.c_str(), *lf, opts);
 	} else
-		lo = new hogl::output_textfile(log_output.c_str(), *lf);
+		lo = new hogl::output_plainfile(log_output.c_str(), *lf);
 
 	hogl::activate(*lo, log_eng_opts);
 	hogl::platform::enable_verbose_coredump();

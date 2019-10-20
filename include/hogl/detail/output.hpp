@@ -44,13 +44,13 @@ namespace hogl {
 class output {
 protected:
 	magic    _magic;   // Magic signature
-	format  &_format;  // Reference to the format handler
+	format&  _format;  // Reference to the format handler
 
 	// Pointer to the output buffer.
 	// By default points to a null stream.
 	// Derived classes must initialize this to point to the actual output.
 	// The destructor deletes this object unconditionally.
-	ostrbuf *_ostrbuf;
+	ostrbuf* _ostrbuf;
 
 	/**
 	 * Initialize output
@@ -74,6 +74,16 @@ public:
 	 * Flush output
 	 */
 	void flush() { _ostrbuf->flush(); }
+
+	/**
+	 * Get the reference to the format for this output
+	 */
+	format& get_format() { return _format; }
+
+	/**
+	 * Get the pointer to the ostrbuf for this output
+	 */
+	ostrbuf* get_ostrbuf() { return _ostrbuf; }
 
 	/**
 	 * Generate header.
