@@ -40,26 +40,10 @@
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
-schedparam::schedparam(int _policy, int _priority, const std::string _cpu_affinity) :
-	policy(_policy), priority(_priority), cpu_affinity(_cpu_affinity)
-{ }
-
 // ****
 // CPU affinity support
-//
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
-schedparam::schedparam() :
-	policy(0), priority(0), cpu_affinity()
-{ }
 
-bool schedparam::apply()
-{
-	if (!this->cpu_affinity.empty())
-		platform::post_early(internal::WARN, "cpu-affinity not supported on this platform");
-	return true;
-}
-
-#else
+#if defined(__linux__)
 
 // FIXME: add support Linux kernel cpusets
 
@@ -142,6 +126,20 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 	return err;
 }
 
+#else // !linux
+
+static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
+{
+	platform::post_early(internal::WARN, "cpu-affinity not supported on this platform");
+	return 0; // just warn but don't fail
+}
+
+#endif // if linux
+
+schedparam::schedparam(int _policy, int _priority, const std::string _cpu_affinity) :
+	policy(_policy), priority(_priority), cpu_affinity(_cpu_affinity)
+{ }
+
 schedparam::schedparam() :
 	policy(SCHED_OTHER), priority(0), cpu_affinity()
 { }
@@ -192,8 +190,6 @@ bool schedparam::validate() const
 	return !failed;
 }
 
-#endif // !BSD
-
 std::ostream& operator<< (std::ostream& s, const schedparam& p)
 {
 	std::ios_base::fmtflags fmt = s.flags();
@@ -201,7 +197,7 @@ std::ostream& operator<< (std::ostream& s, const schedparam& p)
 	s << "" << "{ "
 		<< "policy:" << p.policy << ", "
 		<< "priority:"  << p.priority << ", "
-		<< "cpu-affinity:"   << p.cpu_affinity
+		<< "cpu-affinity:" << p.cpu_affinity
 		<< " }";
 
 	s.flags(fmt);

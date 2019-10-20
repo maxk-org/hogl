@@ -31,11 +31,14 @@
 
 __HOGL_PRIV_NS_USING__;
 
+#if defined(__linux__)
+// BSD has different rules for sched_setscheduler which trips the asserts
+
 BOOST_AUTO_TEST_CASE(basic_other)
 {
 	printf("basic sched_other test\n");
 	const hogl::schedparam sp;
-	BOOST_ASSERT(sp.policy == 0);
+	BOOST_ASSERT(sp.policy == SCHED_OTHER);
 	BOOST_ASSERT(sp.priority == 0);
 	BOOST_ASSERT(sp.cpu_affinity.empty());
 	BOOST_ASSERT(sp.apply("test"));
@@ -71,5 +74,18 @@ BOOST_AUTO_TEST_CASE(validation_bad)
 {
 	// Bad params
 	const hogl::schedparam sp0(0,0,"list:12345"); // crazy CPU number
+	// If affinity is not support it won't fail as expected.
 	BOOST_ASSERT(!sp0.validate());
 }
+
+#else
+BOOST_AUTO_TEST_CASE(basic_other)
+{
+	printf("basic sched_other test\n");
+	const hogl::schedparam sp;
+	BOOST_ASSERT(sp.policy == SCHED_OTHER);
+	BOOST_ASSERT(sp.priority == 0);
+	BOOST_ASSERT(sp.cpu_affinity.empty());
+}
+
+#endif
