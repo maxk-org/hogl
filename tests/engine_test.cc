@@ -92,9 +92,6 @@ BOOST_AUTO_TEST_CASE(default_mask)
 		.timesource = 0,                          // timesource for this engine (0 means default timesource)
 	};
 
-	// Set affinity mask
-	opts.cpu_affinity = std::to_string(0x1);
-
 	hogl::engine eng(output, opts);
 
 	// New area
@@ -107,4 +104,47 @@ BOOST_AUTO_TEST_CASE(default_mask)
 	BOOST_REQUIRE(a->test(hogl::area::TRACE) == false);
 
 	std::cout << *a;
+	std::cout << eng;
+}
+
+BOOST_AUTO_TEST_CASE(cpu_affinity_mask)
+{
+	hogl::format_basic  format;
+	hogl::output_stderr output(format);
+
+	hogl::engine::options opts = {
+		.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0),
+		.polling_interval_usec = 10000,
+		.tso_buffer_capacity =   4096,
+		.features = 0,
+		.timesource = 0
+	};
+
+	// Set schedparams with affinity mask
+	opts.schedparam = hogl::schedparam(0, 0, std::to_string(0x1));
+
+	hogl::engine eng(output, opts);
+
+	std::cout << eng;
+}
+
+BOOST_AUTO_TEST_CASE(cpu_affinity_list)
+{
+	hogl::format_basic  format;
+	hogl::output_stderr output(format);
+
+	hogl::engine::options opts = {
+		.default_mask = hogl::mask(".*:(INFO|WARN|ERROR|FATAL).*", 0),
+		.polling_interval_usec = 10000,
+		.tso_buffer_capacity =   4096,
+		.features = 0,
+		.timesource = 0
+	};
+
+	// CPU affinity as a list
+	opts.schedparam = hogl::schedparam(0, 0, "list:1,5-6");
+
+	hogl::engine eng(output, opts);
+
+	std::cout << eng;
 }

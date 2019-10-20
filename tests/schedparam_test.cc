@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2015-2019 Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2019, Max Krasnyansky <max.krasnyansky@gmail.com> 
    All rights reserved.
    
    Redistribution and use in source and binary forms, with or without modification,
@@ -24,53 +24,52 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @file hogl/c-api/engine.h
- * Top level C-API interface for the engine.
- */
-#ifndef HOGL_CAPI_ENGINE_H
-#define HOGL_CAPI_ENGINE_H
+#include "hogl/detail/schedparam.hpp"
 
-#include <stdint.h>
-#include <stdbool.h>
+#define BOOST_TEST_MODULE schedparam_test
+#include <boost/test/included/unit_test.hpp>
 
-#include <hogl/c-api/mask.h>
-#include <hogl/c-api/schedparam.h>
+__HOGL_PRIV_NS_USING__;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+BOOST_AUTO_TEST_CASE(basic_other)
+{
+	printf("basic sched_other test\n");
+	const hogl::schedparam sp;
+	BOOST_ASSERT(sp.policy == 0);
+	BOOST_ASSERT(sp.priority == 0);
+	BOOST_ASSERT(sp.cpu_affinity.empty());
+	BOOST_ASSERT(sp.apply("test"));
+}
 
-/**
- * Engine feature flags
- */ 	
-enum hogl_engine_features {
-	HOGL_DISABLE_TSO = (1<<0)
-};
+BOOST_AUTO_TEST_CASE(basic_fifo)
+{
+	printf("basic sched_fifo test\n");
+	const hogl::schedparam sp(SCHED_FIFO, 50);
+	BOOST_ASSERT(sp.policy == SCHED_FIFO);
+	BOOST_ASSERT(sp.priority == 50);
+	BOOST_ASSERT(sp.cpu_affinity.empty());
+	BOOST_ASSERT(!sp.apply("test"));
+}
 
-/**
- * Engine options.
- */
-struct hogl_engine_options {
-	unsigned int features;
-	hogl_mask_t  default_mask;
-	unsigned int polling_interval_usec;
-	unsigned int tso_buffer_capacity;
-	hogl_schedparam_t schedparam;
-};
+BOOST_AUTO_TEST_CASE(validation_good)
+{
+	// Good params and copy
+	hogl::schedparam sp(0,0,"0x3");
+	BOOST_ASSERT(sp.validate());
 
-/**
- * Activate default holg engine.
- */
-void hogl_activate(hogl_output_t out, struct hogl_engine_options *opts);
+	sp = hogl::schedparam(0,0, "list:0-3,10-13");
+	BOOST_ASSERT(sp.validate());
 
-/**
- * Deactivate default holg engine
- */
-void hogl_deactivate();
+	sp = hogl::schedparam(SCHED_RR, 99, "list:1-3,10-13");
+	BOOST_ASSERT(sp.policy == SCHED_RR);
+	BOOST_ASSERT(sp.priority == 99);
+	BOOST_ASSERT(sp.validate());
+	BOOST_ASSERT(!sp.apply("test"));
+}
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
-#endif // HOGL_CAPI_ENGINE_H
+BOOST_AUTO_TEST_CASE(validation_bad)
+{
+	// Bad params
+	const hogl::schedparam sp0(0,0,"list:12345"); // crazy CPU number
+	BOOST_ASSERT(!sp0.validate());
+}

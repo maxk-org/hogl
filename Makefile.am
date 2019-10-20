@@ -70,7 +70,8 @@ incdet_HEADERS = \
 	include/hogl/detail/timesource.hpp \
 	include/hogl/detail/timestamp.hpp \
 	include/hogl/detail/format.hpp \
-	include/hogl/detail/output.hpp
+	include/hogl/detail/output.hpp \
+	include/hogl/detail/schedparam.hpp
 
 incplug_HEADERS = \
 	include/hogl/plugin/format.hpp
@@ -83,6 +84,7 @@ inccapi_HEADERS = \
 	include/hogl/c-api/format.h \
 	include/hogl/c-api/engine.h \
 	include/hogl/c-api/mask.h \
+	include/hogl/c-api/schedparam.h \
 	include/hogl/c-api/tls.h
 
 inc_HEADERS = \
@@ -124,6 +126,7 @@ src_libhogl_la_SOURCES  = \
 	src/engine.cc \
 	src/timesource.cc \
 	src/platform.cc \
+	src/schedparam.cc \
 	src/post.cc \
 	src/flush.cc \
 	src/output.cc \
@@ -153,7 +156,7 @@ endif
 #
 if BUILD_TESTS
 TESTS = \
-	tests/affinity_test \
+	tests/schedparam_test \
 	tests/args_test \
 	tests/area_test \
 	tests/mask_test \
@@ -183,7 +186,7 @@ AM_CXXFLAGS = -pthread
 AM_CFLAGS   = -pthread
 LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) $(CODE_COVERAGE_LDFLAGS)
 
-tests_affinity_test_SOURCES  = tests/affinity_test.cc
+tests_schedparam_test_SOURCES  = tests/schedparam_test.cc
 tests_args_test_SOURCES  = tests/args_test.cc 
 tests_area_test_SOURCES  = tests/area_test.cc
 tests_mask_test_SOURCES  = tests/mask_test.cc

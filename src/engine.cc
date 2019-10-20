@@ -57,7 +57,7 @@ engine::options engine::default_options = {
 	.polling_interval_usec = 10000,           // polling interval usec
 	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 	.features = 0,                            // default feature set
-	.cpu_affinity = std::string(),            // default CPU affinity
+	.schedparam = schedparam(),               // default scheduler params
 	.timesource = 0,                          // timesource for this engine (0 means default timesource)
 };
 
@@ -129,11 +129,6 @@ engine::engine(output &out, const engine::options &opts) :
 		fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
 		abort();
 	}
-	err = platform::set_cpu_affinity(_thread, _opts.cpu_affinity);
-	if (err) {
-		fprintf(stderr, "hogl::engine: failed to set affinity for engine thread. %d\n", err);
-		abort();
-	}
 }
 
 engine::~engine()
@@ -162,7 +157,8 @@ void *engine::entry(void *_self)
 {
 	engine *self = (engine *) _self;
 
-	platform::set_thread_title("hogl::engine");
+	// Apply scheduler params
+	self->_opts.schedparam.apply("hogl::engine");
 
 	// Run the loop
 	self->loop();
@@ -800,6 +796,7 @@ std::ostream& operator<< (std::ostream& s, const engine::options& opts)
 		<< "tso_buffer_capacity:"   << opts.tso_buffer_capacity << ", "
 		<< "tso_buffer_capacity:"   << opts.tso_buffer_capacity << ", "
 		<< "features:" << std::hex  << opts.features << ", "
+		<< "schedparam:"            << opts.schedparam << ", "
 		<< "timesource:"            << ts_name
 		<< " }"	<< std::endl;
 

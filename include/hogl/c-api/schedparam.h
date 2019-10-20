@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2019, Max Krasnyansky <max.krasnyansky@gmail.com> 
+   Copyright (c) 2015-2019 Max Krasnyansky <max.krasnyansky@gmail.com> 
    All rights reserved.
    
    Redistribution and use in source and binary forms, with or without modification,
@@ -24,32 +24,32 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "hogl/platform.hpp"
+/**
+ * @file hogl/c-api/schedparam.h
+ * C-API mask wrappers.
+ */
+#ifndef HOGL_CAPI_SCHEDPARAM_H
+#define HOGL_CAPI_SCHEDPARAM_H
 
-#define BOOST_TEST_MODULE affinity_test 
-#include <boost/test/included/unit_test.hpp>
+#include <stdint.h>
 
-__HOGL_PRIV_NS_USING__;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-BOOST_AUTO_TEST_CASE(all_zero)
-{
-	printf("all_zero test\n");
-	pthread_t t = pthread_self();
-	std::string mask;
-	int ret = hogl::platform::set_cpu_affinity(t, mask);
-	if (ret) {
-		printf("ret is %d %s\n", ret, strerror(errno));
-	}
-	BOOST_ASSERT(ret == 0);
-}
+struct hogl_sched_param {
+	int policy;
+	int priority;
+	const char *cpu_affinity;
+};
 
-BOOST_AUTO_TEST_CASE(first_and_third)
-{
-	printf("first_and_third test\n");
-	pthread_t t = pthread_self();
-	int ret = hogl::platform::set_cpu_affinity(t, std::to_string((1<<0) | (1<<2)));
-	if (ret) {
-		printf("ret is %d %s\n", ret, strerror(errno));
-	}
-	BOOST_ASSERT(ret == 0);
-}
+/** 
+ * Mask handle
+ */
+typedef struct hogl_sched_param hogl_schedparam_t;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif // HOGL_CAPI_SCHEDPARAM_H

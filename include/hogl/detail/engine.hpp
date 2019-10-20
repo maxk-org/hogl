@@ -43,6 +43,7 @@
 #include <hogl/detail/area.hpp>
 #include <hogl/detail/mask.hpp>
 #include <hogl/detail/timesource.hpp>
+#include <hogl/detail/schedparam.hpp>
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -67,8 +68,8 @@ public:
 		unsigned int polling_interval_usec;
 		unsigned int tso_buffer_capacity;
 		unsigned int features;
-		std::string  cpu_affinity; // CPU affinity
-		hogl::timesource  *timesource;
+		hogl::schedparam  schedparam;
+		hogl::timesource* timesource;
 	};
 
 	static options default_options;

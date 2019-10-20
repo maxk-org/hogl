@@ -24,45 +24,52 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <pthread.h>
-#include <hogl/detail/compiler.hpp>
-
-#include <string>
-
 /**
- * @file hogl/platform.hpp
- * Platform specific features and functions.
+ * @file hogl/detail/schedparam.hpp
+ * Scheduler parameters implementation details
  */
-#ifndef HOGL_PLATFORM_HPP
-#define HOGL_PLATFORM_HPP
+#ifndef HOGL_DETAIL_SCHEDPARAM_HPP
+#define HOGL_DETAIL_SCHEDPARAM_HPP
+
+#include <hogl/detail/compiler.hpp>
+#include <string>
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
-namespace platform {
-
-// Special version of post for the low-level init functions.
-// Some of these functions may be called before the default
-// engine is running. It uses stderr in that case.
-void post_early(unsigned int section, const char *fmt, const char *arg0 = 0, int arg1 = 0);
-void post_early(unsigned int section, const char *fmt, const char *arg0, const char *arg1);
-
-// Set the title/name of the current thread
-void set_thread_title(const char *str);
 
 /**
- * Typically coredump files do not contain file-backed mappings.
- * Which means that hogl-recover tool will have to have access 
- * to the original executable and shared libraries in order to
- * find global strings.
- * This function enables verbose coredump which includes file-backed
- * mappings, if supported by your platform.
- * Note that this makes coredump files much larger.
- * @return true if successful, false otherwise.
+ * Scheduler params
  */
-bool enable_verbose_coredump();
+class schedparam {
+public:
+	int policy;
+	int priority;
+	std::string cpu_affinity;
 
-} // namespace platform
+	/**
+	 * Apply scheduler params to the current thread.
+	 * Called immidiately from the thread entry point of all hogl threads (engine, output).
+	 * @param thread_name name of the thread
+	 * returns true on success
+	 */
+	virtual bool apply(const char* title) const;
+
+	/**
+	 * Basic validation of the params before threads are launched.
+	 * Can be used to validate command line args and config file settings.
+	 * returns true on success
+	 */
+	virtual bool validate() const;
+
+	schedparam(int policy, int priority, std::string cpu_affinity = std::string());
+	schedparam();
+
+	virtual ~schedparam() {}
+};
+
+std::ostream& operator<< (std::ostream& s, const schedparam& param);
+
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
 
-#endif // HOGL_PLATFORM_HPP
+#endif // HOGL_DETAIL_SCHEDPARAM_HPP

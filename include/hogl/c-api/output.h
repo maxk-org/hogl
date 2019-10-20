@@ -34,6 +34,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <hogl/c-api/schedparam.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,7 +71,7 @@ struct hogl_output_options {
 	unsigned int max_age;           /// Max age of each file chunk (seconds)
 	unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
 	unsigned int buffer_capacity;   /// Max capacity of the output buffer (bytes)
-	const char*  cpu_affinity;      /// The CPU mask or list
+	hogl_schedparam_t schedparam;   /// Scheduler parameters for the rotation thread
 };
 
 /**

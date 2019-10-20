@@ -91,8 +91,7 @@ output_file::options output_file::default_options = {
 	.max_size = 1 * 1024 * 1024 * 1024, /// 1GB
 	.max_age = 0, /// Unlimited
 	.max_count = 128,
-	.buffer_capacity = 8192,
-	.cpu_affinity = std::string()
+	.buffer_capacity = 8192
 };
 
 std::string output_file::name() const
@@ -216,11 +215,6 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
 	if (err) {
 		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
-		abort();
-	}
-	err = platform::set_cpu_affinity(_rotate_thread, opts.cpu_affinity);
-	if(err) {
-		fprintf(stderr, "hogl::output_file: failed to set affinity for helper thread. %d\n", err);
 		abort();
 	}
 
@@ -382,7 +376,9 @@ void *output_file::thread_entry(void *_self)
 
 	std::ostringstream ss;
 	ss << "hogl::output_file helper (" << self->_symlink << ")";
-	platform::set_thread_title(ss.str().c_str());
+
+	// Apply scheduler params
+	self->_rotate_schedparam.apply(ss.str().c_str());
 
 	// Run the loop
 	self->thread_loop();

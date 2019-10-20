@@ -43,10 +43,11 @@ __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 namespace platform {
 
-// Special version of post for the platform functions.
+// Special version of post for the low-level init functions.
 // Some of these functions may be called before the default
-// engine is running. This function uses stderr in that case.
-static void post_early(unsigned int section, const char *fmt, const char *arg0 = 0, int arg1 = 0)
+// engine is running. It uses stderr in that case.
+template<typename T0, typename T1>
+void __post_early(unsigned int section, const char *fmt, T0 arg0, T1 arg1)
 {
 	if (default_engine) {
 		const hogl::area *area = default_engine->internal_area();
@@ -70,8 +71,17 @@ static void post_early(unsigned int section, const char *fmt, const char *arg0 =
 
 		fprintf(stderr, "%s", sect_name);
 		fprintf(stderr, fmt, arg0, arg1); 
-		fprintf(stderr, "\n"); 
+		fprintf(stderr, "\n");
 	}
+}
+
+void post_early(unsigned int section, const char *fmt, const char *arg0, int arg1)
+{
+	__post_early(section, fmt, arg0, arg1);
+}
+void post_early(unsigned int section, const char *fmt, const char *arg0, const char* arg1)
+{
+	__post_early(section, fmt, arg0, arg1);
 }
 
 /**
@@ -95,26 +105,6 @@ bool enable_verbose_coredump()
 
 	post_early(internal::WARN, "verbose coredump is not supported");
 	return false;
-}
-
-int set_cpu_affinity(pthread_t tid, const std::string& cpuset_str)
-{
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
-	post_early(internal::WARN, "set-affinity not supported");
-	return 0;
-#else
-	cpu_set_t cpuset;
-	CPU_ZERO(&cpuset);
-
-	if (cpuset_str.empty())
-		return 0;
-
-	// FIXME: add support for lists and Linux kernel cpusets
-	unsigned long long mask = std::stoull(cpuset_str, 0, 0);
-	for (unsigned int i=0; i < 64; i++)
-		if (mask & (1<<i)) CPU_SET(i, &cpuset);
-	return pthread_setaffinity_np(tid, sizeof(cpu_set_t), &cpuset);
-#endif
 }
 
 #if defined(__linux__) // OS
