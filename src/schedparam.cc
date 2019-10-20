@@ -129,7 +129,7 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 {
 	platform::post_early(internal::WARN, "cpu-affinity not supported on this platform");
-	errno = ENOSUP;
+	errno = EOPNOTSUPP;
 	return -1;
 }
 
