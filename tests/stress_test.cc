@@ -43,10 +43,12 @@
 #include "hogl/format-raw.hpp"
 #include "hogl/format-null.hpp"
 #include "hogl/output-stderr.hpp"
+#include "hogl/output-stdout.hpp"
 #include "hogl/output-plainfile.hpp"
 #include "hogl/output-file.hpp"
 #include "hogl/output-pipe.hpp"
 #include "hogl/output-null.hpp"
+#include "hogl/output-tee.hpp"
 #include "hogl/post.hpp"
 #include "hogl/flush.hpp"
 #include "hogl/area.hpp"
@@ -398,7 +400,7 @@ static unsigned int ring_capacity = 1024;
 static unsigned int burst_size    = 10;
 static unsigned int interval_usec = 1000;
 static unsigned int nloops        = 20000;
-static unsigned int output_buffer = 64 * 1024;
+static size_t       output_bufsize = 64 * 1024;
 static unsigned int rotate_size   = 1024 * 1024 * 1024;
 static bool         flush         = false;
 static bool         use_raw       = false;
@@ -409,6 +411,7 @@ static int64_t      ts_badness    = 0;
 static hogl::engine::options log_eng_opts = hogl::engine::default_options;
 
 static std::string log_output("null");
+static std::string log_tee;
 static std::string log_format("custom");
 
 int doTest()
@@ -453,12 +456,42 @@ int doTest()
 	return failed ? -1 : 0;
 }
 
+hogl::output* create_output(std::string& out, hogl::format& fmt, size_t bufsize)
+{
+	if (out == "null")
+		return new hogl::output_null(fmt, bufsize);
+
+	if (out == "stderr")
+		return new hogl::output_stderr(fmt, bufsize);
+
+	if (out == "stdout")
+		return new hogl::output_stdout(fmt, bufsize);
+
+	if (out[0] == '|')
+		return new hogl::output_pipe(out.substr(1).c_str(), fmt, bufsize);
+
+	if (out.find('#') != out.npos) {
+		hogl::output_file::options opts = {
+			.perms     = 0666,
+			.max_size  = rotate_size,
+			.max_age   = 0,
+			.max_count = 20,
+			.buffer_capacity = bufsize
+		};
+		return new hogl::output_file(out.c_str(), fmt, opts);
+	}
+
+	return new hogl::output_plainfile(out.c_str(), fmt, bufsize);
+}
+
 // Command line args {
 static struct option main_lopts[] = {
    {"help",        0, 0, 'h'},
    {"format",      1, 0, 'f'},
    {"output",      1, 0, 'o'},
-   {"rotate-size", 1, 0, 'R'},
+   {"out-buff-size", 1, 0, 'O'},
+   {"out-file-size", 1, 0, 'R'},
+   {"out-tee",       1, 0, 't'},
    {"nthreads",    1, 0, 'n'},
    {"ring-size",   1, 0, 'r'},
    {"burst-size",  1, 0, 'b'},
@@ -469,7 +502,6 @@ static struct option main_lopts[] = {
    {"nloops",      1, 0, 'l'},
    {"notso",       0, 0, 'N'},
    {"tso-buffer",  1, 0, 'T'},
-   {"output-buffer",  1, 0, 'O'},
    {"poll-interval",  1, 0, 'p'},
    {"eng-cpu-affi",   1, 0, 'A'},
    {"eng-prio",    1, 0, 'P'},
@@ -478,7 +510,7 @@ static struct option main_lopts[] = {
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:R:n:r:b:wi:l:p:N:T:O:A:P:FB:WC";
+static char main_sopts[] = "hf:o:O:t:R:n:r:b:wi:l:p:N:T:A:P:FB:WC";
 
 static char main_help[] =
    "Hogl stress test 0.1 \n"
@@ -488,7 +520,9 @@ static char main_help[] =
       "\t--help -h               Display help text\n"
       "\t--format -f <name>      Log format (null, basic)\n"
       "\t--output -o <name>      Log output (file name, stderr, or null)\n"
-      "\t--rotate-size -R <S>    Maximum size of each output file chunk (in megabytes)\n"
+      "\t--out-bufsize -O <N>    Output buffer size (number of bytes)\n"
+      "\t--out-file-size -R <S>  Maximum size of each output file chunk (in megabytes)\n"
+      "\t--out-tee -t <name>     Tee the main output into: file name, stderr, stderror, pipe\n"
       "\t--poll-interval -p <N>  Engine polling interval (in usec)\n"
       "\t--nthreads -n <N>       Number of threads to start\n"
       "\t--ring -r <N>           Ring size (number of records)\n"
@@ -500,7 +534,6 @@ static char main_help[] =
       "\t--nloops -l <N>         Number of loops in each thread\n"
       "\t--notso -N              Disable timestamp ordering (TSO)\n"
       "\t--tso-buffer -T <N>     TSO buffer size (number of records)\n"
-      "\t--output-buffer -O <N>  Output buffer size (number of bytes)\n"
       "\t--flush -F              Make one of the threads call flush every iteration\n"
       "\t--eng-cpu-affi -A <A>   Set hogl::engine CPU affinity\n"
       "\t--eng-prio -P <N>       Set hogl::engine scheduling priority (with SCHED_FIFO)\n"
@@ -520,6 +553,10 @@ int main(int argc, char *argv[])
 
 		case 'o':
 			log_output = optarg;
+			break;
+
+		case 't':
+			log_tee = optarg;
 			break;
 
 		case 'R':
@@ -571,7 +608,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'O':
-			output_buffer = atoi(optarg);
+			output_bufsize = atoi(optarg);
 			break;
 
 		case 'F':
@@ -608,8 +645,8 @@ int main(int argc, char *argv[])
 	}
 
 	hogl::format *lf;
-	hogl::output *lo;
-	
+	hogl::output *lo[3] = { 0, 0, 0 };
+
 	if (log_format == "null")
 		lf = new hogl::format_null();
 	else if (log_format == "raw")
@@ -621,25 +658,15 @@ int main(int argc, char *argv[])
 	else
 		lf = new hogl::format_basic(log_format.c_str());
 
-	if (log_output == "null")
-		lo = new hogl::output_null(*lf, output_buffer);
-	else if (log_output == "stderr")
-		lo = new hogl::output_stderr(*lf, output_buffer);
-	else if (log_output[0] == '|')
-		lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf, output_buffer);
-	else if (log_output.find('#') != log_output.npos) {
-		hogl::output_file::options opts = {
-			.perms = 0666,
-			.max_size = rotate_size,
-			.max_age = 0,
-			.max_count = 20,
-			.buffer_capacity = output_buffer,
-		};
-		lo = new hogl::output_file(log_output.c_str(), *lf, opts);
-	} else
-		lo = new hogl::output_plainfile(log_output.c_str(), *lf, output_buffer);
+	if (log_tee.empty()) {
+		lo[0] = create_output(log_output, *lf, output_bufsize);
+	} else {
+		lo[1] = create_output(log_output, *lf, 0);
+		lo[2] = create_output(log_tee, *lf, 0);
+		lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
+	}
 
-	hogl::activate(*lo, log_eng_opts);
+	hogl::activate(*lo[0], log_eng_opts);
 	hogl::platform::enable_verbose_coredump();
 
 	main_logarea = hogl::add_area("MAIN", main_logsect_names);
@@ -671,7 +698,7 @@ int main(int argc, char *argv[])
 		static_cast<stats_format *>(lf)->dump();
 
 	delete bad_ts;
-	delete lo;
+	for (auto o : lo) delete o;
 	delete lf;
 
 	if (err < 0) {

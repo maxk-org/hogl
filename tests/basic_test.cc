@@ -322,12 +322,12 @@ static struct option main_lopts[] = {
    {"help",    0, 0, 'h'},
    {"format",  1, 0, 'f'},
    {"output",  1, 0, 'o'},
-   {"tee",     1, 0, 't'},
-   {"output-bufsize", 1, 0, 'O'},
+   {"out-buff-size", 1, 0, 'O'},
+   {"out-tee", 1, 0, 't'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:O:t:";
+static char main_sopts[] = "hf:o:t:O:";
 
 static char main_help[] =
    "HOGL basic test 0.1 \n"
@@ -337,8 +337,8 @@ static char main_help[] =
       "\t--help -h            Display help text\n"
       "\t--format -f <name>   Log format (basic, raw)\n"
       "\t--output -o <name>   Log output: file name, stdout, stderr, pipe\n"
-      "\t--tee -t <name>      Tee the main output into: file name, stderr, stderror, pipe\n"
-      "\t--output-bufsize -O <N>   Output buffer size (in bytes)\n";
+      "\t--out-buff-size -O <N>   Output buffer size (in bytes)\n"
+      "\t--out-tee -t <name>  Tee the main output into: file name, stderr, stderror, pipe\n";
 // }
 
 int main(int argc, char *argv[])

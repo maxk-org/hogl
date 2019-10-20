@@ -84,7 +84,7 @@ public:
 		size_t       max_size;          /// Max size of each file chunk (bytes)
 		unsigned int max_age;           /// Max age of each file chunk (seconds)
 		unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
-		unsigned int buffer_capacity;   /// Max capacity of the output buffer (bytes)
+		size_t       buffer_capacity;   /// Max capacity of the output buffer (bytes)
 		hogl::schedparam schedparam;    /// Scheduler params for the rotation helper thread
 	};
 
