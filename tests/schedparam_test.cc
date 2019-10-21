@@ -37,7 +37,7 @@ __HOGL_PRIV_NS_USING__;
 BOOST_AUTO_TEST_CASE(basic_other)
 {
 	printf("basic sched_other test\n");
-	auto* sp = new hogl::schedparam();
+	hogl::schedparam* sp = new hogl::schedparam();
 	BOOST_ASSERT(sp->policy == SCHED_OTHER);
 	BOOST_ASSERT(sp->priority == 0);
 	BOOST_ASSERT(sp->cpu_affinity.empty());

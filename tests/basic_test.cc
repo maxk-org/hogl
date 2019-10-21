@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
 
 	hogl::deactivate();
 
-	for (auto o : lo) delete o;
+	for (unsigned i=0; i<3; i++) delete lo[i];
 	delete lf;
 
 	printf("Passed\n");

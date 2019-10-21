@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(cpu_affinity_mask)
 	};
 
 	// Set schedparams with affinity mask
-	opts.schedparam = new hogl::schedparam(0, 0, hogl::schedparam::DELETE_ON_EXIT, std::to_string(0x1));
+	opts.schedparam = new hogl::schedparam(0, 0, hogl::schedparam::DELETE_ON_EXIT, "0x1");
 
 	hogl::engine eng(output, opts);
 

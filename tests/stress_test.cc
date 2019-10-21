@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
 		static_cast<stats_format *>(lf)->dump();
 
 	delete bad_ts;
-	for (auto o : lo) delete o;
+	for (unsigned i=0; i<3; i++) delete lo[i];
 	delete lf;
 
 	if (err < 0) {
