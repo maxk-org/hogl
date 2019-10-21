@@ -89,7 +89,8 @@ BOOST_AUTO_TEST_CASE(default_mask)
 		.polling_interval_usec = 10000,           // polling interval usec
 		.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 		.features = 0,                            // default feature set
-		.timesource = 0,                          // timesource for this engine (0 means default timesource)
+		.schedparam = 0,
+		.timesource = 0                           // timesource for this engine (0 means default timesource)
 	};
 
 	hogl::engine eng(output, opts);
@@ -117,6 +118,7 @@ BOOST_AUTO_TEST_CASE(cpu_affinity_mask)
 		.polling_interval_usec = 10000,
 		.tso_buffer_capacity =   4096,
 		.features = 0,
+		.schedparam = 0,
 		.timesource = 0
 	};
 
@@ -138,6 +140,7 @@ BOOST_AUTO_TEST_CASE(cpu_affinity_list)
 		.polling_interval_usec = 10000,
 		.tso_buffer_capacity =   4096,
 		.features = 0,
+		.schedparam = 0,
 		.timesource = 0
 	};
 
