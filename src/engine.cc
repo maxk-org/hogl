@@ -57,7 +57,7 @@ engine::options engine::default_options = {
 	.polling_interval_usec = 10000,           // polling interval usec
 	.tso_buffer_capacity =   4096,            // tso buffer size (number of records)
 	.features = 0,                            // default feature set
-	.schedparam = schedparam(),               // default scheduler params
+	.schedparam = 0,                          // schedparam for this engine (0 means default params)
 	.timesource = 0,                          // timesource for this engine (0 means default timesource)
 };
 
@@ -157,11 +157,19 @@ void *engine::entry(void *_self)
 {
 	engine *self = (engine *) _self;
 
+	platform::set_thread_title("hogl::engine");
+
 	// Apply scheduler params
-	self->_opts.schedparam.apply("hogl::engine");
+	if (self->_opts.schedparam)
+		self->_opts.schedparam->thread_enter("hogl::engine");
 
 	// Run the loop
 	self->loop();
+
+	// Apply scheduler params
+	if (self->_opts.schedparam)
+		self->_opts.schedparam->thread_exit();
+
 	return 0;
 }
 

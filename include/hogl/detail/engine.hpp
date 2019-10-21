@@ -68,7 +68,7 @@ public:
 		unsigned int polling_interval_usec;
 		unsigned int tso_buffer_capacity;
 		unsigned int features;
-		hogl::schedparam  schedparam;
+		hogl::schedparam* schedparam;
 		hogl::timesource* timesource;
 	};
 

@@ -42,9 +42,15 @@ namespace hogl {
  */
 class schedparam {
 public:
+	// Flags
+	enum {
+		DELETE_ON_EXIT = (1 << 0)
+	};
+
 	int policy;
 	int priority;
-	std::string cpu_affinity;
+	unsigned int flags;
+	std::string  cpu_affinity;
 
 	/**
 	 * Apply scheduler params to the current thread.
@@ -52,7 +58,12 @@ public:
 	 * @param thread_name name of the thread
 	 * returns true on success
 	 */
-	virtual bool apply(const char* title) const;
+	virtual bool thread_enter(const char* title);
+
+	/**
+	 * Called before exit from all hogl threads (engine, output).
+	 */
+	virtual void thread_exit();
 
 	/**
 	 * Basic validation of the params before threads are launched.
@@ -61,7 +72,7 @@ public:
 	 */
 	virtual bool validate() const;
 
-	schedparam(int policy, int priority, std::string cpu_affinity = std::string());
+	schedparam(int policy, int priority, unsigned int flags = 0, std::string cpu_affinity = std::string());
 	schedparam();
 
 	virtual ~schedparam() {}

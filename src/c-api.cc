@@ -99,8 +99,9 @@ extern "C" void hogl_activate(hogl_output_t _out, struct hogl_engine_options *_o
 			opts.default_mask = *mask;
 		}
 
-		opts.schedparam = hogl::schedparam(_opts->schedparam.policy, _opts->schedparam.priority,
-				_opts->schedparam.cpu_affinity ? _opts->schedparam.cpu_affinity : "");
+		opts.schedparam = new hogl::schedparam(_opts->schedparam.policy, _opts->schedparam.priority,
+					hogl::schedparam::DELETE_ON_EXIT,
+					_opts->schedparam.cpu_affinity ? _opts->schedparam.cpu_affinity : "");
 	}
 
 	hogl::activate(*out, opts);
@@ -189,8 +190,9 @@ extern "C" hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _f
 		opts.max_age = _opts->max_age;
 		opts.max_count = _opts->max_count;
 		opts.buffer_capacity = _opts->buffer_capacity;
-		opts.schedparam = hogl::schedparam(_opts->schedparam.policy, _opts->schedparam.priority,
-				_opts->schedparam.cpu_affinity ? _opts->schedparam.cpu_affinity : "");
+		opts.schedparam = new hogl::schedparam(_opts->schedparam.policy, _opts->schedparam.priority,
+					hogl::schedparam::DELETE_ON_EXIT,
+					_opts->schedparam.cpu_affinity ? _opts->schedparam.cpu_affinity : "");
 	}
 	hogl::format *fmt = (hogl::format *) _fmt;
 	hogl::output_file *out = new hogl::output_file(name, *fmt, opts);

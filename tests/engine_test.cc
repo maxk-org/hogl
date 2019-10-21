@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(cpu_affinity_mask)
 	};
 
 	// Set schedparams with affinity mask
-	opts.schedparam = hogl::schedparam(0, 0, std::to_string(0x1));
+	opts.schedparam = new hogl::schedparam(0, 0, hogl::schedparam::DELETE_ON_EXIT, std::to_string(0x1));
 
 	hogl::engine eng(output, opts);
 
@@ -142,7 +142,9 @@ BOOST_AUTO_TEST_CASE(cpu_affinity_list)
 	};
 
 	// CPU affinity as a list
-	opts.schedparam = hogl::schedparam(0, 0, "list:1,5-6");
+
+	hogl::schedparam sp(0, 0, 0, "list:1,5-6");
+	opts.schedparam = &sp;
 
 	hogl::engine eng(output, opts);
 

@@ -37,43 +37,46 @@ __HOGL_PRIV_NS_USING__;
 BOOST_AUTO_TEST_CASE(basic_other)
 {
 	printf("basic sched_other test\n");
-	const hogl::schedparam sp;
-	BOOST_ASSERT(sp.policy == SCHED_OTHER);
-	BOOST_ASSERT(sp.priority == 0);
-	BOOST_ASSERT(sp.cpu_affinity.empty());
-	BOOST_ASSERT(sp.apply("test"));
+	auto* sp = new hogl::schedparam();
+	BOOST_ASSERT(sp->policy == SCHED_OTHER);
+	BOOST_ASSERT(sp->priority == 0);
+	BOOST_ASSERT(sp->cpu_affinity.empty());
+	BOOST_ASSERT(sp->thread_enter("test"));
+
+	sp->flags = sp->DELETE_ON_EXIT;
+	sp->thread_exit();
 }
 
 BOOST_AUTO_TEST_CASE(basic_fifo)
 {
 	printf("basic sched_fifo test\n");
-	const hogl::schedparam sp(SCHED_FIFO, 50);
+	hogl::schedparam sp(SCHED_FIFO, 50);
 	BOOST_ASSERT(sp.policy == SCHED_FIFO);
 	BOOST_ASSERT(sp.priority == 50);
 	BOOST_ASSERT(sp.cpu_affinity.empty());
-	BOOST_ASSERT(!sp.apply("test"));
+	BOOST_ASSERT(!sp.thread_enter("test"));
 }
 
 BOOST_AUTO_TEST_CASE(validation_good)
 {
 	// Good params and copy
-	hogl::schedparam sp(0,0,"0x3");
+	hogl::schedparam sp(0,0,0, "0x3");
 	BOOST_ASSERT(sp.validate());
 
-	sp = hogl::schedparam(0,0, "list:0-3,10-13");
+	sp = hogl::schedparam(0,0,0, "list:0-3,10-13");
 	BOOST_ASSERT(sp.validate());
 
-	sp = hogl::schedparam(SCHED_RR, 99, "list:1-3,10-13");
+	sp = hogl::schedparam(SCHED_RR,99,0, "list:1-3,10-13");
 	BOOST_ASSERT(sp.policy == SCHED_RR);
 	BOOST_ASSERT(sp.priority == 99);
 	BOOST_ASSERT(sp.validate());
-	BOOST_ASSERT(!sp.apply("test"));
+	BOOST_ASSERT(!sp.thread_enter("test"));
 }
 
 BOOST_AUTO_TEST_CASE(validation_bad)
 {
 	// Bad params
-	const hogl::schedparam sp0(0,0,"list:12345"); // crazy CPU number
+	hogl::schedparam sp0(0,0,0,"list:12345"); // crazy CPU number
 	// If affinity is not support it won't fail as expected.
 	BOOST_ASSERT(!sp0.validate());
 }
@@ -82,7 +85,7 @@ BOOST_AUTO_TEST_CASE(validation_bad)
 BOOST_AUTO_TEST_CASE(basic_other)
 {
 	printf("basic sched_other test\n");
-	const hogl::schedparam sp;
+	hogl::schedparam sp;
 	BOOST_ASSERT(sp.policy == SCHED_OTHER);
 	BOOST_ASSERT(sp.priority == 0);
 	BOOST_ASSERT(sp.cpu_affinity.empty());

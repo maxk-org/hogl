@@ -85,7 +85,7 @@ public:
 		unsigned int max_age;           /// Max age of each file chunk (seconds)
 		unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
 		size_t       buffer_capacity;   /// Max capacity of the output buffer (bytes)
-		hogl::schedparam schedparam;    /// Scheduler params for the rotation helper thread
+		hogl::schedparam* schedparam;   /// Scheduler params for the rotation helper thread
 	};
 
 	// Default options
@@ -127,7 +127,7 @@ private:
 	pthread_mutex_t _rotate_mutex;   /// Mutex that protects rotate state
 	pthread_cond_t  _rotate_cond;    /// Rotate signaling
 	volatile bool   _rotate_pending; /// Rotate is pending
-	hogl::schedparam _rotate_schedparam; /// Scheduler params for helper threads
+	hogl::schedparam* _rotate_schedparam; /// Scheduler params for the rotation thread
 
 	// No copies
 	output_file(const output_file&);

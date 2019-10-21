@@ -135,18 +135,16 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 
 #endif // if linux
 
-schedparam::schedparam(int _policy, int _priority, const std::string _cpu_affinity) :
-	policy(_policy), priority(_priority), cpu_affinity(_cpu_affinity)
+schedparam::schedparam(int _policy, int _priority, unsigned int _flags, const std::string _cpu_affinity) :
+	policy(_policy), priority(_priority), flags(_flags), cpu_affinity(_cpu_affinity)
 { }
 
 schedparam::schedparam() :
-	policy(SCHED_OTHER), priority(0), cpu_affinity()
+	policy(SCHED_OTHER), priority(0), flags(0), cpu_affinity()
 { }
 
-bool schedparam::apply(const char *title) const
+bool schedparam::thread_enter(const char *title)
 {
-	platform::set_thread_title(title);
-
 	bool failed = false;
 	int  err = 0;
 
@@ -169,6 +167,12 @@ bool schedparam::apply(const char *title) const
 	}
 
 	return !failed;
+}
+
+void schedparam::thread_exit()
+{
+	if (flags & DELETE_ON_EXIT)
+		delete this;
 }
 
 bool schedparam::validate() const

@@ -39,6 +39,7 @@
 #include "hogl/detail/format.hpp"
 #include "hogl/detail/output.hpp"
 #include "hogl/detail/ntos.hpp"
+#include "hogl/detail/internal.hpp"
 #include "hogl/format-basic.hpp"
 #include "hogl/format-raw.hpp"
 #include "hogl/format-null.hpp"
@@ -174,6 +175,28 @@ public:
 		hogl::timesource("bad", reinterpret_cast<hogl::timesource::callback>(get_timestamp))
 	{
 		_badness = badness;
+	}
+};
+
+// Custom schedparam, just for fun
+class strict_schedparam : public hogl::schedparam {
+public:
+	bool strict; // enable extra checks
+
+	strict_schedparam() :
+		schedparam(), strict(false)
+	{ }
+
+	virtual bool thread_enter(const char *title)
+	{
+		hogl::platform::post_early(hogl::internal::INFO, "applying schedparam: %s", title);
+
+		bool good = schedparam::thread_enter(title);
+		if (!good && strict) {
+			hogl::platform::post_early(hogl::internal::ERROR, "strict schedparam: %s failed", title);
+			abort();
+		}
+		return true;
 	}
 };
 
@@ -505,12 +528,13 @@ static struct option main_lopts[] = {
    {"poll-interval",  1, 0, 'p'},
    {"eng-cpu-affi",   1, 0, 'A'},
    {"eng-prio",    1, 0, 'P'},
+   {"eng-ssched",  1, 0, 'S'},
    {"flush",       0, 0, 'F'},
    {"ts-badness",  1, 0, 'B'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:O:t:R:n:r:b:wi:l:p:N:T:A:P:FB:WC";
+static char main_sopts[] = "hf:o:O:t:R:n:r:b:wi:l:p:N:T:A:P:S:FB:WC";
 
 static char main_help[] =
    "Hogl stress test 0.1 \n"
@@ -537,12 +561,17 @@ static char main_help[] =
       "\t--flush -F              Make one of the threads call flush every iteration\n"
       "\t--eng-cpu-affi -A <A>   Set hogl::engine CPU affinity\n"
       "\t--eng-prio -P <N>       Set hogl::engine scheduling priority (with SCHED_FIFO)\n"
+      "\t--eng-ssched -S <N>     Use strict (extra checks) schedparam for the hogl::engine\n"
       "\t--ts-badness -B <N>     Timesource badness N (0 - perfect, +/- badness delta)\n";
 // }
 
 int main(int argc, char *argv[])
 {
 	int opt;
+
+	// Enable our custom schedparam
+	strict_schedparam ssched;
+	log_eng_opts.schedparam = static_cast<hogl::schedparam*>(&ssched);
 
 	// Parse command line args
 	while ((opt = getopt_long(argc, argv, main_sopts, main_lopts, NULL)) != -1) {
@@ -620,13 +649,17 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'P':
-			log_eng_opts.schedparam.priority = strtol(optarg, 0, 0);
-			if (log_eng_opts.schedparam.priority)
-				log_eng_opts.schedparam.policy = SCHED_FIFO;
+			ssched.priority = strtol(optarg, 0, 0);
+			if (ssched.priority)
+				ssched.policy = SCHED_FIFO;
 			break;
 
 		case 'A':
-			log_eng_opts.schedparam.cpu_affinity = optarg;
+			ssched.cpu_affinity = optarg;
+			break;
+
+		case 'S':
+			ssched.strict = strtol(optarg, 0, 0);
 			break;
 
 		case 'h':

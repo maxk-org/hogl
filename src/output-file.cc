@@ -205,7 +205,8 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 		output(fmt),
 		_max_size(opts.max_size), _max_count(opts.max_count), _mode(opts.perms),
 		_fd(-1), _size(0),
-		_running(false), _killed(false), _rotate_pending(false)
+		_running(false), _killed(false),
+		_rotate_pending(false), _rotate_schedparam(opts.schedparam)
 {
 	pthread_mutex_init(&_write_mutex, NULL);
 	pthread_mutex_init(&_rotate_mutex, NULL);
@@ -377,11 +378,19 @@ void *output_file::thread_entry(void *_self)
 	std::ostringstream ss;
 	ss << "hogl::output_file helper (" << self->_symlink << ")";
 
+	platform::set_thread_title(ss.str().c_str());
+
 	// Apply scheduler params
-	self->_rotate_schedparam.apply(ss.str().c_str());
+	if (self->_rotate_schedparam)
+		self->_rotate_schedparam->thread_enter(ss.str().c_str());
 
 	// Run the loop
 	self->thread_loop();
+
+	// Apply scheduler params
+	if (self->_rotate_schedparam)
+		self->_rotate_schedparam->thread_exit();
+
 	return 0;
 }
 
