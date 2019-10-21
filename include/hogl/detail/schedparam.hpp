@@ -54,7 +54,7 @@ public:
 
 	/**
 	 * Apply scheduler params to the current thread.
-	 * Called immidiately from the thread entry point of all hogl threads (engine, output).
+	 * Called immediately from the thread entry point of all hogl threads (engine, output).
 	 * @param thread_name name of the thread
 	 * returns true on success
 	 */
