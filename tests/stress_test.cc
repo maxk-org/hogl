@@ -32,6 +32,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <algorithm>
 #include <sstream>
@@ -197,6 +199,57 @@ public:
 			abort();
 		}
 		return true;
+	}
+};
+
+// Output filename switcher
+class output_switcher {
+private:
+	hogl::output_file *_out;
+	std::string        _dir;
+	std::string        _file;
+	unsigned int       _idx;
+
+public:
+	output_switcher(const std::string& dir, const std::string& file) :
+		_out(0), _dir(dir), _file(file), _idx(0)
+	{
+		mkdir();
+	}
+
+	std::string dirname()
+	{
+		std::ostringstream ss;
+		ss << _dir << '/' << _idx << '/';
+		return ss.str();
+	}
+
+	std::string filename()
+	{
+		return dirname() + _file;
+	}
+
+	bool mkdir()
+	{
+		int err = ::mkdir(dirname().c_str(), 0777);
+		if (err < 0 && errno != EEXIST) {
+			fprintf(stderr, "failed to created directory %s : %s", dirname().c_str(), strerror(errno));
+			return false;
+		}
+		return true;
+	}
+
+	bool init(hogl::output_file* out)
+	{
+		_out = out;
+		return mkdir();
+	}
+
+	void next()
+	{
+		_idx++;
+		mkdir();
+		_out->switch_name(filename().c_str());
 	}
 };
 
@@ -423,21 +476,15 @@ static unsigned int ring_capacity = 1024;
 static unsigned int burst_size    = 10;
 static unsigned int interval_usec = 1000;
 static unsigned int nloops        = 20000;
-static size_t       output_bufsize = 64 * 1024;
-static unsigned int rotate_size   = 1024 * 1024 * 1024;
 static bool         flush         = false;
 static bool         use_raw       = false;
 static bool         use_blocking  = false;
 static bool         use_cstr      = false;
 static int64_t      ts_badness    = 0;
 
-static hogl::engine::options log_eng_opts = hogl::engine::default_options;
+static output_switcher* out_switcher;
 
-static std::string log_output("null");
-static std::string log_tee;
-static std::string log_format("custom");
-
-int doTest()
+static int doTest()
 {
 	test_thread *thread[nthreads];
 
@@ -460,7 +507,10 @@ int doTest()
 		if (all_dead)
 			break;
 
-		usleep(10000);
+		usleep(200000);
+
+		if (out_switcher)
+			out_switcher->next();
 	}
 
 	bool failed = false;
@@ -479,7 +529,7 @@ int doTest()
 	return failed ? -1 : 0;
 }
 
-hogl::output* create_output(std::string& out, hogl::format& fmt, size_t bufsize)
+hogl::output* create_output(std::string& out, std::string& dir_switch, hogl::format& fmt, size_t bufsize, size_t filesize)
 {
 	if (out == "null")
 		return new hogl::output_null(fmt, bufsize);
@@ -494,14 +544,25 @@ hogl::output* create_output(std::string& out, hogl::format& fmt, size_t bufsize)
 		return new hogl::output_pipe(out.substr(1).c_str(), fmt, bufsize);
 
 	if (out.find('#') != out.npos) {
+		// Enable output directory switching
+		if (!dir_switch.empty()) {
+			out_switcher = new output_switcher(dir_switch, out);
+
+			out = out_switcher->filename();
+		}
+
 		hogl::output_file::options opts = {
 			.perms     = 0666,
-			.max_size  = rotate_size,
+			.max_size  = filesize,
 			.max_age   = 0,
 			.max_count = 20,
 			.buffer_capacity = bufsize
 		};
-		return new hogl::output_file(out.c_str(), fmt, opts);
+
+		hogl::output_file* o = new hogl::output_file(out.c_str(), fmt, opts);
+		if (!dir_switch.empty())
+			out_switcher->init(o);
+		return o;
 	}
 
 	return new hogl::output_plainfile(out.c_str(), fmt, bufsize);
@@ -515,6 +576,7 @@ static struct option main_lopts[] = {
    {"out-buff-size", 1, 0, 'O'},
    {"out-file-size", 1, 0, 'R'},
    {"out-tee",       1, 0, 't'},
+   {"out-switch-dir",1, 0, 'D'},
    {"nthreads",    1, 0, 'n'},
    {"ring-size",   1, 0, 'r'},
    {"burst-size",  1, 0, 'b'},
@@ -534,10 +596,10 @@ static struct option main_lopts[] = {
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:O:t:R:n:r:b:wi:l:p:N:T:A:P:S:FB:WC";
+static char main_sopts[] = "hf:o:O:t:D:R:n:r:b:wi:l:p:N:T:A:P:S:FB:WC";
 
 static char main_help[] =
-   "Hogl stress test 0.1 \n"
+   "HOGL stress test\n"
    "Usage:\n"
       "\tstress_test [options]\n"
    "Options:\n"
@@ -547,6 +609,7 @@ static char main_help[] =
       "\t--out-bufsize -O <N>    Output buffer size (number of bytes)\n"
       "\t--out-file-size -R <S>  Maximum size of each output file chunk (in megabytes)\n"
       "\t--out-tee -t <name>     Tee the main output into: file name, stderr, stderror, pipe\n"
+      "\t--out-switch-dir -D <name> Enable output directory switching\n"
       "\t--poll-interval -p <N>  Engine polling interval (in usec)\n"
       "\t--nthreads -n <N>       Number of threads to start\n"
       "\t--ring -r <N>           Ring size (number of records)\n"
@@ -569,6 +632,14 @@ int main(int argc, char *argv[])
 {
 	int opt;
 
+	hogl::engine::options log_eng_opts = hogl::engine::default_options;
+	std::string log_output("null");
+	std::string log_format("custom");
+	size_t      out_file_size = 1024 * 1024 * 1024;
+	size_t      out_buff_size = 64 * 1024;
+	std::string out_tee;
+	std::string out_switch_dir;
+
 	// Enable our custom schedparam
 	strict_schedparam ssched;
 	log_eng_opts.schedparam = static_cast<hogl::schedparam*>(&ssched);
@@ -584,12 +655,16 @@ int main(int argc, char *argv[])
 			log_output = optarg;
 			break;
 
+		case 'D':
+			out_switch_dir = optarg;
+			break;
+
 		case 't':
-			log_tee = optarg;
+			out_tee = optarg;
 			break;
 
 		case 'R':
-			rotate_size = atoi(optarg) * 1024 * 1024;
+			out_file_size = atoi(optarg) * 1024 * 1024;
 			break;
 
 		case 'n':
@@ -637,7 +712,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'O':
-			output_bufsize = atoi(optarg);
+			out_buff_size = atoi(optarg);
 			break;
 
 		case 'F':
@@ -691,12 +766,12 @@ int main(int argc, char *argv[])
 	else
 		lf = new hogl::format_basic(log_format.c_str());
 
-	if (log_tee.empty()) {
-		lo[0] = create_output(log_output, *lf, output_bufsize);
+	if (out_tee.empty()) {
+		lo[0] = create_output(log_output, out_switch_dir, *lf, out_buff_size, out_file_size);
 	} else {
-		lo[1] = create_output(log_output, *lf, 0);
-		lo[2] = create_output(log_tee, *lf, 0);
-		lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
+		lo[1] = create_output(log_output, out_switch_dir, *lf, 0, out_file_size);
+		lo[2] = create_output(out_tee, out_switch_dir, *lf, 0, out_file_size);
+		lo[0] = new hogl::output_tee(lo[1], lo[2], out_buff_size);
 	}
 
 	hogl::activate(*lo[0], log_eng_opts);
@@ -704,7 +779,7 @@ int main(int argc, char *argv[])
 
 	main_logarea = hogl::add_area("MAIN", main_logsect_names);
 
-	// Replace default TLS for the main thread	
+	// Replace default TLS for the main thread
 	hogl::ringbuf::options ringopts = { .capacity = 1024, .prio = 10 };
 	hogl::tls *tls = new hogl::tls("MAIN", ringopts);
 
@@ -729,6 +804,8 @@ int main(int argc, char *argv[])
 
 	if (log_format == "stats")
 		static_cast<stats_format *>(lf)->dump();
+
+	delete out_switcher;
 
 	delete bad_ts;
 	for (unsigned i=0; i<3; i++) delete lo[i];

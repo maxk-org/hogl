@@ -92,6 +92,17 @@ public:
 	static options default_options;
 
 	/**
+	 * Switch to a different filename, and (if needed) directory location.
+	 * The switch forces file rotation. Once the rotation is complete the output is written with new file name.
+	 * Please note that it's difficult to ensure that the new file will be openeded successfully
+	 * from the caller context. If the rotation thread fails to open the new file the output will
+	 * continue writing to the last open file.
+	 * @param name file name. Format 'prefix.#.suffix'. '#' will be replaced with the file sequence number.
+	 * Return true of the new name passes basic validation.
+	 */
+	bool switch_name(const char* filename);
+
+	/**
  	 * File output constuctor. Open the file and set things up for writing.
  	 * @param name file name. Format 'prefix.#.suffix'. '#' will be replaced with the file sequence number.
  	 * @param fmt format handler.
@@ -99,8 +110,8 @@ public:
 	output_file(const char *name, format &fmt, const options &opts = default_options);
 
 	/**
- 	 * Close file rotator.
- 	 */
+	 * Close file output
+	 */
 	virtual ~output_file();
 
 private:
@@ -132,6 +143,11 @@ private:
 	// No copies
 	output_file(const output_file&);
 	output_file& operator=( const output_file& );
+
+	/**
+	 * Init file naming state
+	 */
+	void init_name(const char *str);
 
 	/**
  	 * Update name of the current file

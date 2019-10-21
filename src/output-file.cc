@@ -196,30 +196,16 @@ unsigned int output_file::read_link()
 	return index;
 }
 
-// Format of the filename
-//   /location/preffix.#.suffix
-// # will be replaced by the file index
-// Currently active file will have the following name
-//   /location/prefix.suffix
-output_file::output_file(const char *filename, format &fmt, const options &opts) :
-		output(fmt),
-		_max_size(opts.max_size), _max_count(opts.max_count), _mode(opts.perms),
-		_fd(-1), _size(0),
-		_running(false), _killed(false),
-		_rotate_pending(false), _rotate_schedparam(opts.schedparam)
+// Initialize file name.
+// Parses the name, figures out the location of the seqno, etc.
+void output_file::init_name(const char *filename)
 {
-	pthread_mutex_init(&_write_mutex, NULL);
-	pthread_mutex_init(&_rotate_mutex, NULL);
-	pthread_cond_init(&_rotate_cond, NULL);
-
-	// Start helper thread
-	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
-	if (err) {
-		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
-		abort();
-	}
-
 	const std::string str(filename);
+
+	// Reset everything first because we might be moving to the new 
+	// output location with totally different naming.
+	_name_sufx.clear();
+	_name_pref.clear();
 
 	// Split file name into prefix and suffix
 	size_t split = str.find('#');
@@ -247,6 +233,32 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 
 	_name_index = read_link();
 	update_name();
+}
+
+// Format of the filename
+//   /location/preffix.#.suffix
+// # will be replaced by the file index
+// Currently active file will have the following name
+//   /location/prefix.suffix
+output_file::output_file(const char *filename, format &fmt, const options &opts) :
+		output(fmt),
+		_max_size(opts.max_size), _max_count(opts.max_count), _mode(opts.perms),
+		_fd(-1), _size(0),
+		_running(false), _killed(false),
+		_rotate_pending(false), _rotate_schedparam(opts.schedparam)
+{
+	pthread_mutex_init(&_write_mutex, NULL);
+	pthread_mutex_init(&_rotate_mutex, NULL);
+	pthread_cond_init(&_rotate_cond, NULL);
+
+	// Start helper thread
+	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
+	if (err) {
+		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
+		abort();
+	}
+
+	init_name(filename);
 
 	_fd = open(_name.c_str(), O_CREAT | O_WRONLY | O_APPEND | O_TRUNC, _mode);
 	if (_fd < 0) {
@@ -414,6 +426,26 @@ void output_file::thread_loop()
 	pthread_mutex_unlock(&_rotate_mutex);
 
 	_running = false;
+}
+
+bool output_file::switch_name(const char *filename)
+{
+	// FIXME: need to add at last some basic validation
+
+	// We have to make sure the rotation thread is not racing with us 
+	// which means we need to hold rotation_mutex.
+	pthread_mutex_lock(&_rotate_mutex);
+
+	// Reinit filename bits (sufx, etc)
+	init_name(filename);
+
+	// Trigger rotation
+	_rotate_pending = true;
+	pthread_cond_signal(&_rotate_cond);
+
+	pthread_mutex_unlock(&_rotate_mutex);
+
+	return true;
 }
 
 } // namespace hogl
