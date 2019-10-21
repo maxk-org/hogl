@@ -185,9 +185,8 @@ extern "C" hogl_output_t hogl_new_output_file(const char *name, hogl_format_t _f
 	// we could use memcpy here but there is a risk that these structs
 	// would diverge so it is safer to have it one field at a time
 	if(_opts) {
-		opts.perms = _opts->perms;
-		opts.max_size = _opts->max_size;
-		opts.max_age = _opts->max_age;
+		opts.perms     = _opts->perms;
+		opts.max_size  = _opts->max_size;
 		opts.max_count = _opts->max_count;
 		opts.buffer_capacity = _opts->buffer_capacity;
 		opts.schedparam = new hogl::schedparam(_opts->schedparam.policy, _opts->schedparam.priority,

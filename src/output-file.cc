@@ -88,8 +88,7 @@ public:
 
 output_file::options output_file::default_options = {
 	.perms = 0666,
-	.max_size = 1 * 1024 * 1024 * 1024, /// 1GB
-	.max_age = 0, /// Unlimited
+	.max_size  = 1 * 1024 * 1024 * 1024, /// 1GB
 	.max_count = 128,
 	.buffer_capacity = 8192
 };

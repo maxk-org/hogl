@@ -82,7 +82,6 @@ public:
 	struct options {
 		unsigned int perms;             /// File permissions
 		size_t       max_size;          /// Max size of each file chunk (bytes)
-		unsigned int max_age;           /// Max age of each file chunk (seconds)
 		unsigned int max_count;         /// Max file count. Index goes back to zero after it reaches max_count.
 		size_t       buffer_capacity;   /// Max capacity of the output buffer (bytes)
 		hogl::schedparam* schedparam;   /// Scheduler params for the rotation helper thread
@@ -123,7 +122,6 @@ private:
 	unsigned int    _index_width; /// Number of digits in the file index
 
 	size_t          _max_size;    /// Max size in bytes
-	size_t          _max_age;     /// Max age in seconds
 	unsigned int    _max_count;   /// Max number of files
 	unsigned int    _mode;        /// File mode
 

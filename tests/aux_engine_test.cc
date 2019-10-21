@@ -62,9 +62,8 @@ int main(void)
 	_aux_logfmt = new hogl::format_raw();
 
 	hogl::output_file::options aux_output_opts = {
-		        .perms = 0666,
-		        .max_size = ONE_GB,
-		        .max_age = 0,
+		        .perms     = 0666,
+		        .max_size  = ONE_GB,
 		        .max_count = 5000,
 		        .buffer_capacity = ONE_MB,
 		};

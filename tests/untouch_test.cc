@@ -354,9 +354,8 @@ int main(int argc, char *argv[])
 		lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf);
 	else if (log_output.find('#') != log_output.npos) {
 		hogl::output_file::options opts = {
-			.perms = 0666,
-			.max_size = 1 * 1024 * 1024,
-			.max_age = 0,
+			.perms     = 0666,
+			.max_size  = 1 * 1024 * 1024,
 			.max_count = 20,
 			.buffer_capacity = 8129
 		};

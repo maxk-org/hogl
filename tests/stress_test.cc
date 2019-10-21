@@ -554,7 +554,6 @@ hogl::output* create_output(std::string& out, std::string& dir_switch, hogl::for
 		hogl::output_file::options opts = {
 			.perms     = 0666,
 			.max_size  = filesize,
-			.max_age   = 0,
 			.max_count = 20,
 			.buffer_capacity = bufsize
 		};
