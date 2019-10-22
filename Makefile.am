@@ -70,6 +70,7 @@ incdet_HEADERS = \
 	include/hogl/detail/internal.hpp \
 	include/hogl/detail/timesource.hpp \
 	include/hogl/detail/timestamp.hpp \
+	include/hogl/detail/ntos.hpp \
 	include/hogl/detail/format.hpp \
 	include/hogl/detail/output.hpp \
 	include/hogl/detail/schedparam.hpp
