@@ -96,7 +96,7 @@ protected:
 	timestamp _last_timestamp;
 	tscache   _tscache;
 
-	void output_without_fmt(hogl::ostrbuf &sb, const record &r) const;
+	void output_without_fmt(hogl::ostrbuf &sb, const record &r, unsigned int start_with = 0) const;
 	void output_with_fmt(hogl::ostrbuf &sb, const record &r, unsigned int start_with = 0) const;
 	virtual void output_raw(hogl::ostrbuf &sb, const record &r) const;
 

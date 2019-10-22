@@ -107,10 +107,10 @@ static void do_cstr(hogl::ostrbuf &sb, const char *str, uint32_t len)
 		sb.cat("(null)");
 }
 
-void format_basic::output_without_fmt(hogl::ostrbuf &sb, const record &r) const
+void format_basic::output_without_fmt(hogl::ostrbuf &sb, const record &r, unsigned int start_with) const
 {
 	unsigned int i;
-	for (i=0; i < record::NARGS; i++) {
+	for (i=start_with; i < record::NARGS; i++) {
 		unsigned int type = r.get_arg_type(i);
 
 		if (type == arg::NONE)
