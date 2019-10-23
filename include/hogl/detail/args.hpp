@@ -128,6 +128,9 @@ struct arg {
 	// Force inlining them to avoid unnecessary code when optimizations
 	// are disabled.
 	hogl_force_inline arg()                : type(NONE) {}
+	hogl_force_inline arg(bool i)          : type(UINT32),  val(i) {}
+	hogl_force_inline arg(uint8_t i)       : type(UINT32),  val(i) {}
+	hogl_force_inline arg(uint16_t i)      : type(UINT32),  val(i) {}
 	hogl_force_inline arg(void *ptr)       : type(POINTER), val((unsigned long) ptr) {}
 	hogl_force_inline arg(volatile void *ptr) : type(POINTER), val((unsigned long) ptr) {}
 	hogl_force_inline arg(unsigned int i)  : type(UINT32), val(i) {}

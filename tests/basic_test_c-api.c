@@ -162,7 +162,7 @@ void setup_and_run(int output) {
 	enum {
 		XYZ_0 = 12345
 	};
-	hogl_post(area, CAPI_DEBUG, "enum %u", XYZ_0);
+	hogl_post(area, CAPI_DEBUG, "enum %u", (unsigned int) XYZ_0);
 
 	dbglog(DEBUG, "debug message: %u %f %d", 100, 25.33, -21); 
 	dbglog(INFO,  "info message: %u %f %d", 100, 25.33, -21); 
