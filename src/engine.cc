@@ -302,7 +302,7 @@ void engine::flush_record(unsigned int i, record *r)
 		r->ack();
 	} else {
 		// Feed regular record to the output
-		format::data d = { 0 };
+		format::data d = {};
 		d.ring_name = ring->name();
 		d.record    = r;
 		_output.process(d);
@@ -323,7 +323,7 @@ void engine::inject_record(const char *ring_name, timestamp ts, uint64_t seqnum,
 	fake.seqnum    = seqnum;
 	fake.set_args(0, hogl::arg_gstr(fmt), arg0, arg1);
 
-	format::data d = { 0 };
+	format::data d = {};
 	d.ring_name = ring_name;
 	d.record    = &fake;
 	_output.process(d);
@@ -341,7 +341,7 @@ void engine::inject_record(const char *ring_name, timestamp ts, uint64_t seqnum,
 	fake.seqnum    = seqnum;
 	fake.set_args(0, hogl::arg_gstr(fmt), hogl::arg_gstr(arg0), hogl::arg_gstr(arg1));
 
-	format::data d = { 0 };
+	format::data d = {};
 	d.ring_name = ring_name;
 	d.record    = &fake;
 	_output.process(d);
@@ -387,7 +387,7 @@ void engine::flush_full_tso()
 	unsigned int size  = _tso.size() / 2;
 
 	if (_internal_area->test(internal::TSOFULLMARK)) {
-		tsobuf::entry te = { 0 };
+		tsobuf::entry te = {};
 		_tso.top(te);
 		inject_record("ENGINE", te.rec->timestamp - 1, 0, internal::TSOFULLMARK, "following records may be out of order");
 	}

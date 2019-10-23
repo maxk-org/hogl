@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(tso_ops)
 	// order
 	hogl::timestamp last;
 
-	hogl::tsobuf::entry te = {0};
+	hogl::tsobuf::entry te = {};
 	tso.pop(te);
 
 	last = te.rec->timestamp;

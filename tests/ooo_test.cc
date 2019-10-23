@@ -169,7 +169,7 @@ void test_thread::loop()
 	_running = true;
 
 	// Create private thread ring
-	hogl::ringbuf::options ring_opts = { .capacity = _ring_capacity, .prio = 0 };
+	hogl::ringbuf::options ring_opts = { .capacity = _ring_capacity, .prio = 0, .flags = 0, .record_tailroom = 128 };
 	hogl::tls tls(_name.c_str(), ring_opts);
 
 	while (!_killed) {

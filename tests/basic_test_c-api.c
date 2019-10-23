@@ -64,7 +64,7 @@ static __attribute__((noinline)) void do_post()
 
 void *run_thread(void* unused)
 {
-	struct hogl_tls_options topts = { .ring_capacity = 1024, .ring_priority = 100 };
+	struct hogl_tls_options topts = { .ring_capacity = 1024, .ring_priority = 100, .record_tailroom = 128 };
 	hogl_tls_t tls = hogl_new_tls("THREAD", &topts);
 
 	const char *str = "str";
@@ -131,7 +131,7 @@ void setup_and_run(int output) {
 	hogl_mask_t nodbg_mask = hogl_new_mask(".*:.*", "!.*:DEBUG", 0);
 	hogl_mask_t allon_mask = hogl_new_mask(".*:.*", 0);
 
-	struct hogl_engine_options opts = { 0 };
+	struct hogl_engine_options opts = { };
 	opts.polling_interval_usec = 2000;
 	opts.default_mask = nodbg_mask;
 	hogl_activate(out, &opts);

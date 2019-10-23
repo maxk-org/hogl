@@ -175,7 +175,7 @@ void test_thread::loop()
 	_running = true;
 
 	// Create private thread ring
-	hogl::ringbuf::options ring_opts = { .capacity = _ring_capacity, .prio = 0 };
+	hogl::ringbuf::options ring_opts = { .capacity = _ring_capacity, .prio = 0, .flags = 0, .record_tailroom = 128 };
 	hogl::tls tls(_name.c_str(), ring_opts);
 
 	while (!_killed) {
@@ -357,7 +357,8 @@ int main(int argc, char *argv[])
 			.perms     = 0666,
 			.max_size  = 1 * 1024 * 1024,
 			.max_count = 20,
-			.buffer_capacity = 8129
+			.buffer_capacity = 8129,
+			.schedparam = 0
 		};
 		lo = new hogl::output_file(log_output.c_str(), *lf, opts);
 	} else

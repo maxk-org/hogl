@@ -66,6 +66,7 @@ int main(void)
 		        .max_size  = ONE_GB,
 		        .max_count = 5000,
 		        .buffer_capacity = ONE_MB,
+			.schedparam = 0
 		};
 	_aux_logout = new hogl::output_file("bin.log", *_aux_logfmt, aux_output_opts);
 

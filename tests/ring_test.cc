@@ -47,7 +47,8 @@ BOOST_AUTO_TEST_CASE(basic)
 	hogl::ringbuf::options opts = {
 			.capacity = 1024,
 			.prio = 123,
-			.flags = hogl::ringbuf::REUSABLE
+			.flags = hogl::ringbuf::REUSABLE,
+			.record_tailroom = 128
 		};
 
 	hogl::ringbuf ring("DUMMY", opts);
@@ -64,7 +65,7 @@ BOOST_AUTO_TEST_CASE(basic)
 
 BOOST_AUTO_TEST_CASE(immortal_ring)
 {
-	hogl::ringbuf::options opts = { 0 };
+	hogl::ringbuf::options opts = { };
 	opts.capacity = 64;
 	opts.flags    = hogl::ringbuf::IMMORTAL;
 
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE(immortal_ring)
 
 BOOST_AUTO_TEST_CASE(ring_ops)
 {
-	hogl::ringbuf::options opts = { 0 };
+	hogl::ringbuf::options opts = { };
 	opts.capacity = 64;
 
 	hogl::ringbuf *ring = new hogl::ringbuf("DUMMY", opts);
@@ -113,7 +114,7 @@ void *run_blocking_thread(void *priv)
 
 BOOST_AUTO_TEST_CASE(ring_block)
 {
-	hogl::ringbuf::options opts = { 0 };
+	hogl::ringbuf::options opts = { };
 	opts.capacity = 64;
 	opts.flags = hogl::ringbuf::BLOCKING;
 

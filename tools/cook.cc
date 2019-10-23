@@ -96,7 +96,7 @@ static unsigned int get_version(const char *str)
 	} vm[] = {
 		{ "1.0", raw_parser::V1   },
 		{ "1.1", raw_parser::V1_1 },
-		{ 0 }
+		{ }
 	};
 
 	for (unsigned int i = 0; vm[i].str; i++)

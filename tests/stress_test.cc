@@ -555,7 +555,8 @@ hogl::output* create_output(std::string& out, std::string& dir_switch, hogl::for
 			.perms     = 0666,
 			.max_size  = filesize,
 			.max_count = 20,
-			.buffer_capacity = bufsize
+			.buffer_capacity = bufsize,
+			.schedparam = 0
 		};
 
 		hogl::output_file* o = new hogl::output_file(out.c_str(), fmt, opts);
@@ -779,7 +780,7 @@ int main(int argc, char *argv[])
 	main_logarea = hogl::add_area("MAIN", main_logsect_names);
 
 	// Replace default TLS for the main thread
-	hogl::ringbuf::options ringopts = { .capacity = 1024, .prio = 10 };
+	hogl::ringbuf::options ringopts = { .capacity = 1024, .prio = 10, .flags = 0,  .record_tailroom = 128};
 	hogl::tls *tls = new hogl::tls("MAIN", ringopts);
 
 	// Replace timesource if needed
