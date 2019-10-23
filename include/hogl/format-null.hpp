@@ -42,7 +42,7 @@ namespace hogl {
  */
 class format_null : public format {
 public:
-	virtual void process(ostrbuf &s, const format::data &d) {}
+	virtual void process(ostrbuf&, const format::data&) {}
 };
 
 } // namespace hogl

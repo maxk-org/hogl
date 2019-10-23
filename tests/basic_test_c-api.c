@@ -62,7 +62,7 @@ static __attribute__((noinline)) void do_post()
 	hogl_post(area, CAPI_DEBUG, 0xfffffffff, 0xfefefefefefe);
 }
 
-void *run_thread(void *unused)
+void *run_thread(void* unused)
 {
 	struct hogl_tls_options topts = { .ring_capacity = 1024, .ring_priority = 100 };
 	hogl_tls_t tls = hogl_new_tls("THREAD", &topts);
@@ -72,6 +72,8 @@ void *run_thread(void *unused)
 
 	uint8_t buffer[128] = { 0,1,2,3,4,5,6 };
 	unsigned int x = 2;
+
+	(void) unused;
 
 	hogl_post(area, CAPI_DEBUG, "test");
 	hogl_post(area, CAPI_DEBUG, "arg0", "arg1");

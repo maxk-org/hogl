@@ -15,7 +15,7 @@ public:
 
 // Allocate and initialize format plugin.
 // Returns a pointer to initialized hogl::format instance
-static hogl::format* create(const char *str)
+static hogl::format* create(const char *)
 {
 	custom_format *fmt = new custom_format();
 	return fmt;

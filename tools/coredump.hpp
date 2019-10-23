@@ -81,7 +81,7 @@ public:
 	section_set         sections;
 	bool                failed;
 
-	coredump(const char *corefile, const char *execfile = 0, unsigned int flags = 0);
+	coredump(const char *corefile, const char *execfile = 0);
 	~coredump();
 
 	void* remap(const void *ptr, unsigned long n = 0);

@@ -133,7 +133,7 @@ void __attribute__((noinline)) post_hexdump()
 }
 
 static bool post_init;
-void init_post(hogl::record *r)
+void init_post(hogl::record *)
 {
         post_init = true;
 }

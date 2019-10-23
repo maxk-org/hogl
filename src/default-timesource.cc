@@ -32,7 +32,7 @@ __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 // Default 
-static hogl::timestamp do_clock_gettime(const hogl::timesource *unused)
+static hogl::timestamp do_clock_gettime(const hogl::timesource *)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);

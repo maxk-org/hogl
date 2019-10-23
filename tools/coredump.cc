@@ -192,7 +192,7 @@ void coredump::load(bfd *abfd)
 	bfd_map_over_sections(abfd, add_section, this);
 }
 
-coredump::coredump(const char *corefile, const char *execfile, unsigned int flags)
+coredump::coredump(const char *corefile, const char *execfile)
 {
 	failed = false;
 

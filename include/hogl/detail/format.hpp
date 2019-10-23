@@ -67,14 +67,14 @@ public:
 	 * @param n name of the current output (filename, pipe, etc)
 	 * @param first true if this is the first header (first file chunk)
 	 */
-	virtual void header(ostrbuf &s, const char *n, bool first) {};
+	virtual void header(ostrbuf&, const char*, bool) {};
 
 	/**
 	 * Generate format footer.
 	 * @param s reference to the string buffer
 	 * @param n name of the next output (filename, pipe, etc), set to zero for the last chunk.
 	 */
-	virtual void footer(ostrbuf &s, const char *n) {};
+	virtual void footer(ostrbuf&, const char*) {};
 
 	virtual ~format() {}
 };

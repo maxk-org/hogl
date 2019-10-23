@@ -56,7 +56,7 @@ public:
 	test_format() : _last(0), _ooo(0)
 	{ }
 
-	void process(hogl::ostrbuf &sb, const hogl::format::data &d)
+	void process(hogl::ostrbuf&, const hogl::format::data& d)
 	{
 		uint64_t ts = d.record->timestamp;
 		if (ts < _last)

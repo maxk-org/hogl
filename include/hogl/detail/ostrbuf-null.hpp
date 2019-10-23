@@ -47,7 +47,7 @@ namespace hogl {
 class ostrbuf_null : public ostrbuf
 {
 private:
-	virtual void do_flush(const uint8_t *data, size_t len)
+	virtual void do_flush(const uint8_t *, size_t)
 	{
 		if (failed())
 			abort();

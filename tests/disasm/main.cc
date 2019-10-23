@@ -59,7 +59,7 @@ extern void init_tls();
 extern void init_bitmap();
 extern "C" void init_c_api_post();
 
-int main(int argc, char *argv[])
+int main(int, char**)
 {
 	hogl::format_basic  logfmt;
 	hogl::output_stderr logout(logfmt);

@@ -94,7 +94,7 @@ public:
 static char really_long_string[8192];
 static char insanely_long_string[64*1024];
 
-void *run_thread_locked(void *unused)
+void *run_thread_locked(void *)
 {
 	hogl::ringbuf::options ring_opts = { .capacity = 1024, .prio = 100, .flags = 0, .record_tailroom = 128 };
 	hogl::tls tls("LOCKED", ring_opts);
@@ -196,7 +196,7 @@ void *run_thread_locked(void *unused)
 	return 0;
 }
 
-void *run_thread_unlocked(void *unused)
+void *run_thread_unlocked(void *)
 {
 	hogl::ringbuf::options ring_opts = { .capacity = 1024, .prio = 100 };
 	hogl::tls tls("UNLOCKED", ring_opts);

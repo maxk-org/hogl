@@ -128,7 +128,7 @@ public:
 	stats_format(uint64_t tmax_nsec=0) : _tmax_nsec(tmax_nsec), _max(0), _min(~0ULL), _last(0)
 	{}
 
-	void process(hogl::ostrbuf &sb, const hogl::format::data &d)
+	void process(hogl::ostrbuf&, const hogl::format::data &d)
 	{
 		const hogl::record &r = *d.record;
 

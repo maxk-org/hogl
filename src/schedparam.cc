@@ -143,7 +143,7 @@ schedparam::schedparam() :
 	policy(SCHED_OTHER), priority(0), flags(0), cpu_affinity()
 { }
 
-bool schedparam::thread_enter(const char *title)
+bool schedparam::thread_enter(const char * /* title */)
 {
 	bool failed = false;
 	int  err = 0;

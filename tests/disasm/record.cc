@@ -36,7 +36,7 @@ void __attribute__((noinline)) record_3_ints(hogl::record *r)
 	r->set_args(64,	1, 0x1f1f1f, -125);
 }
 
-void __attribute__((noinline)) record_1_double(hogl::record *r, double *d)
+void __attribute__((noinline)) record_1_double(hogl::record *r, double *)
 {
 	r->set_args(64,	1.1);
 }
@@ -89,7 +89,7 @@ void __attribute__((noinline)) record_local_cstr_14_args(hogl::record *r)
 }
 
 static bool record_init;
-void init_record(hogl::record *r)
+void init_record(hogl::record *)
 {
         record_init = true;
 }

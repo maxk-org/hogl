@@ -187,7 +187,8 @@ void ringbuf::timesource(hogl::timesource *ts)
 ringbuf::options ringbuf::default_options = {
 	.capacity = 1024,
 	.prio = 0,
-	.flags = 0
+	.flags = 0,
+	.record_tailroom = 128
 };
 
 std::ostream& operator<< (std::ostream& s, const ringbuf& ring)
