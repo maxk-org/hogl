@@ -91,21 +91,29 @@ public:
 		unsigned int len() const { return TS_LEN; }
 	};
 
+	// Expanded record data
+	struct record_data {
+		const hogl::record* record;
+		const char*  area_name;
+		const char*  sect_name;
+		const char*  ring_name;
+		const char*  arg_str[record::NARGS];
+		unsigned int next_arg;
+	};
+
 protected:
 	uint32_t  _fields;
 	timestamp _last_timestamp;
 	tscache   _tscache;
 
-	void output_without_fmt(hogl::ostrbuf &sb, const record &r, unsigned int start_with = 0) const;
-	void output_with_fmt(hogl::ostrbuf &sb, const record &r, unsigned int start_with = 0) const;
-	virtual void output_raw(hogl::ostrbuf &sb, const record &r) const;
+	virtual void output_plain(hogl::ostrbuf& sb, record_data& d);
+	virtual void output_raw(hogl::ostrbuf& sb, record_data& d);
+	virtual void output_fmt(hogl::ostrbuf& sb, record_data& d);
 
-	void add_timespec(hogl::timestamp ts, uint8_t *str, unsigned int &i);
-
-	void default_header(const format::data &d, ostrbuf &sb);
-	void fast0_header(const format::data &d, ostrbuf &sb);
-	void fast1_header(const format::data &d, ostrbuf &sb);
-	void flexible_header(const format::data &d, ostrbuf &sb);
+	void default_header(ostrbuf& sb, record_data& d);
+	void flexi_header(ostrbuf& sb, record_data& d);
+	void fast0_header(ostrbuf& sb, record_data& d);
+	void fast1_header(ostrbuf& sb, record_data& d);
 };
 
 } // namespace hogl
