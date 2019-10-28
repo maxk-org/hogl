@@ -58,17 +58,19 @@ public:
 	myformat(const char *str) : hogl::format_basic(str) {}
 
 private:
-	virtual void output_raw(hogl::ostrbuf &sb, const hogl::record &r) const;
+	virtual void output_raw(hogl::ostrbuf &sb, record_data &d);
 };
 
-void myformat::output_raw(hogl::ostrbuf &sb, const hogl::record &r) const
+void myformat::output_raw(hogl::ostrbuf &sb, record_data &d)
 {
+	const hogl::record& r = *d.record;
+
 	// arg0 points to raw data
 	// arg1 is data type
 	unsigned int len; const uint8_t *data = r.get_arg_data(0, len);
 	unsigned int data_type = r.get_arg_val32(1);
 
-	sb.printf("custom raw record: type %u, len %u @ %p", data_type, len, data);
+	sb.printf("custom raw record: type %u, len %u @ %p\n", data_type, len, data);
 }
 
 static const hogl::area *test_area;
