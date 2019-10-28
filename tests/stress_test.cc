@@ -102,8 +102,10 @@ public:
 		sb.put(str, n - last);
 	}
 
-	void output_raw(hogl::ostrbuf &sb, const hogl::record &r) const
+	void output_raw(hogl::ostrbuf& sb, record_data& d)
 	{
+		const hogl::record &r = *d.record;
+
 		unsigned int len; const burst_data *bd = (const burst_data *) r.get_arg_data(0, len);
 		unsigned int count = len / sizeof(burst_data);
 
@@ -112,6 +114,7 @@ public:
 		for (i=0; i < count - 1; i++)
 			raw_one_line(sb, i, bd[i]);
 		raw_one_line(sb, i, bd[i], 1);
+		sb.cat('\n');
 	}
 };
 

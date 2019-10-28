@@ -411,7 +411,10 @@ int main(int argc, char *argv[])
 	// Test double add (failed)
 	const char *a0_sections[] = { "X", 0 };
 	const hogl::area *a0 = hogl::add_area("TEST-AREA", a0_sections);
-	assert(a0 == 0);
+	if (a0 != 0) {
+		printf("Failed: double add of TEST-AREA\n");
+		return 1;
+	}
 
 	hogl::apply_mask(logmask);
 
