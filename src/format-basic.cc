@@ -69,30 +69,37 @@ format_basic::format_basic(const char *fields) :
 	}
 }
 
-static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
+static void do_xdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
 {
-	const uint8_t *ptr = data;
-	unsigned int offset;
+	const arg_xdump::header& hdr = *(const arg_xdump::header *) data;
+
+	const uint8_t *ptr = data + sizeof(arg_xdump::header);
+	len -= sizeof(arg_xdump::header);
+
+	if (hdr.format != arg_xdump::HEX) {
+		sb.printf("xdump format %u not supported yet", hdr.format);
+		return;
+	}
+
 	sb.cat('\n');
 
-        for (offset = 0; offset < len; offset += 16) {
-                sb.printf("\t%03d: ", offset);
+	for (unsigned int offset = 0; offset < len; offset += 16) {
+		sb.printf("\t%03d: ", offset);
 
 		unsigned int i;
-                for (i = 0; i < 16; i++) {
-                        if ((i + offset) < len)
-                                sb.printf("%02x ", ptr[offset + i]);
-                        else
-                                sb.cat("   ");
-                }
-                sb.cat("  ");
-                for (i = 0; i < 16 && ((i + offset) < len); i++) {
+		for (i = 0; i < hdr.line_width; i++) {
+			if ((i + offset) < len)
+				sb.printf("%02x ", ptr[offset + i]);
+			else
+				sb.cat("   ");
+		}
+		sb.cat("  ");
+		for (i = 0; i < hdr.line_width && ((i + offset) < len); i++) {
 			uint8_t b = ptr[offset + i];
-                        sb.cat(isprint(b) ? b : '.');
+			sb.cat(isprint(b) ? b : '.');
 		}
 		sb.cat('\n');
-        }
-	sb.cat('\n');
+	}
 }
 
 static void do_raw(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
@@ -145,9 +152,9 @@ void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d)
 		case (arg::DOUBLE):
 			sb.printf("%lf", v.dbl);
 			break;
-		case (arg::HEXDUMP):
+		case (arg::XDUMP):
 			data = r.get_arg_data(i, len);
-			do_hexdump(sb, data, len);
+			do_xdump(sb, data, len);
 			break;
 		case (arg::RAW):
 			data = r.get_arg_data(i, len);
@@ -194,7 +201,7 @@ void ffi_stack::add_arg(ffi_type *type, void *val)
 
 void ffi_stack::add_arg(const format_basic::record_data& d, unsigned int type, unsigned int i)
 {
-	static const char *hexdump_not_supported = "hexdump not supported with format strings";
+	static const char *xdump_not_supported   = "xdump not supported with format strings";
 	static const char *rawdata_not_supported = "rawdata not supported with format strings";
 
 	const record& r = *d.record;
@@ -224,9 +231,9 @@ void ffi_stack::add_arg(const format_basic::record_data& d, unsigned int type, u
 	case (arg::DOUBLE):
 		_arg_type[_depth] = &ffi_type_double;
 		break;
-	case (arg::HEXDUMP):
+	case (arg::XDUMP):
 		_arg_type[_depth] = &ffi_type_pointer;
-		_arg_val[_depth]  = &hexdump_not_supported;
+		_arg_val[_depth]  = &xdump_not_supported;
 		break;
 	case (arg::RAW):
 		_arg_type[_depth] = &ffi_type_pointer;

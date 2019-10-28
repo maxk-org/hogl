@@ -227,6 +227,35 @@ struct record {
 	}
 
 	/**
+	 * Copy data into the record.
+	 * @param i argument index
+	 * @param data pointer to the data buffer
+	 * @param len length of the data
+	 * @param tailroom amount of tailroom left in the record buffer
+	 * @param offset offset in the record buffer
+	 * @return number of bytes used in the record buffer
+	 */
+	unsigned int copy_xdump(unsigned int i, const arg_xdump* xd, unsigned int tailroom, unsigned int offset)
+	{
+		const unsigned int hlen = sizeof(xd->hdr);
+		unsigned int room = tailroom - offset;
+		unsigned int len  = hlen + xd->len;
+
+		len = len > room ? room : len;
+		if (len < hlen) {
+			set_arg_data(i, 0, 0);
+			return 0;
+		}
+		unsigned int dlen = len - hlen;
+
+		memcpy((uint8_t *) this->argval + offset + 0x00, (const void *) &xd->hdr, hlen);
+		memcpy((uint8_t *) this->argval + offset + hlen, (const void *) xd->ptr, dlen);
+
+		set_arg_data(i, offset, len);
+		return len;
+	}
+
+	/**
  	 * Set record argument
  	 * @param i index (position) of the argument (zero based)
  	 * @param a argument itself
@@ -244,8 +273,13 @@ struct record {
 
 		set_arg_type(i, a.type);
 
-		if (a.type == a.HEXDUMP || a.type == a.RAW) {
+		if (a.type == a.RAW) {
 			offset += copy_data(i, (const uint8_t *) a.val, a.len, tailroom, offset);
+			return;
+		}
+
+		if (a.type == a.XDUMP) {
+			offset += copy_xdump(i, (const arg_xdump *) a.val, tailroom, offset);
 			return;
 		}
 
@@ -296,9 +330,12 @@ struct record {
 			unsigned int type = ap.get_arg_type(i);
 			const uint8_t *data; unsigned int len;
 
-			if (type == arg::HEXDUMP || type == arg::RAW) {
+			if (type == arg::RAW) {
 				data = ap.get_arg_data(i, len);
 				offset += copy_data(i, data, len, tailroom, offset);
+			} else if (type == arg::XDUMP) {
+				data = ap.get_arg_data(i, len);
+				offset += copy_xdump(i, (const arg_xdump *) data, tailroom, offset);
 			} else if (type == arg::CSTR) {
 				data = ap.get_arg_data(i, len);
 				offset += copy_cstr(i, data, len, tailroom, offset);

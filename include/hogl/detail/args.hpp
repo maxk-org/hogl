@@ -42,7 +42,7 @@ namespace hogl {
 
 /**
  * Global string.
- * Special argument that tells HOGL that it's safe to use 
+ * Special argument that tells HOGL that it's safe to use
  * string pointer as is. No string copy is done in this case.
  */
 struct arg_gstr {
@@ -51,28 +51,41 @@ struct arg_gstr {
 };
 
 /**
- * Hexdump.
- * Special argument that tells HOGL to store the data as is and 
- * to generate a hexdump on the output.
- */
-struct arg_hexdump {
-	const void  *ptr;
-	unsigned int len;
-	hogl_force_inline arg_hexdump(const void *p, unsigned int n): ptr(p), len(n) {}
-};
-
-/**
  * Raw data.
  * Special argument that tells HOGL to store the data as is.
- * Default HOGL format handlers ignore RAW arguments. 
- * This type is designed for custom format handlers. Argument value in the final 
- * record is set to the offset within the tail buffer ORed with the length
- *		(uint64_t) offset << 32 | (length & 0xffffffff)
+ * Default HOGL format handlers ignore RAW arguments.
+ * This type is designed for custom format handlers.
  */
 struct arg_raw {
 	const void  *ptr;
 	unsigned int len;
 	hogl_force_inline arg_raw(const void *p, unsigned int n): ptr(p), len(n) {}
+};
+
+/**
+ * Formated data dump.
+ * Special argument that tells HOGL to store the data as is and
+ * to generate a formated data dump on the output.
+ */
+struct arg_xdump {
+	enum { HEX, DEC, UDEC, FLOAT, USER };
+	struct header {
+		uint8_t  format;     // format: HEX, DEC, ...
+		uint8_t  delim;      // delimeter character
+		uint8_t  byte_width; // number of bytes for each value (1,2,4,8)
+		uint8_t  line_width; // number of values per line
+	};
+	header       hdr;
+	const void  *ptr;
+	unsigned int len;
+	hogl_force_inline arg_xdump(const void *p, unsigned int n, uint8_t f = HEX, uint8_t bw = 1, uint8_t lw = 20, char d = ' '):
+		ptr(p), len(n)
+	{
+		hdr.format = f;
+		hdr.delim  = d;
+		hdr.byte_width = bw;
+		hdr.line_width = lw;
+	}
 };
 
 /**
@@ -92,13 +105,13 @@ struct arg {
 		DOUBLE, /// Floating point number
 		CSTR,   /// Regular C string
 		GSTR,   /// Global string (see below)
-		HEXDUMP,/// Hexdump
+		XDUMP,  /// Xdump
 		RAW,    /// Raw data
 	};
 
 	// This layout generates the most optimal code.
 	// Do not change it without making sure that the compiler is 
-	// able to optimize out all unessesary code.
+	// able to optimize out all unnecessary code.
 	unsigned int type;
 	uint64_t     val;
 	unsigned int len;
@@ -121,7 +134,7 @@ struct arg {
 
 	bool is_simple() const 
 	{
-		return (type != CSTR && type != HEXDUMP && type != RAW); 
+		return (type != CSTR && type != XDUMP && type != RAW);
 	}
 
 	// Various constructors for autodetecting argument types.
@@ -164,8 +177,8 @@ struct arg {
 
 	hogl_force_inline arg(const arg_gstr &s) : type(GSTR), val((uint64_t) s.str) {}
 
-	hogl_force_inline arg(const arg_hexdump &hd) :
-		type(HEXDUMP), val((uint64_t) hd.ptr), len(hd.len) {}
+	hogl_force_inline arg(const arg_xdump &xd) :
+		type(XDUMP), val((uint64_t) &xd) {}
 
 	hogl_force_inline arg(const arg_raw &raw) :
 		type(RAW), val((uint64_t) raw.ptr), len(raw.len) {}

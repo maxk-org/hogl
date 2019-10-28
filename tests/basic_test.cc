@@ -138,8 +138,8 @@ void *run_thread_locked(void *)
 	for (unsigned int i = 0; i < sizeof(data); i++)
 		data[i] = i;
 
-	hogl::post(test_area, TEST_HEXDUMP, hogl::arg_hexdump(data, sizeof(data)));
-	hogl::post(test_area, TEST_INFO, "%s", hogl::arg_hexdump(data, sizeof(data)));
+	hogl::post(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data)));
+	hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
 
 	// Post raw data for kicks
 	hogl::post(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));
@@ -229,8 +229,8 @@ void *run_thread_unlocked(void *)
 	for (unsigned int i = 0; i < sizeof(data); i++)
 		data[i] = i;
 
-	hogl::post_unlocked(test_area, TEST_HEXDUMP, hogl::arg_hexdump(data, sizeof(data)));
-	hogl::post_unlocked(test_area, TEST_INFO, "%s", hogl::arg_hexdump(data, sizeof(data)));
+	hogl::post_unlocked(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data), hogl::arg_xdump::HEX, 1, 40));
+	hogl::post_unlocked(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
 
 	// Post raw data for kicks
 	hogl::post_unlocked(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));

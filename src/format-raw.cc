@@ -75,7 +75,7 @@ private:
 				return;
 
 			switch (type) {
-			case arg::HEXDUMP:
+			case arg::XDUMP:
 			case arg::RAW:
 				data = r.get_arg_data(i, len);
 				add_blob<uint32_t>(data, len);

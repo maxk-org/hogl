@@ -88,6 +88,13 @@ void __attribute__((noinline)) record_local_cstr_14_args(hogl::record *r)
 				0xbbbbbbb, 0xccccccc, 0xdddddddd);
 }
 
+static uint8_t data[128] = {};
+
+void __attribute__((noinline)) record_hexdump(hogl::record *r)
+{
+	r->set_args(256, hogl::arg_xdump(data, sizeof(data)));
+}
+
 static bool record_init;
 void init_record(hogl::record *)
 {

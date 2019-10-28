@@ -91,7 +91,7 @@ void raw_parser::read_args(hogl::record &r)
 			offset += n;
 			break;
 
-		case arg::HEXDUMP:
+		case arg::XDUMP:
 		case arg::RAW:
 			if (_ver == V1)
 				n = read_blob<uint16_t>((char *) r.argval + offset);

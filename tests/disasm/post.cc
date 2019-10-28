@@ -129,7 +129,7 @@ void __attribute__((noinline)) post_cstr_cstr()
 static uint8_t data[256];
 void __attribute__((noinline)) post_hexdump()
 {
-	hogl::post_unlocked(test_area, 1, hogl::arg_hexdump(data, 128));
+	hogl::post_unlocked(test_area, 1, hogl::arg_xdump(data, 128, hogl::arg_xdump::HEX, 1, 40));
 }
 
 static bool post_init;
