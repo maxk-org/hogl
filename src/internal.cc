@@ -25,6 +25,7 @@
 */
 
 #include "hogl/detail/internal.hpp"
+#include "hogl/detail/args.hpp"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -43,6 +44,10 @@ const char *internal::section_names[] = {
 	"TLS:DEBUG",
 	0
 };
+
+// Dummy function called for arg checking
+void arg_check(const hogl::arg& a)
+{ }
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__

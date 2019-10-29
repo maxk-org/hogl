@@ -131,6 +131,8 @@ struct argpack {
 		if (a.type == a.NONE)
 			return 0;
 
+		__hogl_check_arg(a);
+
 		set_arg_type(i, a.type);
 
 		if (a.is_32bit())

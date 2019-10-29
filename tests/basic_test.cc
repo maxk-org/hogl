@@ -343,6 +343,9 @@ int doTest()
 			10, 20, 30, 40, 50);
 	hogl::post(test_area, TEST_EXTRA_INFO, "simple extra:info message");
 
+	uint32_t* undefined = (uint32_t*) malloc(128);
+	hogl::post(test_area, TEST_INFO, "undefined %u", *undefined);
+
 	hogl::timestamp t0(2000);
 	hogl::timestamp t1(1000);
 	uint64_t ts_delta = t1 - t0;

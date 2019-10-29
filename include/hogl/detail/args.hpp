@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <string.h>
 #include <string>
 
 #include <hogl/detail/compiler.hpp>
@@ -179,6 +180,10 @@ struct arg {
 	hogl_force_inline arg(const arg_raw &raw) :
 		type(RAW), val((uint64_t) raw.ptr), len(raw.len) {}
 };
+
+// Dummy function to call for triggering VG warnings on uninitialized args.
+// See argpack.hpp
+extern void arg_check(const arg& a);
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__

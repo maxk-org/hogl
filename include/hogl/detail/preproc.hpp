@@ -124,4 +124,13 @@
 #define __hogl_long_arg_list(i)  HOGL_PP_REPC(i, __hogl_long_arg)
 #define __hogl_short_arg_list(i) HOGL_PP_REPC(i, __hogl_short_arg)
 
+#ifdef HOGL_ENABLE_ARG_CHECK
+// This check doesn't really do anything special unless the app is running
+// under valgrind, in which case it triggers an early warning about conditional jump
+// depending on uninitialized variable.
+#define __hogl_check_arg(a) ({ if(a.val) hogl::arg_check(a); })
+#else
+#define __hogl_check_arg(a)
+#endif
+
 #endif // HOGL_DETAIL_PREPROC_HPP
