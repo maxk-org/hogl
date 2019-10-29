@@ -50,6 +50,9 @@
 // Don't warn about unused function
 #define hogl_weak_symbol __attribute__ ((weak))
 
+// Packed structs and unaligned access
+#define hogl_packed __attribute__ ((packed))
+
 // Frequently used function
 #ifdef __clang__
 #define hogl_hot_path

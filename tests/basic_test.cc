@@ -134,16 +134,64 @@ void *run_thread_locked(void *)
 	dbglog(EXTRA_INFO, "extra info message via wrapper macro, %u", 1000);
 
 	// Populate data pattern for hexdump
-	uint8_t data[120];
-	for (unsigned int i = 0; i < sizeof(data); i++)
-		data[i] = i;
+	{
+		uint8_t data[120];
+		for (unsigned int i = 0; i < sizeof(data); i++)
+			data[i] = i;
 
-	hogl::post(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data)));
-	hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
+		hogl::post(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data)));
+		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
 
-	// Post raw data for kicks
-	hogl::post(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));
-	hogl::post(test_area, TEST_INFO, "%s", hogl::arg_raw(data, sizeof(data)));
+		// Post raw data for kicks
+		hogl::post(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));
+		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_raw(data, sizeof(data)));
+	}
+
+	// Populate data pattern for xdump (uint9)
+	{
+		uint8_t data[120];
+		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+			data[i] = i;
+		hogl::post(test_area, TEST_INFO, "uint8_t multi-line CSV",
+				hogl::arg_xdump(data, sizeof(data), 'u', sizeof(data[0]), 0, 20, ','));
+	}
+
+	// Populate data pattern for xdump (int16)
+	{
+		int16_t data[120];
+		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+			data[i] = -i;
+		hogl::post(test_area, TEST_INFO, "signed multi-line CSV",
+				hogl::arg_xdump(data, sizeof(data), 'd', sizeof(data[0]), 0, 10, ','));
+	}
+
+	// Populate data pattern for xdump (float)
+	{
+		float data[100];
+		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+			data[i] = i / 3.0;
+		hogl::post(test_area, TEST_INFO, "10x10 floating point matrix",
+				hogl::arg_xdump(data, sizeof(data), 'f', sizeof(data[0]), 2, 10, ' '));
+	}
+
+	// Populate data pattern for xdump (float) -- single line (line_width == 0)
+	{
+		float data[50];
+		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+			data[i] = (25 + i) / 3.0;
+		hogl::post(test_area, TEST_INFO,
+				hogl::arg_xdump(data, sizeof(data), 'f', sizeof(data[0]), 3, 0, ','));
+	}
+
+
+	// Populate data pattern for xdump (float)
+	{
+		double data[120];
+		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+			data[i] = i / 3333.0;
+		hogl::post(test_area, TEST_INFO,
+				hogl::arg_xdump(data, sizeof(data), 'f', sizeof(data[0]), 4, 20, ','));
+	}
 
 	// Post records with >8 args
 	hogl::post(test_area, TEST_INFO, hogl::arg_gstr(">eight %u %u %u %u %u %u %u %u"), 1, 2, 3, 4, 5, 6, 7, 8);
@@ -229,7 +277,7 @@ void *run_thread_unlocked(void *)
 	for (unsigned int i = 0; i < sizeof(data); i++)
 		data[i] = i;
 
-	hogl::post_unlocked(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data), hogl::arg_xdump::HEX, 1, 40));
+	hogl::post_unlocked(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data), 'H', 1, 0, 40));
 	hogl::post_unlocked(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
 
 	// Post raw data for kicks

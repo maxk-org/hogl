@@ -69,37 +69,120 @@ format_basic::format_basic(const char *fields) :
 	}
 }
 
-static void do_xdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
+static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t n, const hogl::arg_xdump::format& xf)
 {
-	const arg_xdump::header& hdr = *(const arg_xdump::header *) data;
-
-	const uint8_t *ptr = data + sizeof(arg_xdump::header);
-	len -= sizeof(arg_xdump::header);
-
-	if (hdr.format != arg_xdump::HEX) {
-		sb.printf("xdump format %u not supported yet", hdr.format);
-		return;
-	}
-
 	sb.cat('\n');
 
-	for (unsigned int offset = 0; offset < len; offset += 16) {
+	unsigned int offset;
+	for (offset = 0; offset < n; offset += xf.line_width) {
 		sb.printf("\t%03d: ", offset);
 
 		unsigned int i;
-		for (i = 0; i < hdr.line_width; i++) {
-			if ((i + offset) < len)
-				sb.printf("%02x ", ptr[offset + i]);
+		for (i = 0; i < xf.line_width; i++) {
+			if ((i + offset) < n)
+				sb.printf("%02x ", data[offset + i]);
 			else
 				sb.cat("   ");
 		}
 		sb.cat("  ");
-		for (i = 0; i < hdr.line_width && ((i + offset) < len); i++) {
-			uint8_t b = ptr[offset + i];
+		for (i = 0; i < xf.line_width && ((i + offset) < n); i++) {
+			uint8_t b = data[offset + i];
 			sb.cat(isprint(b) ? b : '.');
 		}
 		sb.cat('\n');
 	}
+}
+
+template <typename T>
+static void xdump_single(hogl::ostrbuf &sb, const T* data, uint32_t n, const char *fmt, const hogl::arg_xdump::format& xf)
+{
+	struct safe_ptr { T v; } hogl_packed;
+	safe_ptr* ptr = (safe_ptr*) data;
+
+	for (unsigned int i=0; i < n; i++) {
+		if (i) sb.cat(xf.delim);
+		sb.printf(fmt, ptr[i].v);
+	}
+	sb.cat('\n');
+}
+
+template <typename T>
+static void xdump_multi(hogl::ostrbuf &sb, const T* data, uint32_t n, const char *fmt, const hogl::arg_xdump::format& xf)
+{
+	if (!xf.line_width)
+		return xdump_single(sb, data, n, fmt, xf);
+
+	struct safe_ptr { T v; } hogl_packed;
+	safe_ptr* ptr = (safe_ptr*) data;
+
+	sb.cat("\n");
+	unsigned int lw = 0;
+	for (unsigned int i=0; i < n; i++) {
+		sb.cat(lw ? xf.delim : '\t');
+		sb.printf(fmt, ptr[i].v); lw += 1;
+		if (lw == xf.line_width) { sb.cat("\n"); lw = 0; }
+	}
+	if (lw)
+		sb.cat('\n');
+}
+
+static const char* __flt_fmt(unsigned int pr)
+{
+	switch(pr) {
+	case 1: return "%.1f";
+	case 2: return "%.2f";
+	case 3: return "%.3f";
+	case 4: return "%.4f";
+	case 5: return "%.5f"; }
+	return "%f";
+}
+
+static const char* __dbl_fmt(unsigned int pr)
+{
+	switch(pr) {
+	case 1: return "%.1lf";
+	case 2: return "%.2lf";
+	case 3: return "%.3lf";
+	case 4: return "%.4lf";
+	case 5: return "%.5lf"; }
+	return "%f";
+}
+
+static void do_xdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
+{
+	const arg_xdump::format& xf = *(const arg_xdump::format *) data;
+
+	const uint8_t *ptr = data + sizeof(arg_xdump::format);
+	len = (len - sizeof(arg_xdump::format)) / xf.byte_width;
+
+	switch (xf.type) {
+	case 'H':
+		return do_hexdump(sb, ptr, len, xf);
+
+	case 'd':
+		switch (xf.byte_width) {
+		case 1: return xdump_multi(sb, (int8_t*)  ptr, len, "%d",   xf);
+		case 2: return xdump_multi(sb, (int16_t*) ptr, len, "%d",   xf);
+		case 4: return xdump_multi(sb, (int32_t*) ptr, len, "%ld",  xf);
+		case 8: return xdump_multi(sb, (int64_t*) ptr, len, "%lld", xf); }
+		break;
+
+	case 'u':
+		switch (xf.byte_width) {
+		case 1: return xdump_multi(sb, (uint8_t*) ptr, len, "%u",   xf);
+		case 2: return xdump_multi(sb, (uint16_t*)ptr, len, "%u",   xf);
+		case 4: return xdump_multi(sb, (uint32_t*)ptr, len, "%lu",  xf);
+		case 8: return xdump_multi(sb, (uint64_t*)ptr, len, "%llu", xf); }
+		break;
+
+	case 'f':
+		switch (xf.byte_width) {
+		case 4: return xdump_multi(sb, (float*) ptr, len, __flt_fmt(xf.precision), xf);
+		case 8: return xdump_multi(sb, (double*)ptr, len, __dbl_fmt(xf.precision), xf); }
+	}
+
+	sb.printf("xdump conversion type %c not supported", xf.type);
+	return;
 }
 
 static void do_raw(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
@@ -530,12 +613,18 @@ void format_basic::process(ostrbuf &sb, const format::data &d)
 	unsigned int t0 = r.get_arg_type(0);
 	unsigned int t1 = r.get_arg_type(1);
 
-	if ((t0 == arg::CSTR || t0 == arg::GSTR) && t1 != arg::NONE)
-		output_fmt(sb, rd);
-	else if (t0 == arg::RAW)
-		output_raw(sb, rd);
-	else
-		output_plain(sb, rd);
+
+	switch (t0) {
+	case arg::RAW:
+		return output_raw(sb, rd);
+
+	case arg::CSTR:
+	case arg::GSTR:
+		if (t1 != arg::NONE && t1 != arg::XDUMP && t1 != arg::RAW)
+			return output_fmt(sb, rd);
+	default:
+		return output_plain(sb, rd);
+	}
 }
 
 } // namespace hogl

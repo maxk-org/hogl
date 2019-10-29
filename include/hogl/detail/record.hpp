@@ -237,7 +237,7 @@ struct record {
 	 */
 	unsigned int copy_xdump(unsigned int i, const arg_xdump* xd, unsigned int tailroom, unsigned int offset)
 	{
-		const unsigned int hlen = sizeof(xd->hdr);
+		const unsigned int hlen = sizeof(xd->fmt);
 		unsigned int room = tailroom - offset;
 		unsigned int len  = hlen + xd->len;
 
@@ -248,7 +248,7 @@ struct record {
 		}
 		unsigned int dlen = len - hlen;
 
-		memcpy((uint8_t *) this->argval + offset + 0x00, (const void *) &xd->hdr, hlen);
+		memcpy((uint8_t *) this->argval + offset + 0x00, (const void *) &xd->fmt, hlen);
 		memcpy((uint8_t *) this->argval + offset + hlen, (const void *) xd->ptr, dlen);
 
 		set_arg_data(i, offset, len);

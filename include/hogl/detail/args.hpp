@@ -68,24 +68,20 @@ struct arg_raw {
  * to generate a formated data dump on the output.
  */
 struct arg_xdump {
-	enum { HEX, DEC, UDEC, FLOAT, USER };
-	struct header {
-		uint8_t  format;     // format: HEX, DEC, ...
+	struct format {
+		uint8_t  type;       // conversion type: d,u,f (see sprintf), H (classic hexdump)
+		uint8_t  byte_width : 4; // number of bytes for each value (1,2,4,8)
+		uint8_t  precision  : 4; // precision
+		uint8_t  line_width; // number of values per line (0 - single line)
 		uint8_t  delim;      // delimeter character
-		uint8_t  byte_width; // number of bytes for each value (1,2,4,8)
-		uint8_t  line_width; // number of values per line
+		format(uint8_t t, uint8_t bw, uint8_t pr, uint8_t lw, char d) :
+			type(t), byte_width(bw), precision(pr), line_width(lw), delim(d) { }
 	};
-	header       hdr;
+	format       fmt;
 	const void  *ptr;
 	unsigned int len;
-	hogl_force_inline arg_xdump(const void *p, unsigned int n, uint8_t f = HEX, uint8_t bw = 1, uint8_t lw = 20, char d = ' '):
-		ptr(p), len(n)
-	{
-		hdr.format = f;
-		hdr.delim  = d;
-		hdr.byte_width = bw;
-		hdr.line_width = lw;
-	}
+	hogl_force_inline arg_xdump(const void *p, unsigned int n, uint8_t t = 'H', uint8_t bw = 1, uint8_t pr = 2, uint8_t lw = 20, char d = ' '):
+		fmt(t, bw, pr, lw, d), ptr(p), len(n) { }
 };
 
 /**
