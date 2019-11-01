@@ -47,6 +47,7 @@ from the coredump files.
 %files devel
 %defattr(-, root, root)
 %{_libdir}/pkgconfig/hogl.pc
+%{_libdir}/cmake/*
 %{_includedir}/hogl/*
 %{_libdir}/libhogl.*a
 

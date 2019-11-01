@@ -17,3 +17,8 @@ acsubst = sed -e 's|@prefix[@]|$(prefix)|g' \
 %.pc: %.pc.in Makefile version.mk
 	@echo Generating $@
 	@$(acsubst) $< > $@
+
+# Subst rule for dot cmake files
+%.cmake: %.cmake.in Makefile version.mk
+	@echo Generating $@
+	@$(acsubst) $< > $@

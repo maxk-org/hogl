@@ -3,9 +3,13 @@ include $(top_srcdir)/acsubst.mk
 
 ACLOCAL_AMFLAGS = -I.
 
-pkgconfdir = $(libdir)/pkgconfig
 plugindir = $(libdir)/plugin
+
+pkgconfdir = $(libdir)/pkgconfig
 pkgconf_DATA = hogl.pc
+
+cmakeconfdir = $(libdir)/cmake/hogl
+cmakeconf_DATA = hogl-config.cmake hogl-config-version.cmake
 
 topsrc   = @abs_top_srcdir@
 debbuild = $(topsrc)/deb-build

@@ -1,0 +1,8 @@
+add_library(hogl INTERFACE IMPORTED)
+target_include_directories(hogl INTERFACE "@includedir@")
+target_link_libraries(hogl INTERFACE @libdir@/libhogl.so pthread rt ffi)
+
+set(HOGL_VERSION "@VERSION@")
+set(HOGL_LIBRARIES hogl)
+
+message("-- HOGL version ${HOGL_VERSION}")
