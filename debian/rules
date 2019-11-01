@@ -10,7 +10,7 @@ override_dh_auto_configure:
 	./configure CXXFLAGS="-O3 -g -Wall" CFLAGS="-O3 -g -Wall" --prefix=/usr
 
 override_dh_auto_build:
-	make -j4
+	make -j8
 
 override_dh_auto_test:
 	echo Skipping tests
