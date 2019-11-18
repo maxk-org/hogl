@@ -76,6 +76,10 @@ private:
 	unsigned int    _flags;
 
 public:
+	enum Flags {
+		DUMP_ALL = (1<<0),
+	};
+
 	recovery_engine(coredump &core, format &fmt, unsigned int flags = 0);
 	~recovery_engine();
 

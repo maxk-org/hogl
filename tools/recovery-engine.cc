@@ -118,7 +118,7 @@ public:
 class ring_validator : public ringbuf
 {
 public:
-	static bool fixup(coredump &core, void *ptr)
+	static bool fixup(coredump &core, void *ptr, bool reset)
 	{
 		ring_validator *r = (ring_validator *) ptr;
 
@@ -147,6 +147,12 @@ public:
 		if (!r->_name || !r->_rec_top)
 			return false;
 
+		if (reset) {
+			// Reset head/tail for dumping the entire ring
+			r->_head = 0;
+			r->_tail = r->_capacity - 1;
+		}
+
 		return true;
 	}
 };
@@ -166,9 +172,14 @@ public:
 		if (s->_size > s->_capacity)
 			return false;
 
-		s->_data = (uint8_t *) core.remap(s->_data);
-		if (!s->_data)
-			return false;
+		s->_error[sizeof(s->_error) - 1] = '\0';
+
+		// Null data is a valid scenario
+		if (s->_data) {
+			s->_data = (uint8_t *) core.remap(s->_data, s->_capacity);
+			if (!s->_data)
+				return false;
+		}
 
 		return true;
 	}
@@ -186,7 +197,7 @@ public:
 
 		output_validator *o = (output_validator *) ptr;
 
-		o->_ostrbuf = (ostrbuf *) core.remap(o->_ostrbuf);
+		o->_ostrbuf = (ostrbuf *) core.remap(o->_ostrbuf, sizeof(hogl::ostrbuf));
                 if (!o->_ostrbuf)
                         return 0;
 		if (!ostrbuf_validator::fixup(core, o->_ostrbuf))
@@ -294,7 +305,7 @@ void recovery_engine::find_and_fixup_rings()
 				break;
 
 			hogl::ringbuf *ring = (hogl::ringbuf *) ptr;
-			if (ring_validator::fixup(_core, ring)) {
+			if (ring_validator::fixup(_core, ring, _flags & DUMP_ALL)) {
 				ring->_timesource = fixup_timesource(ring->_timesource);
 
 				// Found a good ring.
@@ -321,7 +332,7 @@ void recovery_engine::find_and_fixup_outbufs()
 		unsigned long size = s->size;
 		uint8_t *ptr = s->addr;
 
-		while (size >= sizeof(hogl::ringbuf)) {
+		while (size >= sizeof(hogl::output)) {
 			ptr = (uint8_t *) memmem(ptr, size, &hogl::output_magic, sizeof(hogl::output_magic));
 			if (!ptr)
 				break;
@@ -395,16 +406,29 @@ void recovery_engine::dump_records()
 	sb.flush();
 }
 
+// Simple wrapper to expose ostrbuf internals for dumping
+class ostrbuf_dump : public ostrbuf {
+public:
+	void write(FILE *out, bool all)
+	{
+		fprintf(out, "Dumping output buffer: capacity %u size %u failed %u data %u\n",
+			(unsigned int) _capacity, (unsigned int) _size,
+			(unsigned int) _failed, (unsigned int) (_data != 0));
+		if (_failed)
+			fwrite(_error, strlen(_error), 1, out);
+		if (_data)
+			fwrite(_data, all ? _capacity : _size, 1, stdout);
+		fprintf(out, "--\n");
+	}
+};
+
 void recovery_engine::dump_outbufs()
 {
 	// Iterate over all output buffers and dump their content
 	ostrbuf_list::const_iterator sb_it;
 	for (sb_it = _outbufs.begin(); sb_it != _outbufs.end(); ++sb_it) {
-		ostrbuf *sb = *sb_it;
-		fprintf(stdout, "Dumping output buffer: capacity %u size %u\n",
-			(unsigned int) sb->capacity(), (unsigned int) sb->size());
-		fwrite(sb->head(), sb->size(), 1, stdout);
-		fprintf(stdout, "\n");
+		ostrbuf_dump* sb = (ostrbuf_dump*) *sb_it;
+		sb->write(stdout, _flags & DUMP_ALL);
 	}
 }
 

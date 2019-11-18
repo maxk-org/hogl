@@ -50,10 +50,11 @@ static struct option main_lopts[] = {
    {"plugin",  1, 0, 'p'},
    {"dump-rings",  0, 0, 'R'},
    {"dump-areas",  0, 0, 'A'},
+   {"all",         0, 0, 'a'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:p:RA";
+static char main_sopts[] = "hf:p:RAa";
 
 static char main_help[] =
    "hogl-recover - HOGL log recovery from core dumps\n"
@@ -64,7 +65,8 @@ static char main_help[] =
       "\t--format -f <fmt>      Format of the log records\n"
       "\t--plugin -p <fmt.so>   Plugin used for formating records\n"
       "\t--dump-rings -R        Dump recovered ring buffers\n"
-      "\t--dump-areas -A        Dump recovered areas\n";
+      "\t--dump-areas -A        Dump recovered areas\n"
+      "\t--all -a               Dump all buffers and records even if they were already flushed\n";
 // }
 
 int main(int argc, char *argv[])
@@ -75,6 +77,8 @@ int main(int argc, char *argv[])
 
 	bool dump_rings = false;
 	bool dump_areas = false;
+
+	unsigned int flags = 0;
 
 	// Parse command line args
 	while ((opt = getopt_long(argc, argv, main_sopts, main_lopts, NULL)) != -1) {
@@ -93,6 +97,10 @@ int main(int argc, char *argv[])
 
 		case 'R':
 			dump_rings = true;
+			break;
+
+		case 'a':
+			flags |= hogl::recovery_engine::DUMP_ALL;
 			break;
 
 		case 'h':
@@ -154,7 +162,7 @@ int main(int argc, char *argv[])
 		fmt = new hogl::format_basic(log_format);
 
 	// Create recovery engine
-	hogl::recovery_engine *engine = new hogl::recovery_engine(core, *fmt);
+	hogl::recovery_engine *engine = new hogl::recovery_engine(core, *fmt, flags);
 
 	if (dump_rings)
 		engine->dump_rings();
