@@ -62,13 +62,13 @@ private:
 	typedef std::set<record_entry, record_sorter> record_set;
 	typedef std::map<uint64_t, area*> area_map;
 	typedef std::map<uint64_t, timesource*> timesource_map;
+	typedef std::map<uint64_t, ostrbuf *>   ostrbuf_map;
 	typedef std::list<ringbuf *> ring_list;
-	typedef std::list<ostrbuf *> ostrbuf_list;
 
 	area_map        _areas;
 	timesource_map  _timesources;
 	ring_list	_rings;
-	ostrbuf_list	_outbufs;
+	ostrbuf_map	_outbufs;
 	record_set      _records;
 
 	format         &_format;
@@ -85,6 +85,7 @@ public:
 
 	area* fixup_area(const void *ptr);
 	timesource* fixup_timesource(const void *ptr);
+	ostrbuf* fixup_ostrbuf(const void *ptr);
 	void fixup_records(ringbuf *ring);
 	void find_and_fixup_rings();
 	void find_and_fixup_outbufs();

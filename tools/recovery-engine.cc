@@ -160,28 +160,28 @@ public:
 class ostrbuf_validator : public ostrbuf
 {
 public:
-	static bool fixup(coredump &core, void *ptr)
+	static ostrbuf* fixup(coredump &core, void *ptr)
 	{
+		if (!ptr)
+			return 0;
+
 		ostrbuf_validator *s = (ostrbuf_validator *) ptr;
 
 		// Lets do some sanity checks here.
 		// Should be self-explanatory.
 
 		if (!s->_capacity || s->_capacity > 256 * 1024 * 1024)
-			return false;
+			return 0;
 		if (s->_size > s->_capacity)
-			return false;
+			return 0;
 
 		s->_error[sizeof(s->_error) - 1] = '\0';
 
-		// Null data is a valid scenario
-		if (s->_data) {
-			s->_data = (uint8_t *) core.remap(s->_data, s->_capacity);
-			if (!s->_data)
-				return false;
-		}
+		s->_data = (uint8_t *) core.remap(s->_data, s->_capacity);
+		if (!s->_data)
+			return 0;
 
-		return true;
+		return s;
 	}
 };
 
@@ -189,7 +189,7 @@ public:
 class output_validator : public output
 {
 public:
-	static ostrbuf* fixup(coredump &core, void *ptr)
+	static output* fixup(coredump &core, void *ptr)
 	{
 		// Account for the vtable pointer that preceeds magic signature,
 		// output class has virtual methods.
@@ -197,12 +197,13 @@ public:
 
 		output_validator *o = (output_validator *) ptr;
 
-		o->_ostrbuf = (ostrbuf *) core.remap(o->_ostrbuf, sizeof(hogl::ostrbuf));
+		// Note that we don't fixup the ostrbuf here.
+		// It's done later because multiple outputs can now use the same
+		// ostrbuf. Here we just need some basic sanity checks.
                 if (!o->_ostrbuf)
                         return 0;
-		if (!ostrbuf_validator::fixup(core, o->_ostrbuf))
-			return 0;
-		return o->_ostrbuf;
+
+		return o;
 	}
 };
 
@@ -216,12 +217,33 @@ hogl::timesource* recovery_engine::fixup_timesource(const void *ptr)
 	// Ok. It's not in the map.
 	// We need to fix it up and update the map.
 	// ** Note that we update the map even if validator fails,
-	// since there is no point in trying to validate that area
-	// over and over again. 
+	// since there is no point in trying to validate that timesource
+	// over and over again.
 	timesource *ts = timesource_validator::fixup(_core, _core.remap(ptr, sizeof(hogl::timesource)));
 	_timesources.insert(timesource_map::value_type((uint64_t) ptr, ts));
 
 	return ts;
+}
+
+hogl::ostrbuf* recovery_engine::fixup_ostrbuf(const void *ptr)
+{
+	if (!ptr)
+		return 0;
+
+	// First look up the ostrbuf in the map
+	ostrbuf_map::const_iterator it = _outbufs.find((uint64_t) ptr);
+	if (it != _outbufs.end())
+		return it->second;
+
+	// Ok. It's not in the map.
+	// We need to fix it up and update the map.
+	// ** Note that we update the map even if validator fails,
+	// since there is no point in trying to validate that ostrbuf
+	// over and over again.
+	ostrbuf *sb = ostrbuf_validator::fixup(_core, _core.remap(ptr, sizeof(hogl::ostrbuf)));
+	_outbufs.insert(ostrbuf_map::value_type((uint64_t) ptr, sb));
+
+	return sb;
 }
 
 // Dummy area used for special records.
@@ -340,11 +362,10 @@ void recovery_engine::find_and_fixup_outbufs()
 			if (!s->inside(ptr, sizeof(hogl::output)))
 				break;
 
-			hogl::ostrbuf *sb = output_validator::fixup(_core, ptr);
-			if (sb) {
-				// Found a valid output buffer
-				_outbufs.push_back(sb);
-
+			// Looks like we found a valid output handler.
+			// Try to fixup the ostrbuf which contains buffered data.
+			hogl::output *o = output_validator::fixup(_core, ptr);
+			if (o && fixup_ostrbuf(o->get_ostrbuf())) {
 				ptr += sizeof(hogl::output);
 			} else {
 				// Validation failed.
@@ -378,6 +399,7 @@ void recovery_engine::dump_areas()
 
 void recovery_engine::dump_records()
 {
+	fprintf(stdout, "#### #### #### ####\n");
 	fprintf(stdout, "Dumping records from ring buffers:\n");
 
 	// Iterate over all rings and insert records into the 
@@ -404,6 +426,8 @@ void recovery_engine::dump_records()
 	}
 
 	sb.flush();
+
+	fprintf(stdout, "#### #### #### ####\n\n");
 }
 
 // Simple wrapper to expose ostrbuf internals for dumping
@@ -411,23 +435,34 @@ class ostrbuf_dump : public ostrbuf {
 public:
 	void write(FILE *out, bool all)
 	{
+		fprintf(out, "#### #### #### ####\n");
 		fprintf(out, "Dumping output buffer: capacity %u size %u failed %u data %u\n",
 			(unsigned int) _capacity, (unsigned int) _size,
 			(unsigned int) _failed, (unsigned int) (_data != 0));
 		if (_failed)
 			fwrite(_error, strlen(_error), 1, out);
-		if (_data)
-			fwrite(_data, all ? _capacity : _size, 1, stdout);
-		fprintf(out, "--\n");
+		if (_data) {
+			size_t n = all ? _capacity : _size;
+
+			// Drop the trailing zeros in case we're dumping a buffer that was never
+			// fully populated.
+			while (n >= 1 && _data[n-1] == '\0') --n;
+
+			fwrite(_data, n, 1, stdout);
+
+		}
+		fprintf(out, "#### #### #### ####\n\n");
 	}
 };
 
 void recovery_engine::dump_outbufs()
 {
 	// Iterate over all output buffers and dump their content
-	ostrbuf_list::const_iterator sb_it;
-	for (sb_it = _outbufs.begin(); sb_it != _outbufs.end(); ++sb_it) {
-		ostrbuf_dump* sb = (ostrbuf_dump*) *sb_it;
+	ostrbuf_map::const_iterator it;
+	for (it = _outbufs.begin(); it != _outbufs.end(); ++it) {
+		ostrbuf_dump* sb = (ostrbuf_dump*) it->second;
+		if (!sb)
+			continue;
 		sb->write(stdout, _flags & DUMP_ALL);
 	}
 }
