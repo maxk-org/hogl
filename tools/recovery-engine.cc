@@ -150,7 +150,7 @@ public:
 		if (reset) {
 			// Reset head/tail for dumping the entire ring
 			r->_head = 0;
-			r->_tail = r->_capacity - 1;
+			r->_tail = r->_capacity;
 		}
 
 		return true;

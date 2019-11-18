@@ -90,7 +90,7 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 		_prio = PRIORITY_CEILING;
 
 	// Compute the desired capacity.
-	// This field is used as a mask for advancine head and tail indexes
+	// This field is used as a mask for advancing head and tail indexes
 	// hence the decrement. ie tail = ((tail + 1) & capacity).
 	_capacity = __roundup_power2(opts.capacity);
 	_capacity--;
