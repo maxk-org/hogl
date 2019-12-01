@@ -1,10 +1,12 @@
-get_filename_component(HOGL_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+string(REPLACE "@libdir@/cmake/hogl" "" _hogl_prefix ${CMAKE_CURRENT_LIST_DIR})
+set(_hogl_include_dir ${_hogl_prefix}@includedir@)
+set(_hogl_library_dir ${_hogl_prefix}@libdir@)
 
 add_library(hogl INTERFACE IMPORTED)
-target_include_directories(hogl INTERFACE "@includedir@")
-target_link_libraries(hogl INTERFACE @libdir@/libhogl.so pthread rt ffi)
+target_include_directories(hogl INTERFACE ${_hogl_include_dir})
+target_link_libraries(hogl INTERFACE ${_hogl_library_dir}/libhogl.so pthread rt ffi)
 
 set(HOGL_VERSION "@VERSION@")
 set(HOGL_LIBRARIES hogl)
 
-message(STATUS "HOGL version: ${HOGL_VERSION}   : ${HOGL_CMAKE_DIR}")
+message(STATUS "HOGL version: ${HOGL_VERSION}   : ${_hogl_prefix}")
