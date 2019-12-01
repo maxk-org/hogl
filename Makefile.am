@@ -122,7 +122,7 @@ HOGL_LIBS = $(LIBFFI_LIBS) -lpthread -lrt
 #
 lib_LTLIBRARIES = src/libhogl.la
 
-src_libhogl_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread $(CODE_COVERAGE_CXXFLAGS)
+src_libhogl_la_CXXFLAGS = -I $(top_srcdir)/include $(LIBFFI_CFLAGS) -pthread $(CODE_COVERAGE_CXXFLAGS)
 src_libhogl_la_LIBADD   = $(HOGL_LIBS)
 src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLAGS)
 src_libhogl_la_SOURCES  = \
@@ -190,7 +190,7 @@ noinst_PROGRAMS = tests/disasm/test \
 
 plugin_LTLIBRARIES = tests/libfmt-plugin_test.la
 
-AM_CPPFLAGS = -I include $(BOOST_CPPFLAGS)
+AM_CPPFLAGS = -I $(top_srcdir)/include $(BOOST_CPPFLAGS)
 AM_CXXFLAGS = -pthread
 AM_CFLAGS   = -pthread
 LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) $(CODE_COVERAGE_LDFLAGS)
@@ -233,7 +233,7 @@ tests_disasm_test_SOURCES = \
 	tests/disasm/tls.cc \
 	tests/disasm/main.cc
 
-tests_libfmt_plugin_test_la_CXXFLAGS = -I include $(LIBFFI_CFLAGS) -pthread
+tests_libfmt_plugin_test_la_CXXFLAGS = -I$(top_srcdir)/include $(LIBFFI_CFLAGS) -pthread
 tests_libfmt_plugin_test_la_LIBADD   = $(HOGL_LIBS)
 tests_libfmt_plugin_test_la_SOURCES  = \
 	tests/fmt-plugin_test.cc
@@ -250,13 +250,13 @@ tools_hogl_recover_SOURCES  = \
 		tools/coredump.cc tools/coredump.hpp tools/ring-validator.hpp \
 		tools/recovery-engine.hpp tools/recovery-engine.cc \
 		tools/recover.cc
-tools_hogl_recover_CPPFLAGS = -I include
+tools_hogl_recover_CPPFLAGS = -I$(top_srcdir)/include
 tools_hogl_recover_LDADD    = src/libhogl.la $(HOGL_LIBS) $(LIBS)
 
 tools_hogl_cook_SOURCES  = \
 		tools/rdbuf.hpp tools/rdbuf.cc \
 		tools/raw-parser.hpp tools/raw-parser.cc \
 		tools/cook.cc
-tools_hogl_cook_CPPFLAGS = -I include
+tools_hogl_cook_CPPFLAGS = -I$(top_srcdir)/include
 tools_hogl_cook_LDADD    = src/libhogl.la $(HOGL_LIBS) $(LIBS)
 endif
