@@ -306,9 +306,12 @@ void format_basic::output_fmt(hogl::ostrbuf &sb, record_data& d)
 		}
 	}
 
-	//fflush(stdout);
+	try {
+		ctx(std::back_inserter(sb), fmt::to_string_view(d.arg_str[d.next_arg]), arg_store).format<arg_fmt>();
+	} catch(fmt::format_error& fe) {
+		sb.push_back(fe.what());
+	}
 
-	ctx(std::back_inserter(sb), fmt::to_string_view(d.arg_str[d.next_arg]), arg_store).format<arg_fmt>();
 	sb.push_back('\n');
 }
 

@@ -329,6 +329,8 @@ int doTest()
 		insanely_long_string[i] = 'A' + i % 26;
 	insanely_long_string[sizeof(insanely_long_string)-1] = '\0';
 
+	hogl::post(test_area, TEST_INFO, "bogus format string %d %s %d", 33);
+
 	volatile uint32_t *u32_ptr = 0;
 	hogl::post(test_area, TEST_INFO, "volatile u32 pointer %p", u32_ptr);
 	
