@@ -56,6 +56,17 @@ FILE* stdio_custom_open(void *ctx)
 	return fwopen(ctx, stdio_write);
 }
 
+#elif defined(__QNX__)
+
+// FIXME: Not yet sure what to do here.
+// QNX doesn't have custom fopen it seems, might have to hack something up to
+// replace the internal handler.
+
+FILE* stdio_custom_open(void *ctx)
+{
+	return stdout;
+}
+
 #elif defined(__linux__) || defined(__CYGWIN__)
 
 // ssize_t reader (void *cookie, char *buffer, size_t size)
