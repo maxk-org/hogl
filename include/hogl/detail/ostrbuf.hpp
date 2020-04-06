@@ -35,12 +35,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FMT_HEADER_ONLY
-#include "../fmt/printf.h"
-
 #include <string>
 
 #include <hogl/detail/compiler.hpp>
+#include <hogl/fmt/printf.h>
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {

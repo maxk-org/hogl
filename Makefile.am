@@ -126,6 +126,7 @@ src_libhogl_la_CXXFLAGS = -I $(top_srcdir)/include $(LIBFFI_CFLAGS) -pthread $(C
 src_libhogl_la_LIBADD   = $(HOGL_LIBS)
 src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLAGS)
 src_libhogl_la_SOURCES  = \
+	src/fmt-format.cc \
 	src/area.cc \
 	src/internal.cc \
 	src/ringbuf.cc \
