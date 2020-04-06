@@ -4,7 +4,7 @@ set(_hogl_library_dir ${_hogl_prefix}@libdir@)
 
 add_library(hogl INTERFACE IMPORTED)
 target_include_directories(hogl INTERFACE ${_hogl_include_dir})
-target_link_libraries(hogl INTERFACE ${_hogl_library_dir}/libhogl.so pthread rt ffi)
+target_link_libraries(hogl INTERFACE ${_hogl_library_dir}/libhogl.so rt ffi)
 
 set(HOGL_VERSION "@VERSION@")
 set(HOGL_LIBRARIES hogl)

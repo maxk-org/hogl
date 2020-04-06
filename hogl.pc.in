@@ -7,5 +7,5 @@ Name: hogl
 Description: High-performance, low-overhead debug logging framework
 Requires:
 Version: @VERSION@
-Libs: -L${libdir} -lhogl -lpthread -lffi -lrt
+Libs: -L${libdir} -lhogl -lffi -lrt
 Cflags: -I${includedir}

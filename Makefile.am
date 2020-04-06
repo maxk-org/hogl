@@ -115,7 +115,7 @@ inc_HEADERS = \
 	include/hogl/format-raw.hpp
 
 # HOGL library dependencies
-HOGL_LIBS = $(LIBFFI_LIBS) -lpthread -lrt
+HOGL_LIBS = $(LIBFFI_LIBS)
 
 #
 # Main library
