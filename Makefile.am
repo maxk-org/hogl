@@ -136,6 +136,7 @@ src_libhogl_la_SOURCES  = \
 	src/platform.cc \
 	src/schedparam.cc \
 	src/post.cc \
+	src/mask.cc \
 	src/flush.cc \
 	src/output.cc \
 	src/ostrbuf.cc \
@@ -154,12 +155,6 @@ src_libhogl_la_SOURCES  = \
 	src/default-timesource.cc \
 	src/default-engine.cc \
 	src/c-api.cc
-
-if CXX11_ENABLED
-src_libhogl_la_SOURCES += src/mask.cc
-else
-src_libhogl_la_SOURCES += src/mask-boost.cc
-endif
 
 #
 # Tests
