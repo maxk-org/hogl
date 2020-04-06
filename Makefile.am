@@ -43,6 +43,7 @@ deb: builddeb
 #
 incdir    = $(includedir)/hogl
 incdetdir = $(includedir)/hogl/detail
+incfmtdir = $(includedir)/hogl/fmt
 incplugdir = $(includedir)/hogl/plugin
 inccapidir = $(includedir)/hogl/c-api
 incdet_HEADERS = \
@@ -78,6 +79,20 @@ incdet_HEADERS = \
 	include/hogl/detail/format.hpp \
 	include/hogl/detail/output.hpp \
 	include/hogl/detail/schedparam.hpp
+
+incfmt_HEADERS = \
+	include/hogl/fmt/chrono.h \
+	include/hogl/fmt/color.h \
+	include/hogl/fmt/compile.h \
+	include/hogl/fmt/core.h \
+	include/hogl/fmt/format.h \
+	include/hogl/fmt/format-inl.h \
+	include/hogl/fmt/locale.h \
+	include/hogl/fmt/os.h \
+	include/hogl/fmt/ostream.h \
+	include/hogl/fmt/posix.h \
+	include/hogl/fmt/printf.h \
+	include/hogl/fmt/ranges.h
 
 incplug_HEADERS = \
 	include/hogl/plugin/format.hpp
