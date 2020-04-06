@@ -62,7 +62,7 @@ public:
 
 	// Construct null ostrbuf in a failed state
 	ostrbuf_null(const char *err) :
-		ostrbuf(0, true)
+		ostrbuf(0)
 	{
 		failure(err);
 	}

@@ -99,7 +99,7 @@ public:
 		hogl::u64tox(bd.sample[2], str, n); str[n++] = ',';
 		hogl::u64tox(bd.sample[3], str, n);
 		str[n++] = '\n';
-		sb.put(str, n - last);
+		sb.push_back(str, n - last);
 	}
 
 	void output_raw(hogl::ostrbuf& sb, record_data& d)
@@ -109,12 +109,12 @@ public:
 		unsigned int len; const burst_data *bd = (const burst_data *) r.get_arg_data(0, len);
 		unsigned int count = len / sizeof(burst_data);
 
-		sb.cat('\n');
+		sb.push_back('\n');
 		unsigned int i;
 		for (i=0; i < count - 1; i++)
 			raw_one_line(sb, i, bd[i]);
 		raw_one_line(sb, i, bd[i], 1);
-		sb.cat('\n');
+		sb.push_back('\n');
 	}
 };
 

@@ -42,62 +42,6 @@
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__ANDROID__)
-
-static int stdio_write(void *cookie, const char *data, int size)
-{
-	ostrbuf *ob = (ostrbuf *) cookie;
-	ob->put((const uint8_t *) data, size);
-	return size;
-}
-
-FILE* stdio_custom_open(void *ctx)
-{
-	return fwopen(ctx, stdio_write);
-}
-
-#elif defined(__QNX__)
-
-// FIXME: Not yet sure what to do here.
-// QNX doesn't have custom fopen it seems, might have to hack something up to
-// replace the internal handler.
-
-FILE* stdio_custom_open(void *ctx)
-{
-	return stdout;
-}
-
-#elif defined(__linux__) || defined(__CYGWIN__)
-
-// ssize_t reader (void *cookie, char *buffer, size_t size)
-// int seeker (void *cookie, off64_t *position, int whence)
-// int stdio_close(void *cookie)
-
-static ssize_t stdio_write(void *cookie, const char *data, size_t size)
-{
-	ostrbuf *ob = (ostrbuf *) cookie;
-	ob->put((const uint8_t *) data, size);
-	return size;
-}
-
-static cookie_io_functions_t stdio_ops = {
-	.read = 0,
-	.write = stdio_write,
-	.seek = 0,
-	.close = 0
-};
-
-FILE* stdio_custom_open(void *ctx)
-{
-	return fopencookie(ctx, "w", stdio_ops);
-} 
-
-#else
-
-#error "Unsupported OS"
-
-#endif
-
 void ostrbuf::failure(const char *err)
 {
 	_error[0] = '\0';
@@ -109,9 +53,8 @@ bool ostrbuf::failed() const { return _failed; }
 
 const char* ostrbuf::error() const { return _error; }
 
-ostrbuf::ostrbuf(size_t capacity, bool nostdio) :
-	_data(0), _capacity(0), _size(0), _stdio(0),
-	_failed(false)
+ostrbuf::ostrbuf(size_t capacity) :
+	_data(0), _capacity(0), _size(0), _failed(false)
 {
 	_error[0] = '\0';
 
@@ -126,33 +69,12 @@ ostrbuf::ostrbuf(size_t capacity, bool nostdio) :
 		}
 		_capacity = capacity;
 	}
-
-	if (!nostdio) {
-		_stdio = stdio_custom_open((void *) this);
-		if (!_stdio) {
-			failure("failed to allocate virtual stdio handle - no memory");
-			return;
-		}
-
-		// Disable stdio buffering, we have our own
-		setvbuf(_stdio, NULL, _IONBF, 0);
-	}
 }
 
 ostrbuf::~ostrbuf()
 {
 	_capacity = _size = 0;
-	if (_stdio)
-		fclose(_stdio);
 	free(_data);
-}
-
-void ostrbuf::printf(const char* fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	vfprintf(_stdio, fmt, ap);
-	va_end(ap);
 }
 
 } // namespace hogl

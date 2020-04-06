@@ -31,10 +31,12 @@
 #ifndef HOGL_DETAIL_OSTRBUF_HPP
 #define HOGL_DETAIL_OSTRBUF_HPP
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define FMT_HEADER_ONLY
+#include "../fmt/printf.h"
 
 #include <string>
 
@@ -56,7 +58,6 @@ protected:
 	uint8_t*      _data;     // Data buffer
 	unsigned int  _capacity; // Buffer capacity
 	unsigned int  _size;     // Current buffer size
-	FILE*         _stdio;    // Pointer to a virtual stdio stream for this ostrbuf
 	volatile bool _failed;   // Failure flag
 	char          _error[64];// Error message
 
@@ -93,12 +94,13 @@ protected:
 	virtual void do_flush(const uint8_t* data, size_t n) = 0;
 
 public:
+	using value_type = char;
+
 	/**
 	 * Constructor
 	 * @param capacity capacity of the data buffer; zero if no buffering is required
-	 * @param nostdio do not provide virtual stdio stream (saves memory)
 	 */
-	ostrbuf(size_t capacity = 1024, bool nostdio = false);
+	ostrbuf(size_t capacity = 1024);
 
 	/**
 	 * Destructor
@@ -130,45 +132,48 @@ public:
 	// Flush any buffered data and new data
 	void flush(const uint8_t* data, size_t n) { do_flush(data, n); }
 
-	// Put (append) data into the buffer
-	void put(const uint8_t* data, size_t n)
+	// Append data into the buffer
+	void push_back(const uint8_t* data, size_t n)
 	{
 		if (n > room())
 			return do_flush(data, n);
 		do_copy(data, n);
 	}
 
-	// Put (append) a string into the buffer
-	void cat(const char *str, size_t len)
+	// Append a string into the buffer
+	void push_back(const char *str, size_t len)
 	{
-		put((const uint8_t *) str, len);
+		push_back((const uint8_t *) str, len);
 	}
 
-	// Put (append) a string into the buffer
-	void cat(const char *str)
+	// Append a string into the buffer
+	void push_back(const char *str)
 	{
-		cat(str, strlen(str));
+		push_back(str, strlen(str));
 	}
 
-	// Put (append) a string into the buffer
-	void cat(const std::string &str)
+	// Append a string into the buffer
+	void push_back(const std::string &str)
 	{
-		cat(str.data(), str.length());
+		push_back(str.data(), str.length());
 	}
 
-	// Put (append) a single character 
-	void cat(char c)
+	// Append a single character 
+	void push_back(value_type c)
 	{
-		cat(&c, 1);
+		push_back(&c, 1);
 	}
 
-	// Put (append) formated string into the buffer
-	void printf(const char* fmt, ...);
+	// Append formated string into the buffer
+        template <typename... Args>
+        inline void printf(const char* format, const Args&... args)
+        {
+                using bi  = std::back_insert_iterator<ostrbuf>;
+                using ctx = fmt::basic_printf_context<bi, value_type>;
+                using arg_fmt = fmt::printf_arg_formatter<fmt::internal::output_range<bi, value_type>>;
 
-	// Get a pointer to the stdio stream handle.
-	// The stdio handle can be passed to fprintf() and other functions
-	// for putting (append) data into the buffer.
-	FILE* stdio() { return _stdio; }
+                ctx(std::back_inserter(*this), fmt::to_string_view(format), fmt::make_format_args<ctx>(args...)).format<arg_fmt>();
+        }
 
 private:
 	// No copies

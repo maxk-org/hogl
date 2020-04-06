@@ -52,7 +52,6 @@ public:
 		SEQNUM    = (1<<4),
 		AREA      = (1<<5),
 		SECTION   = (1<<6),
-		RECDUMP   = (1<<7),
 		DEFAULT = (TIMESTAMP | RING | SEQNUM | AREA | SECTION),
 	        FAST0   = (TIMESPEC | RING | SEQNUM | AREA | SECTION),
 	        FAST1   = (TIMESPEC | TIMEDELTA | RING | SEQNUM | AREA | SECTION)

@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(tscache)
 
 			rsb.reset();
 			rsb.printf("%011lu.%09lu", ts.tv_sec, ts.tv_nsec);
-			rsb.cat('\0');
+			rsb.push_back('\0');
 
 			BOOST_REQUIRE_MESSAGE(memcmp(tscache.str(), rsb.head(), tscache.len()) == 0,
 				"[" << std::string(tscache.str(), tscache.len()) << "] vs [" << (const char *) rsb.head() << "]" );

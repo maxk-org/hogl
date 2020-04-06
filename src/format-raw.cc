@@ -40,7 +40,7 @@ private:
 	template <typename T>
 	void add_uint(T v)
 	{
-		_sb.put((uint8_t *) &v, sizeof(T));
+		_sb.push_back((uint8_t *) &v, sizeof(T));
 	}
 
 	template <typename T>
@@ -48,7 +48,7 @@ private:
 	{
 		T n = std::min(len, (unsigned long) std::numeric_limits<T>::max());
 		add_uint<T>(n);
-		_sb.put((uint8_t *) data, n);
+		_sb.push_back((uint8_t *) data, n);
 	}
 
 	template <typename T>

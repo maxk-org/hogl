@@ -77,15 +77,15 @@ public:
 
 static void generate_output(hogl::ostrbuf &ob)
 {
-	ob.cat("0123");
-	ob.cat("4567");
-	ob.cat("abcd");	
-	ob.cat("0123456789abcdef");
+	ob.push_back("0123");
+	ob.push_back("4567");
+	ob.push_back("abcd");	
+	ob.push_back("0123456789abcdef");
 	ob.printf("arg0=%d arg1=%x arg2=%f arg3=%s", -125, ~0U, 125.67, "just-a-string");
 
-	ob.cat("efgh");
-	ob.cat("iklm");
-	ob.cat("xyz");
+	ob.push_back("efgh");
+	ob.push_back("iklm");
+	ob.push_back("xyz");
 
 	char insanely_long_string[64 * 1024];
 	for (unsigned int i = 0; i < sizeof(insanely_long_string)-1; i++)

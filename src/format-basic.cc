@@ -25,7 +25,6 @@
 */
 
 #include <time.h>
-#include <ffi.h>
 #include <stdio.h>
 #include <ctype.h>
 
@@ -62,7 +61,6 @@ format_basic::format_basic(const char *fields) :
 		else if (s == "seqnum")    _fields |= SEQNUM;
 		else if (s == "area")      _fields |= AREA;
 		else if (s == "section")   _fields |= SECTION;
-		else if (s == "recdump")   _fields |= RECDUMP;
 		else if (s == "default")   _fields = DEFAULT;
 		else if (s == "fast0")     _fields = FAST0;
 		else if (s == "fast1")     _fields = FAST1;
@@ -71,7 +69,7 @@ format_basic::format_basic(const char *fields) :
 
 static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t n, const hogl::arg_xdump::format& xf)
 {
-	sb.cat('\n');
+	sb.push_back('\n');
 
 	unsigned int offset;
 	for (offset = 0; offset < n; offset += xf.line_width) {
@@ -82,14 +80,14 @@ static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t n, const
 			if ((i + offset) < n)
 				sb.printf("%02x ", data[offset + i]);
 			else
-				sb.cat("   ");
+				sb.push_back("   ");
 		}
-		sb.cat("  ");
+		sb.push_back("  ");
 		for (i = 0; i < xf.line_width && ((i + offset) < n); i++) {
 			uint8_t b = data[offset + i];
-			sb.cat(isprint(b) ? b : '.');
+			sb.push_back(isprint(b) ? b : '.');
 		}
-		sb.cat('\n');
+		sb.push_back('\n');
 	}
 }
 
@@ -100,10 +98,10 @@ static void xdump_single(hogl::ostrbuf &sb, const T* data, uint32_t n, const cha
 	safe_ptr* ptr = (safe_ptr*) data;
 
 	for (unsigned int i=0; i < n; i++) {
-		if (i) sb.cat(xf.delim);
+		if (i) sb.push_back(xf.delim);
 		sb.printf(fmt, ptr[i].v);
 	}
-	sb.cat('\n');
+	sb.push_back('\n');
 }
 
 template <typename T>
@@ -115,15 +113,15 @@ static void xdump_multi(hogl::ostrbuf &sb, const T* data, uint32_t n, const char
 	struct safe_ptr { T v; } hogl_packed;
 	safe_ptr* ptr = (safe_ptr*) data;
 
-	sb.cat("\n");
+	sb.push_back("\n");
 	unsigned int lw = 0;
 	for (unsigned int i=0; i < n; i++) {
-		sb.cat(lw ? xf.delim : '\t');
+		sb.push_back(lw ? xf.delim : '\t');
 		sb.printf(fmt, ptr[i].v); lw += 1;
-		if (lw == xf.line_width) { sb.cat("\n"); lw = 0; }
+		if (lw == xf.line_width) { sb.push_back("\n"); lw = 0; }
 	}
 	if (lw)
-		sb.cat('\n');
+		sb.push_back('\n');
 }
 
 static const char* __flt_fmt(unsigned int pr)
@@ -200,7 +198,7 @@ void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d)
 		if (type == arg::NONE)
 			break;
 
-		union { uint64_t u64; double dbl; } v;
+		union { uint64_t u64; int64_t i64; double dbl; } v;
 		const uint8_t *data; unsigned int len;
 
 		if (arg::is_32bit(type))
@@ -210,7 +208,7 @@ void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d)
 
 		// Add space between the args if needed
 		if (i > 0)
-			sb.cat(' ');
+			sb.push_back(' ');
 
 		switch (type) {
 		case (arg::GSTR):
@@ -221,13 +219,13 @@ void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d)
 			sb.printf("%p", (void *) v.u64);
 			break;
 		case (arg::INT32):
-			sb.printf("%ld", (int32_t) v.u64);
-			break;
-		case (arg::INT64):
-			sb.printf("%lld", (int64_t) v.u64);
+			sb.printf("%ld", (int32_t) v.i64);
 			break;
 		case (arg::UINT32):
 			sb.printf("%lu", (uint32_t) v.u64);
+			break;
+		case (arg::INT64):
+			sb.printf("%lld", v.i64);
 			break;
 		case (arg::UINT64):
 			sb.printf("%llu", v.u64);
@@ -249,123 +247,69 @@ void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d)
 		}
 	}
 
-	sb.cat('\n');
+	sb.push_back('\n');
 }
 
-class ffi_stack
-{
-private:
-	enum { MAX_DEPTH = 24 };
-
-	ffi_type    *_arg_type[MAX_DEPTH];
-	void        *_arg_val[MAX_DEPTH];
-	unsigned int _depth;
-
-public:
-	unsigned int depth() const { return _depth; }
-
-	ffi_type **arg_type() { return _arg_type; }
-	void **arg_val() { return _arg_val; }
-
-	void add_arg(const format_basic::record_data& d, unsigned int type, unsigned int i);
-	void add_arg(ffi_type *type, void *val);
-	void populate(format_basic::record_data& d);
-
-	void reset() { _depth = 0; }
-	ffi_stack() { reset(); }
-};
-
-void ffi_stack::add_arg(ffi_type *type, void *val)
-{
-	_arg_type[_depth] = type;
-	_arg_val[_depth]  = val;
-	_depth++;
-}
-
-void ffi_stack::add_arg(const format_basic::record_data& d, unsigned int type, unsigned int i)
-{
-	static const char *xdump_not_supported   = "xdump not supported with format strings";
-	static const char *rawdata_not_supported = "rawdata not supported with format strings";
-
-	const record& r = *d.record;
-	_arg_val[_depth] = (void *) &r.argval[i];
-
-	switch (type) {
-	case (arg::CSTR):
-	case (arg::GSTR):
-		_arg_type[_depth] = &ffi_type_pointer;
-		_arg_val[_depth]  = (void *) &d.arg_str[i];
-		break;
-	case (arg::POINTER):
-		_arg_type[_depth] = &ffi_type_pointer;
-		break;
-	case (arg::INT32):
-		_arg_type[_depth] = &ffi_type_sint32;
-		break;
-	case (arg::INT64):
-		_arg_type[_depth] = &ffi_type_sint64;
-		break;
-	case (arg::UINT32):
-		_arg_type[_depth] = &ffi_type_uint32;
-		break;
-	case (arg::UINT64):
-		_arg_type[_depth] = &ffi_type_uint64;
-		break;
-	case (arg::DOUBLE):
-		_arg_type[_depth] = &ffi_type_double;
-		break;
-	case (arg::XDUMP):
-		_arg_type[_depth] = &ffi_type_pointer;
-		_arg_val[_depth]  = &xdump_not_supported;
-		break;
-	case (arg::RAW):
-		_arg_type[_depth] = &ffi_type_pointer;
-		_arg_val[_depth]  = &rawdata_not_supported;
-		break;
-	default:
-		_arg_type[_depth] = &ffi_type_uint64;
-		break;
-	}
-
-	_depth++;
-}
-
-void ffi_stack::populate(format_basic::record_data& d)
-{
-	const record& r = *d.record;
-
-	for (unsigned int i = d.next_arg; i < record::NARGS && _depth < MAX_DEPTH; i++) {
-		unsigned int type = r.get_arg_type(i);
-		if (type == arg::NONE)
-			break;
-		add_arg(d, type, i);
-	}
-}
-
-// This function uses libffi to dynamically construct
-// a call to
-// 	fprintf(sb.stdio(), fmt, arg0, arg1, ...);
 void format_basic::output_fmt(hogl::ostrbuf &sb, record_data& d) 
 {
-	ffi_stack stack;
-	ffi_cif   cif;
+	using bi  = std::back_insert_iterator<hogl::ostrbuf>;
+	using ctx = fmt::basic_printf_context<bi, char>;
+	using arg_fmt = fmt::printf_arg_formatter<fmt::internal::output_range<bi, char>>;
 
-	FILE* file = sb.stdio();
+	fmt::dynamic_format_arg_store<ctx> arg_store;
 
-	stack.add_arg(&ffi_type_pointer, &file);
-	stack.populate(d);
+	const record& r = *d.record;
 
-	ffi_status err;
-        err = ffi_prep_cif(&cif, FFI_DEFAULT_ABI, stack.depth(), &ffi_type_uint, stack.arg_type());
-	if (err != FFI_OK) {
-		fprintf(stderr, "hogl::format_basic: FFI failed %d\n", err);
-		abort();
+	for (unsigned int i = d.next_arg + 1; i < record::NARGS; i++) {
+	        unsigned int type = r.get_arg_type(i);
+	        if (type == arg::NONE)
+	                break;
+
+		union { uint64_t u64; int64_t i64; double dbl; } v;
+		if (arg::is_32bit(type))
+			v.u64 = r.get_arg_val32(i);
+		else
+			v.u64 = r.get_arg_val64(i);
+
+		switch (type) {
+		case (arg::CSTR):
+		case (arg::GSTR):
+			arg_store.push_back(d.arg_str[i]);
+			break;
+		case (arg::POINTER):
+			arg_store.push_back((void *) v.u64);
+			break;
+		case (arg::INT32):
+			arg_store.push_back((int32_t) v.u64);
+			break;
+		case (arg::UINT32):
+			arg_store.push_back((uint32_t) v.u64);
+			break;
+		case (arg::INT64):
+			arg_store.push_back(v.i64);
+			break;
+		case (arg::UINT64):
+			arg_store.push_back(v.u64);
+			break;
+		case (arg::DOUBLE):
+			arg_store.push_back(v.dbl);
+			break;
+		case (arg::XDUMP):
+			arg_store.push_back("xdump not supported with format strings");
+			break;
+		case (arg::RAW):
+			arg_store.push_back("rawdata data not supported with format strings");
+			break;
+		default:
+			arg_store.push_back(v.u64);
+			break;
+		}
 	}
 
-	ffi_arg result;
-        ffi_call(&cif, FFI_FN(fprintf), &result, stack.arg_val());
+	//fflush(stdout);
 
-	sb.cat('\n');
+	ctx(std::back_inserter(sb), fmt::to_string_view(d.arg_str[d.next_arg]), arg_store).format<arg_fmt>();
+	sb.push_back('\n');
 }
 
 void format_basic::output_raw(hogl::ostrbuf& sb, record_data& d)
@@ -445,7 +389,7 @@ void format_basic::fast0_header(ostrbuf& sb, record_data& d)
 	memcpy(&str[i], d.sect_name, len_sect_name); i += len_sect_name;
 	str[i++] = ' ';
 
-	sb.put(str, i);
+	sb.push_back(str, i);
 }
 
 // Same as above plus timedelta
@@ -488,26 +432,17 @@ void format_basic::fast1_header(ostrbuf& sb, record_data& d)
 	memcpy(&str[i], d.sect_name, len_sect_name); i += len_sect_name;
 	str[i++] = ' ';
 
-	sb.put(str, i);
+	sb.push_back(str, i);
 }
 
 void format_basic::flexi_header(ostrbuf& sb, record_data& d)
 {
 	const hogl::record &r = *d.record;
 
-	if (_fields & RECDUMP) {
-		sb.printf("ring %s record %p area %p section %u timestamp %llu seqnum %llu argtype 0x%x "
-			"args:[ 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx, 0x%lx ]\n",
-				d.ring_name, &r, r.area, r.section, r.timestamp.to_nsec(),
-				r.seqnum, r.argtype,
-				r.argval[0], r.argval[1], r.argval[2], r.argval[3],
-				r.argval[4], r.argval[5], r.argval[6], r.argval[7]);
-	}
-
 	if (_fields & TIMESPEC) {
 		_tscache.update(r.timestamp);
-		sb.cat(_tscache.str(), _tscache.len());
-		sb.cat(' ');
+		sb.push_back(_tscache.str(), _tscache.len());
+		sb.push_back(' ');
 	}
 
 	if (_fields & TIMESTAMP) {
