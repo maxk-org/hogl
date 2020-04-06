@@ -41,7 +41,7 @@ Log areas can contain unlimited number of sections (aka levels). HOGL does not l
 * Log masks are regular expression strings that can be applied to multiple areas and sections in one shot.
 * Logging output can be piped to an external program. This can be used for things like: compressing logs on the fly (gzip -1 is often faster than the disk), simple post processing on the fly (grepping through the records).
 * Default log output can compute timestamp deltas between consecutive log records, which is very useful for profiling.
-* Runtime library has minimal external dependencies. The only required components are libc, libstdc++ and libffi. All those libraries are available on most modern platforms and architectures.
+* Runtime library has minimal external dependencies. The only required components are libc, libstdc++. All those libraries are available on most modern platforms and architectures.
 * Unsaved log records can be extracted from coredumps. HOGL structures are designed to be easy to locate in the core dump files. Even if the application crashes due to memory corruption HOGL tools can usually recover unsaved log messages.
 
 ## Performance numbers

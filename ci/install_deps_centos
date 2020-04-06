@@ -9,5 +9,4 @@ yum install -y \
   git \
   gcc-c++ \
   binutils-devel \
-  libffi-devel \
   boost-devel

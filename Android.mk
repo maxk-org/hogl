@@ -39,7 +39,6 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_CFLAGS   += -Wall -O3
 LOCAL_CXXFLAGS += -Wall -O3 -std=c++11
 LOCAL_CPP_FEATURES := exceptions
-LOCAL_SHARED_LIBRARIES:= libffi
 LOCAL_MODULE := libhogl
 include $(BUILD_SHARED_LIBRARY)
 
@@ -62,6 +61,3 @@ LOCAL_CPP_FEATURES := exceptions
 LOCAL_SHARED_LIBRARIES:= libhogl
 LOCAL_MODULE := hogl-stress-test
 include $(BUILD_EXECUTABLE)
-
-# Import libffi
-$(call import-module,libffi)

@@ -41,8 +41,6 @@ AC_CHECK_HEADER(bfd.h,
 		[AC_MSG_ERROR([Couldn't find or include bfd.h, please install binutils-dev])])
 ])
 
-PKG_CHECK_MODULES([LIBFFI], [libffi >= 3.0.5])
-
 AC_SEARCH_LIBS(dlopen, dl)
 
 AS_IF([test "x$with_tools" != "xno"], [

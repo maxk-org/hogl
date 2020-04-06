@@ -18,7 +18,7 @@ BuildRoot: %{prefix}
 Summary: Headers and static libraries for HOGL
 Version: %{version}
 Release: %{release}
-Requires: hogl libffi-devel
+Requires: hogl
 License: BSD 2-Clause
 Group: Development/Libraries
 
