@@ -1,3 +1,6 @@
+
+#define _XOPEN_SOURCE 700
+
 #include <unistd.h>
 #include <omp.h>
 #include <sys/prctl.h>

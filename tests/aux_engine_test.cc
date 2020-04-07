@@ -24,6 +24,8 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _XOPEN_SOURCE 700
+
 // This test demonstrates how to start an auxiliary HOGL engine for logging
 // a different kind of data (binary records, etc).
 

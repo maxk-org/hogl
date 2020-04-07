@@ -1,3 +1,6 @@
+
+#define _XOPEN_SOURCE 700
+
 #include "hogl/format-basic.hpp"
 #include "hogl/plugin/format.hpp"
 

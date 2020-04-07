@@ -24,6 +24,8 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define _XOPEN_SOURCE 700
+
 #include <time.h>
 #include <pthread.h>
 #include <stdlib.h>
