@@ -13,8 +13,18 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
+dnl C++11 is manadatory
 AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
-AM_CONDITIONAL([CXX11_ENABLED], [test x$HAVE_CXX11 = x1])
+
+AC_SEARCH_LIBS(clock_gettime, rt)
+AX_PTHREAD()
+
+dnl Save cflags libs required for libhogl itself
+dnl All cflags and libs added further down are needed only for tools and tests
+HOGL_CXXFLAGS="$PTHREAD_CFLAGS"
+HOGL_LIBS="$LIBS $PTHREAD_LIBS"
+AC_SUBST(HOGL_LIBS)
+AC_SUBST(HOGL_CXXFLAGS)
 
 AC_ARG_ENABLE(debug,
      AC_HELP_STRING([--enable-debug], [Enable internal HOGL debug]),
@@ -25,42 +35,30 @@ AC_ARG_ENABLE(openmp,
      AC_HELP_STRING([--enable-openmp], [Enable OpenMP unit-test]),
      openmp=true
 )
-AM_CONDITIONAL([OPENMP], [test x$openmp = xtrue])
+AM_CONDITIONAL([OPENMP], [test "$openmp" = "true"])
 
 AC_ARG_WITH([tools],
     AS_HELP_STRING([--without-tools], [Do not build tools]))
-AM_CONDITIONAL([BUILD_TOOLS], [test "x$with_tools" != "xno"])
+AM_CONDITIONAL([BUILD_TOOLS], [test "$with_tools" != "no"])
 
 AC_ARG_WITH([tests],
     AS_HELP_STRING([--without-tests], [Do not build tests]))
-AM_CONDITIONAL([BUILD_TESTS], [test "x$with_tests" != "xno"])
+AM_CONDITIONAL([BUILD_TESTS], [test "$with_tests" != "no"])
 
-AS_IF([test "x$with_tools" != "xno"], [
-AC_CHECK_HEADER(bfd.h,
-		[],
+
+AS_IF([test "$with_tools" != "no"], [
+AC_CHECK_HEADER(bfd.h, [],
 		[AC_MSG_ERROR([Couldn't find or include bfd.h, please install binutils-dev])])
 ])
 
-AC_SEARCH_LIBS(dlopen, dl)
-
-AS_IF([test "x$with_tools" != "xno"], [
-AC_SEARCH_LIBS(bfd_openr, bfd, [], [
-	unset ac_cv_search_bfd_openr
-	AC_SEARCH_LIBS(bfd_openr, bfd,
-			[LIBS="$LIBS -L/usr/local/lib -liberty -lz"],
-			[AC_MSG_ERROR(Couldn't find usable libbfd)],
-			[-L/usr/local/lib -liberty -lz])
-])
-])
-
-AC_SEARCH_LIBS(inotify_init, inotify)
+AS_IF([test "$with_tools" != "no"], [ AC_SEARCH_LIBS(dlopen, dl) ])
+AS_IF([test "$with_tools" != "no"], [ AC_SEARCH_LIBS(inotify_init, inotify) ])
+AS_IF([test "$with_tools" != "no"], [ AC_SEARCH_LIBS(bfd_openr, bfd) ])
 
 AX_CODE_COVERAGE()
 
-AS_IF([test "x$with_tests" != "xno"], [
-AX_BOOST_BASE(1.40.0)
 dnl AX_BOOST_UNIT_TEST_FRAMEWORK
-])
+AS_IF([test "$with_tests" != "no"], [ AX_BOOST_BASE(1.40.0) ])
 
 AC_SUBST(prefix)
 

@@ -129,16 +129,13 @@ inc_HEADERS = \
 	include/hogl/format-basic.hpp \
 	include/hogl/format-raw.hpp
 
-# HOGL library dependencies
-HOGL_LIBS = $(LIBFFI_LIBS)
-
 #
 # Main library
 #
 lib_LTLIBRARIES = src/libhogl.la
 
-src_libhogl_la_CXXFLAGS = -I $(top_srcdir)/include $(LIBFFI_CFLAGS) -pthread $(CODE_COVERAGE_CXXFLAGS)
-src_libhogl_la_LIBADD   = $(HOGL_LIBS)
+src_libhogl_la_CXXFLAGS = -I $(top_srcdir)/include $(CXXFLAGS) $(HOGL_CXXFLAGS) $(CODE_COVERAGE_CXXFLAGS)
+src_libhogl_la_LIBS     = $(HOGL_LIBS)
 src_libhogl_la_LDFLAGS  = -version-info $(LIBRARY_VERSION) $(CODE_COVERAGE_LDFLAGS)
 src_libhogl_la_SOURCES  = \
 	src/fmt-format.cc \
@@ -201,9 +198,7 @@ noinst_PROGRAMS = tests/disasm/test \
 
 plugin_LTLIBRARIES = tests/libfmt-plugin_test.la
 
-AM_CPPFLAGS = -I $(top_srcdir)/include $(BOOST_CPPFLAGS)
-AM_CXXFLAGS = -pthread
-AM_CFLAGS   = -pthread
+AM_CPPFLAGS = -I $(top_srcdir)/include $(HOGL_CXXFLAGS) $(BOOST_CPPFLAGS)
 LDADD = src/libhogl.la $(HOGL_LIBS) $(BOOST_LDFLAGS) $(CODE_COVERAGE_LDFLAGS)
 
 tests_schedparam_test_SOURCES  = tests/schedparam_test.cc
@@ -231,7 +226,7 @@ nodist_EXTRA_tests_basic_test_c_api_SOURCES = dummy.cc # force CXXLINK
 if OPENMP
 TESTS += tests/openmp_test
 tests_openmp_test_SOURCES = tests/openmp_test.cc
-tests_openmp_test_CXXFLAGS = $(CXXFLAGS) -fopenmp -pthread
+tests_openmp_test_CXXFLAGS = $(HOGL_CXXFLAGS) -fopenmp
 tests_openmp_test_LDFLAGS = -fopenmp
 endif
 
@@ -244,7 +239,7 @@ tests_disasm_test_SOURCES = \
 	tests/disasm/tls.cc \
 	tests/disasm/main.cc
 
-tests_libfmt_plugin_test_la_CXXFLAGS = -I$(top_srcdir)/include $(LIBFFI_CFLAGS) -pthread
+tests_libfmt_plugin_test_la_CXXFLAGS = -I$(top_srcdir)/include $(HOGL_CXXFLAGS)
 tests_libfmt_plugin_test_la_LIBADD   = $(HOGL_LIBS)
 tests_libfmt_plugin_test_la_SOURCES  = \
 	tests/fmt-plugin_test.cc

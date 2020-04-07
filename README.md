@@ -25,7 +25,6 @@ Most existing libraries use their own printf formatters with slightly incompatib
 * Use latest compiler and platform features:
   * GCC and libc provide excellent, low overhead support for TLS (thread local storage)
   * Latest C++ compilers can optimize out all redundant code with just a little bit of help
-  * LibFFI allows for generating stack frames and calling sprintf() directly
 * Provide ultimate performance, scalability and flexibility:
   * Minimal overhead
   * All logging methods are safe for realtime code

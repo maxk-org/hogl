@@ -4,6 +4,8 @@ acsubst = sed -e 's|@prefix[@]|$(prefix)|g' \
 		-e 's|@exec_prefix[@]|$(exec_prefix)|g' \
 		-e 's|@libdir[@]|$(libdir)|g' \
 		-e 's|@includedir[@]|$(includedir)|g' \
+                -e 's|@HOGL_CXXFLAGS[@]|$(HOGL_CXXFLAGS)|g' \
+                -e 's|@HOGL_LIBS[@]|$(HOGL_LIBS)|g' \
                 -e 's|@VERSION[@]|$(VERSION)|g' \
                 -e 's|@RELEASE[@]|$(RELEASE)|g'
 
