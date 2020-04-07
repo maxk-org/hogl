@@ -4,7 +4,3 @@
 - Improvements to hogl-recover tool
   o Use mmap() instead of reading entire corefile
   o Support for loading shared libraries
-
-- Consider supporting something like this 
-  hogl::stream(my_area, my_section) hs;
-  hs << "blah blah" << "more blah" << hogl::eol;
