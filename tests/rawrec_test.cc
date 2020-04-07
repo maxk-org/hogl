@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <time.h>
-#include <assert.h>
 
 #include "hogl/format-basic.hpp"
 #include "hogl/output-stderr.hpp"

@@ -137,13 +137,15 @@ test_thread::test_thread(const std::string& name, unsigned int ring_capacity, un
 	int err;
 
 	_log_area = hogl::add_area("SORT", _log_sections);
-	if (!_log_area)
+	if (!_log_area) {
+		fmt::fprintf(stderr, "failed to allocate log area.\n");
 		abort();
+	}
 
 	err = pthread_create(&_thread, NULL, entry, (void *) this);
 	if (err) {
-		fprintf(stderr, "failed to create test_thread thread. %d\n", err);
-		exit(1);
+		fmt::fprintf(stderr, "failed to create test_thread thread. %d\n", err);
+		abort();
 	}
 }
 

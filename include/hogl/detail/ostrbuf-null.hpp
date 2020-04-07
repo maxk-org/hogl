@@ -33,6 +33,7 @@
 #define HOGL_DETAIL_OSTRBUF_NULL_HPP
 
 #include <stdlib.h>
+#include <stdexcept>
 
 #include <hogl/detail/ostrbuf.hpp>
 
@@ -42,7 +43,7 @@ namespace hogl {
 /**
  * Stream buffer with null output.
  * In the normal state all writes are discarded.
- * In the failed state all writes cause an abort.
+ * In the failed state all writes throw std::logic_error.
  */
 class ostrbuf_null : public ostrbuf
 {
@@ -50,7 +51,7 @@ private:
 	virtual void do_flush(const uint8_t *, size_t)
 	{
 		if (failed())
-			abort();
+			throw std::logic_error("hogl::ostrbuf -- write into failed stream");
 		reset();
 	}
 

@@ -29,9 +29,6 @@
  * Efficient output string buffer used for record formatting
  */
 
-#include <stdarg.h>
-#include <assert.h>
-
 #include <hogl/detail/ostrbuf.hpp>
 
 __HOGL_PRIV_NS_OPEN__

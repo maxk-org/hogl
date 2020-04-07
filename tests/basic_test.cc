@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <time.h>
-#include <assert.h>
 
 #include "hogl/format-basic.hpp"
 #include "hogl/format-raw.hpp"
@@ -87,7 +86,7 @@ public:
 		uint8_t *tail  = (uint8_t *) &this->_tail;
 
 		fmt::printf("ring: tail offset %lu head offset %lu\n",
-			(unsigned long) (tail - start), (unsigned long) (head - start)); 
+			(unsigned long) (tail - start), (unsigned long) (head - start));
 	}
 };
 
@@ -423,7 +422,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -432,29 +431,32 @@ int main(int argc, char *argv[])
 	argv += optind;
 
 	if (argc < 0) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 
 	hogl::format *lf = 0;
 	hogl::output *lo[3] = { 0, 0, 0 };
 
-	if (log_format == "raw")
-		lf = new hogl::format_raw();
-	else
-		lf = new hogl::format_basic(log_format.c_str());
+	try {
+		if (log_format == "raw")
+			lf = new hogl::format_raw();
+		else
+			lf = new hogl::format_basic(log_format.c_str());
 
-	if (log_tee.empty()) {
-		lo[0] = create_output(log_output, *lf, output_bufsize);
-	} else {
-		lo[1] = create_output(log_output, *lf, 0);
-		lo[2] = create_output(log_tee, *lf, 0);
-		lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
+		if (log_tee.empty()) {
+			lo[0] = create_output(log_output, *lf, output_bufsize);
+		} else {
+			lo[1] = create_output(log_output, *lf, 0);
+			lo[2] = create_output(log_tee, *lf, 0);
+			lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
+		}
+
+		hogl::activate(*lo[0]);
+	} catch (std::exception &e) {
+		fmt::printf("failed to activate hogl %s\n", e.what());
+		exit(1);
 	}
-
-	hogl::mask logmask(".*", ".*:DEBUG", 0);
-
-	hogl::activate(*lo[0]);
 
 	test_area = hogl::add_area("TEST-AREA", test_sect_names);
 
@@ -465,20 +467,21 @@ int main(int argc, char *argv[])
 	const char *a0_sections[] = { "X", 0 };
 	const hogl::area *a0 = hogl::add_area("TEST-AREA", a0_sections);
 	if (a0 != 0) {
-		printf("Failed: double add of TEST-AREA\n");
-		return 1;
+		fmt::printf("Failed: double add of TEST-AREA\n");
+		exit(1);
 	}
 
+	hogl::mask logmask(".*", ".*:DEBUG", 0);
 	hogl::apply_mask(logmask);
 
-	printf("sizeof(hogl::record)  = %lu\n", (unsigned long) sizeof(hogl::record));
-	printf("sizeof(hogl::ringbuf) = %lu\n", (unsigned long) sizeof(hogl::ringbuf));
+	fmt::printf("sizeof(hogl::record)  = %lu\n", (unsigned long) sizeof(hogl::record));
+	fmt::printf("sizeof(hogl::ringbuf) = %lu\n", (unsigned long) sizeof(hogl::ringbuf));
 	//printf("sizeof(hogl::post_context) = %lu\n", (unsigned long) sizeof(hogl::post_context));
 	myring mring;
 
 	if (doTest() < 0) {
-		printf("Failed\n");
-		return 1;
+		fmt::printf("Failed\n");
+		exit(1);
 	}
 
 	fflush(stdout);

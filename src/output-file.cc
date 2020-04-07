@@ -38,6 +38,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/platform.hpp"
@@ -255,7 +256,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
 	if (err) {
 		fmt::fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
-		abort();
+		throw std::runtime_error("hogl::output_file: failed to start helper thread.");
 	}
 
 	init_name(filename);
@@ -264,7 +265,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 	if (_fd < 0) {
 		fmt::fprintf(stderr, "hogl::output_file: failed open file %s. %s (%d)\n", 
 			_name.c_str(), strerror(errno), errno);
-		abort();
+		throw std::runtime_error("hogl::output_file: failed open file");
 	}
 
 	output::init(new ostrbuf_file(*this, opts.buffer_capacity));

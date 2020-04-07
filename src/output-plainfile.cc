@@ -28,6 +28,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <stdexcept>
+
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/output-plainfile.hpp"
 #include "hogl/fmt/printf.h"
@@ -41,7 +43,7 @@ output_plainfile::output_plainfile(const char *name, format &fmt, unsigned int b
 	int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0) {
 		fmt::fprintf(stderr, "hogl::output_plainfile: failed to open %s for writing. %s(%d)\n", name, strerror(errno), errno);
-		abort();
+		throw std::runtime_error("hogl::output_plainfile: failed to open file for writing");
 	}
 
 	init(new ostrbuf_fd(fd, ostrbuf_fd::CLOSE_ON_DELETE, buffer_capacity));

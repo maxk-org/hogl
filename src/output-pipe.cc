@@ -39,7 +39,7 @@ output_pipe::output_pipe(const char *command, format &fmt, unsigned int buffer_c
 	FILE* pipe = popen(command, "w");
 	if (!pipe) {
 		fmt::fprintf(stderr, "hogl::output_pipe: failed to open output pipe. %s(%d)\n", strerror(errno), errno);
-		abort();
+		throw std::runtime_error("hogl::output_pipe: failed to open output pipe.");
 	}
 
 	// Disable stdio buffering

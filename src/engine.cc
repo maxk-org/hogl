@@ -29,11 +29,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <assert.h>
 
 #include <string>
 #include <map>
 #include <algorithm>
+#include <stdexcept>
 
 #include "hogl/detail/internal.hpp"
 #include "hogl/detail/engine.hpp"
@@ -126,8 +126,8 @@ engine::engine(output &out, const engine::options &opts) :
 	// Start engine thread
 	err = pthread_create(&_thread, NULL, entry, (void *)this);
 	if (err) {
-		fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
-		abort();
+		fmt::fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
+		throw std::runtime_error("hogl::engine: failed to create engine thread");
 	}
 }
 

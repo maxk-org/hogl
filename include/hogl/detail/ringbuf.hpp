@@ -33,7 +33,6 @@
 #define HOGL_DETAIL_RINGBUF_HPP
 
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -221,7 +220,7 @@ public:
 
 	/**
 	 * Destroy the ring
-	 * @warn Call release() instead. Destructor will assert if 
+	 * @warn Call release() instead. Destructor will abort if 
 	 * it's called for the ringbuf that is still in use.
 	 */
 	~ringbuf();

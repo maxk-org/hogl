@@ -29,11 +29,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <assert.h>
 
 #include <string>
 #include <map>
 #include <algorithm>
+#include <stdexcept>
 
 #include "hogl/detail/internal.hpp"
 #include "hogl/detail/engine.hpp"
@@ -59,12 +59,13 @@ engine *default_engine;
 
 void activate(output &out, const engine::options &engine_opts)
 {
-	assert(default_engine == 0);
+	if (default_engine != 0)
+		throw std::logic_error("hogl::activate default engine already initialized");
 
 	// Default ringbuf must be shared and immortal.
-	// We check here because user app is allowed to replace
-	// default options.
-	assert(default_ring.immortal() && default_ring.shared());
+	// We check here because user app is allowed to replace default options.
+	if (!default_ring.immortal() && !default_ring.shared())
+		throw std::logic_error("hogl::activate default ring properties not valid");
 
 	// Initialize default engine
 	engine *e = new engine(out, engine_opts);

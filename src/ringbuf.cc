@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <stdexcept>
+
 #include "hogl/detail/ringbuf.hpp"
 #include "hogl/fmt/printf.h"
 
@@ -127,13 +129,13 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 	err = pthread_mutex_init(&_mutex, &mattr);
 	if (err) {
 		fmt::fprintf(stderr, "hogl::ring: failed to init ring mutex. err %u\n", err);
-		abort();
+		throw std::runtime_error("hogl::ring: failed to init ring mutex.");
 	}
 
 	err = pthread_mutex_init(&_block_mutex, &mattr);
 	if (err) {
 		fmt::fprintf(stderr, "hogl::ring: failed to init ring block mutex. err %u\n", err);
-		abort();
+		throw std::runtime_error("hogl::ring: failed to init ring block mutex.");
 	}
 
 	pthread_mutexattr_destroy(&mattr);
