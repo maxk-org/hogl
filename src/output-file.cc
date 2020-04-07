@@ -25,7 +25,6 @@
 */
 
 #include <unistd.h>
-#include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdint.h>
@@ -43,6 +42,7 @@
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/output-file.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -129,7 +129,7 @@ void output_file::update_link()
 
 	int err = symlink(_name.c_str(), link.c_str());
 	if (err < 0)
-		fprintf(stderr, "hogl::output_file: failed to create symlink %s -> %s. %s(%d)\n", 
+		fmt::fprintf(stderr, "hogl::output_file: failed to create symlink %s -> %s. %s(%d)\n",
 			_name.c_str(), _symlink.c_str(), strerror(errno), errno);
 
 	rename(link.c_str(), _symlink.c_str());
@@ -147,7 +147,7 @@ unsigned int output_file::read_link()
 	if (rlen < 0) {
 		if (errno == ENOENT)
 			return 0;
-		fprintf(stderr, "hogl::output_file: failed to read symlink %s. %s(%d)\n",
+		fmt::fprintf(stderr, "hogl::output_file: failed to read symlink %s. %s(%d)\n",
 			_symlink.c_str(), strerror(errno), errno);
 		return 0;
 	}
@@ -254,7 +254,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 	// Start helper thread
 	int err = pthread_create(&_rotate_thread, NULL, thread_entry, (void *) this);
 	if (err) {
-		fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
+		fmt::fprintf(stderr, "hogl::output_file: failed to start helper thread. %d\n", err);
 		abort();
 	}
 
@@ -262,7 +262,7 @@ output_file::output_file(const char *filename, format &fmt, const options &opts)
 
 	_fd = open(_name.c_str(), O_CREAT | O_WRONLY | O_APPEND | O_TRUNC, _mode);
 	if (_fd < 0) {
-		fprintf(stderr, "hogl::output_file: failed open file %s. %s (%d)\n", 
+		fmt::fprintf(stderr, "hogl::output_file: failed open file %s. %s (%d)\n", 
 			_name.c_str(), strerror(errno), errno);
 		abort();
 	}

@@ -24,11 +24,11 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <errno.h>
 
 #include "hogl/detail/ostrbuf-stdio.hpp"
 #include "hogl/output-pipe.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -38,7 +38,7 @@ output_pipe::output_pipe(const char *command, format &fmt, unsigned int buffer_c
 { 
 	FILE* pipe = popen(command, "w");
 	if (!pipe) {
-		fprintf(stderr, "hogl::output_pipe: failed to open output pipe. %s(%d)\n", strerror(errno), errno);
+		fmt::fprintf(stderr, "hogl::output_pipe: failed to open output pipe. %s(%d)\n", strerror(errno), errno);
 		abort();
 	}
 

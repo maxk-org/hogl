@@ -24,7 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -46,6 +45,7 @@
 #include "hogl/post.hpp"
 #include "hogl/flush.hpp"
 #include "hogl/ring.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_USING__;
 
@@ -86,7 +86,7 @@ public:
 		uint8_t *head  = (uint8_t *) &this->_head;
 		uint8_t *tail  = (uint8_t *) &this->_tail;
 
-		printf("ring: tail offset %lu head offset %lu\n",
+		fmt::printf("ring: tail offset %lu head offset %lu\n",
 			(unsigned long) (tail - start), (unsigned long) (head - start)); 
 	}
 };

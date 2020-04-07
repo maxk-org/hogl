@@ -24,7 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -48,6 +47,7 @@
 #include "hogl/output-plainfile.hpp"
 #include "hogl/output-pipe.hpp"
 #include "hogl/output-file.hpp"
+#include "hogl/fmt/format.h"
 
 __HOGL_PRIV_NS_USING__;
 
@@ -78,7 +78,7 @@ private:
 	void post_and_verify();
 
 public:
-	test_thread(const char *name, unsigned int ring_capacity, unsigned int burst_size, 
+	test_thread(const std::string& name, unsigned int ring_capacity, unsigned int burst_size, 
 				unsigned int interval_usec, unsigned int nloops);
 	~test_thread();
 
@@ -95,7 +95,7 @@ const char *test_thread::_log_sections[] = {
 	0,
 };
 
-test_thread::test_thread(const char *name, unsigned int ring_capacity, unsigned int burst_size, 
+test_thread::test_thread(const std::string& name, unsigned int ring_capacity, unsigned int burst_size, 
 	unsigned int interval_usec, unsigned int nloops) :
 	_name(name),
 	_running(true),
@@ -215,8 +215,7 @@ int doTest()
 
 	unsigned int i;
 	for (i=0; i < nthreads; i++) {
-		char name[100];
-		sprintf(name, "THREAD%u", i);
+		std::string name = fmt::sprintf("THREAD%u", i);
 		thread[i] = new test_thread(name, ring_capacity, burst_size, interval_usec, nloops);
 	}
 

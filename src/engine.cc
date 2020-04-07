@@ -24,7 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -41,9 +40,10 @@
 #include "hogl/detail/barrier.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/post.hpp"
+#include "hogl/fmt/printf.h"
 
 #ifdef HOGL_DEBUG
-#define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
+#define dprint(fstr, args...) fmt::fprintf(stderr, "hogl: " fstr "\n", ##args)
 #else
 #define dprint(a...)
 #endif
@@ -121,10 +121,10 @@ engine::engine(output &out, const engine::options &opts) :
 	_mask = opts.default_mask;
 	add_internal_area();
 
-	dprint("created engine %p", this);
+	dprint("created engine %p", (void*)this);
 
 	// Start engine thread
-	err = pthread_create(&_thread, NULL, entry, (void *) this);
+	err = pthread_create(&_thread, NULL, entry, (void *)this);
 	if (err) {
 		fprintf(stderr, "hogl::engine: failed to create engine thread. %d\n", err);
 		abort();
@@ -150,7 +150,7 @@ engine::~engine()
 
 	delete [] _ring_index.entries;
 
-	dprint("destroyed engine %p", this);
+	dprint("destroyed engine %p", (void*)this);
 }
 
 void *engine::entry(void *_self)
@@ -433,7 +433,7 @@ void engine::process_rings_tso()
 		tsobuf::entry te;
 		te.tag = i;
 
-		dprint("engine processing: ring %p prio %u", it.ring(), it.ring()->prio());
+		dprint("engine processing: ring %p prio %u", (void*)it.ring(), it.ring()->prio());
 
 		hogl::timestamp tso_ts = 0;
 
@@ -452,7 +452,7 @@ void engine::process_rings_tso()
 				te.timestamp = tso_ts + 1;
 			tso_ts = te.timestamp;
 
-			dprint("engine processing: record %p seq %lu", te.rec, te.rec->seqnum);
+			dprint("engine processing: record %p seq %lu", (void*)te.rec, te.rec->seqnum);
 			_tso.push(te);
 			if (_tso.full())
 				flush_full_tso();
@@ -494,7 +494,7 @@ void engine::process_rings_notso()
 		if (hogl_unlikely(!it.valid()))
 			continue;
 
-		dprint("engine processing: ring %p prio %u", it.ring(), it.ring()->prio());
+		dprint("engine processing: ring %p prio %u", (void*)it.ring(), it.ring()->prio());
 		it.reset();
 		record *r;
 		while ((r = it.next()))

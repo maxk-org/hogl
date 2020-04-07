@@ -25,7 +25,6 @@
 */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,9 +33,10 @@
 #include <sstream>
 
 #include "hogl/detail/area.hpp"
+#include "hogl/fmt/printf.h"
 
 #ifdef HOGL_DEBUG
-#define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
+#define dprint(fstr, args...) fmt::fprintf(stderr, "hogl: " fstr "\n", ##args)
 #else
 #define dprint(a...)
 #endif
@@ -68,13 +68,13 @@ area::area(const char *name, const char **section) :
 
 	_bitmap.reset();
 
-	dprint("created area %p. name %s size %u", this, _name, _bitmap.size());	
+	dprint("created area %p. name %s size %u", (void*)this, _name, _bitmap.size());	
 }
 
 area::~area()
 {
 	unsigned int i;
-	dprint("destroyed area %p. name %s", this, _name);
+	dprint("destroyed area %p. name %s", (void*)this, _name);
 
 	free(_name);
 

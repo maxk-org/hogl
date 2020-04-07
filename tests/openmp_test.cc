@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <unistd.h>
 #include <omp.h>
 #include <sys/prctl.h>
@@ -10,6 +9,7 @@
 #include "hogl/tls.hpp"
 #include "hogl/output-stderr.hpp"
 #include "hogl/format-basic.hpp"
+#include "hogl/fmt/format.hpp"
 
 __HOGL_PRIV_NS_USING__;
 
@@ -30,9 +30,8 @@ static __thread hogl::tls *__omp_tls = 0;
 void init_omp_thread()
 {
 	// Set thread name (not required for HOGL).
-	char thread_name[128];
-	sprintf(thread_name, "omp-thread-%d", omp_get_thread_num());
-	prctl(PR_SET_NAME, thread_name);
+	std::string name = fmt::sprintf(thread_name, "omp-thread-%d", omp_get_thread_num());
+	prctl(PR_SET_NAME, thread_name.c_str());
 
 	// Ring options.
 	// Ring is marked as reusable so that it can be reused if the
@@ -44,8 +43,7 @@ void init_omp_thread()
 	};
 
 	// Generate ring name based on the OMP thread id
-	char ring_name[128];
-	sprintf(ring_name, "OMP%d", omp_get_thread_num());
+	std::string ring_name = fmt::sprintf("OMP%d", omp_get_thread_num());
 
 	// Allocate TLS object for this thread.
 	// The constructor will allocate a new ringbuffer and replace

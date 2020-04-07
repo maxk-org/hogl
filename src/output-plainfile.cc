@@ -25,12 +25,12 @@
 */
 
 #include <unistd.h>
-#include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 
 #include "hogl/detail/ostrbuf-fd.hpp"
 #include "hogl/output-plainfile.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -40,7 +40,7 @@ output_plainfile::output_plainfile(const char *name, format &fmt, unsigned int b
 {
 	int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	if (fd < 0) {
-		fprintf(stderr, "hogl::output_plainfile: failed to open %s for writing. %s(%d)\n", name, strerror(errno), errno);
+		fmt::fprintf(stderr, "hogl::output_plainfile: failed to open %s for writing. %s(%d)\n", name, strerror(errno), errno);
 		abort();
 	}
 

@@ -24,10 +24,10 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "hogl/c-api/area.h"
 #include "hogl/c-api/mask.h"

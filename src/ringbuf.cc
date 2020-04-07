@@ -26,12 +26,12 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
 
 #include "hogl/detail/ringbuf.hpp"
+#include "hogl/fmt/printf.h"
 
 #ifdef HOGL_DEBUG
-#define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
+#define dprint(fstr, args...) fmt::fprintf(stderr, "hogl: " fstr "\n", ##args)
 #else
 #define dprint(a...)
 #endif
@@ -126,13 +126,13 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 
 	err = pthread_mutex_init(&_mutex, &mattr);
 	if (err) {
-		fprintf(stderr, "hogl::ring: failed to init ring mutex. err %u\n", err);
+		fmt::fprintf(stderr, "hogl::ring: failed to init ring mutex. err %u\n", err);
 		abort();
 	}
 
 	err = pthread_mutex_init(&_block_mutex, &mattr);
 	if (err) {
-		fprintf(stderr, "hogl::ring: failed to init ring block mutex. err %u\n", err);
+		fmt::fprintf(stderr, "hogl::ring: failed to init ring block mutex. err %u\n", err);
 		abort();
 	}
 
@@ -140,7 +140,7 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 
 	pthread_cond_init(&_block_cond, NULL);
 
-	dprint("created ringbuf %p. name %s capacity %u prio %u", this, _name, _capacity, _prio);
+	dprint("created ringbuf %p. name %s capacity %u prio %u", (void*)this, _name, _capacity, _prio);
 }
 
 void ringbuf::reset(void)
@@ -156,20 +156,21 @@ void ringbuf::reset(void)
 ringbuf::~ringbuf()
 {
 	if (_refcnt.get() != 0) {
-		fprintf(stderr, "hogl::ring: destroying ringbuf %s(%p) which is still in use.\n",
-			_name, this);
+		fmt::fprintf(stderr, "hogl::ring: destroying ringbuf %s(%p) which is still in use.\n",
+			_name, (void*)this);
 		abort();
 	}
 
-	if (!empty())
-		fprintf(stderr, "hogl::ring: warning: destroying non-empty ringbuf %s(%p)\n", _name, this);
-
+	if (!empty()) {
+		fmt::fprintf(stderr, "hogl::ring: warning: destroying non-empty ringbuf %s(%p)\n", 
+			_name, (void*)this);
+	}
 
 	pthread_cond_destroy(&_block_cond);
 	pthread_mutex_destroy(&_block_mutex);
 	pthread_mutex_destroy(&_mutex);
 
-	dprint("destroyed ringbuf %p. name %s (empty %u)", this, _name, empty());
+	dprint("destroyed ringbuf %p. name %s (empty %u)", (void*)this, _name, empty());
 
 	free(_rec_top);
 	free(_name);

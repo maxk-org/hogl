@@ -24,7 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -59,7 +58,7 @@ BOOST_AUTO_TEST_CASE(tscache)
 	hogl::ostrbuf_null rsb(128);
 
 	// Iterate through a bunch of timestamp values.
-	// Pass them through the formatter and normal sprintf(), and 
+	// Pass them through the formatter and normal printf(), and
 	// make sure that generated strings match.
 	struct { uint64_t begin; uint64_t end; } range[] = {
 		{ 0, 10000 },

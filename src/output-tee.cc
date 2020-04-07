@@ -24,9 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <errno.h>
-
 #include "hogl/detail/ostrbuf-tee.hpp"
 #include "hogl/output-tee.hpp"
 

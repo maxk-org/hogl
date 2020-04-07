@@ -25,7 +25,6 @@
 */
 
 #include <sys/types.h>
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <assert.h>
@@ -38,6 +37,7 @@
 #include "hogl/detail/engine.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/post.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
@@ -69,9 +69,9 @@ void __post_early(unsigned int section, const char *fmt, T0 arg0, T1 arg1)
 			break;
 		}
 
-		fprintf(stderr, "%s", sect_name);
-		fprintf(stderr, fmt, arg0, arg1); 
-		fprintf(stderr, "\n");
+		fmt::fprintf(stderr, "%s", sect_name);
+		fmt::fprintf(stderr, fmt, arg0, arg1); 
+		fmt::fprintf(stderr, "\n");
 	}
 }
 

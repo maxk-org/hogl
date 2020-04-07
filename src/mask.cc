@@ -25,7 +25,6 @@
 */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
@@ -36,9 +35,10 @@
 
 #include "hogl/detail/mask.hpp"
 #include "hogl/detail/area.hpp"
+#include "hogl/fmt/printf.h"
 
 #ifdef HOGL_DEBUG
-#define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
+#define dprint(fstr, args...) fmt::fprintf(stderr, "hogl: " fstr "\n", ##args)
 #else
 #define dprint(a...)
 #endif
@@ -101,7 +101,7 @@ void mask::apply(area &area) const
 	for (it=_list->begin(); it != _list->end(); ++it) {
 		const std::string str(area.name());
 		if (std::regex_match(str, it->area)) {
-			dprint("applying mask %p to area %p [%s]", this, &area, area.name());
+			dprint("applying mask %p to area %p [%s]", (void*)this, (void*)&area, area.name());
 			__apply(area, it->sect, it->on);
 		}
 	}
@@ -149,7 +149,7 @@ mask::mask(const char *str,...)
 {
 	_list = new data_list;
 
-	dprint("created mask %p list %p", this, _list);
+	dprint("created mask %p list %p", (void*)this, (void*)_list);
 
 	if (!str)
 		return;
@@ -169,13 +169,13 @@ mask::mask(const char *str,...)
 mask::mask(const mask &m)
 {
 	_list = new data_list(*m._list);
-	dprint("created mask %p (ro copy of %p) list %p", this, &m, _list);
+	dprint("created mask %p (ro copy of %p) list %p", (void*)this, (void*)&m, (void*)_list);
 }
 
 mask::mask(mask &m)
 {
 	_list = new data_list(*m._list);
-	dprint("created mask %p (rw copy of %p) list %p", this, &m, _list);
+	dprint("created mask %p (rw copy of %p) list %p", (void*)this, (void*)&m, (void*)_list);
 }
 
 void mask::operator=(const mask &m)
@@ -186,7 +186,7 @@ void mask::operator=(const mask &m)
 
 mask::~mask()
 {
-	dprint("deleted mask %p list %p", this, _list);
+	dprint("deleted mask %p list %p", (void*)this, (void*)_list);
 	delete _list;
 }
 

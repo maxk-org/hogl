@@ -24,8 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-
 #include "hogl/detail/ostrbuf-stdio.hpp"
 #include "hogl/output-stderr.hpp"
 

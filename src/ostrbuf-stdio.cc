@@ -27,11 +27,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <sys/uio.h>
 
 #include <string>
 

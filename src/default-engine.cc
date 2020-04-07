@@ -24,7 +24,6 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -41,9 +40,10 @@
 #include "hogl/detail/barrier.hpp"
 #include "hogl/platform.hpp"
 #include "hogl/post.hpp"
+#include "hogl/fmt/printf.h"
 
 #ifdef HOGL_DEBUG
-#define dprint(fmt, args...) fprintf(stderr, "hogl: " fmt "\n", ##args)
+#define dprint(fmt, args...) fmt::fprintf(stderr, "hogl: " fmt "\n", ##args)
 #else
 #define dprint(a...)
 #endif
