@@ -32,7 +32,8 @@ LOCAL_SRC_FILES := \
 	src/tls.cc \
 	src/default-ringopts.cc \
 	src/default-timesource.cc \
-	src/default-engine.cc
+	src/default-engine.cc \
+	src/fmt-format.cc
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
