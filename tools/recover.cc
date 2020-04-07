@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 
 	if (argc < 1) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	// Load coredump file
 	hogl::coredump  core(corefile, execfile);
 	if (core.failed) {
-		fprintf(stderr, "Failed to load core and executable files\n");
+		fmt::fprintf(stderr, "Failed to load core and executable files\n");
 		exit(1);
 	}
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
     		// Load plugin library
     		plugin_handle = dlopen(fmt_plugin, RTLD_LAZY);
     		if (!plugin_handle) {
-			fprintf(stderr, "Failed to load formater plugin: %s\n", dlerror());
+			fmt::fprintf(stderr, "Failed to load formater plugin: %s\n", dlerror());
 			exit(1);
     		}
     		// Reset errors
@@ -148,13 +148,13 @@ int main(int argc, char *argv[])
     		plugin_ops = (hogl::plugin::format *) dlsym(plugin_handle, "__hogl_plugin_format");
     		const char* dlsym_error = dlerror();
     		if (dlsym_error) {
-			fprintf(stderr, "Failed to load plugin symbols: %s\n", dlsym_error);
+			fmt::fprintf(stderr, "Failed to load plugin symbols: %s\n", dlsym_error);
 			exit(1);
     		}
 
 		fmt = plugin_ops->create(log_format);
 		if (!fmt) {
-			fprintf(stderr, "Failed to initialize format plugin\n");
+			fmt::fprintf(stderr, "Failed to initialize format plugin\n");
 			exit(1);
 		}
 	} else

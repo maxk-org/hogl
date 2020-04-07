@@ -41,6 +41,7 @@
 #include "hogl/plugin/format.hpp"
 #include "hogl/format-basic.hpp"
 #include "hogl/area.hpp"
+#include "hogl/fmt/printf.h"
 
 #include "raw-parser.hpp"
 #include "rdbuf.hpp"
@@ -58,15 +59,15 @@ static void process(const std::string& infile, unsigned int flags, hogl::format 
 	// Open input
 	hogl::file_rdbuf in(infile, flags);
 	if (!in.valid()) {
-		fprintf(stderr, "failed to open input file %s, %s(%d)\n",
-				infile.c_str(), strerror(in.error()), in.error());
+		fmt::fprintf(stderr, "failed to open input file %s, %s(%d)\n",
+				infile, strerror(in.error()), in.error());
 		exit(1);
 	}
 
 	// Allocate raw parser
 	hogl::raw_parser parser(in, version, max_record_size);
 	if (parser.failed()) {
-		fprintf(stderr, "failed to allocate raw parser. %s\n", parser.error().c_str());
+		fmt::fprintf(stderr, "failed to allocate raw parser. %s\n", parser.error());
 		exit(1);
 	}
 
@@ -81,7 +82,7 @@ static void process(const std::string& infile, unsigned int flags, hogl::format 
 	}
 
 	if (parser.failed()) {
-		fprintf(stderr, "failed to parse input. %s\n", parser.error().c_str());
+		fmt::fprintf(stderr, "failed to parse input. %s\n", parser.error());
 		exit(1);
 	}
 }
@@ -101,10 +102,10 @@ static unsigned int get_version(const char *str)
 	for (unsigned int i = 0; vm[i].str; i++)
 		if (!strcmp(str, vm[i].str)) return vm[i].ver;
 
-	fprintf(stderr, "Unsupported version: %s\n", str);
-	fprintf(stderr,"Supported versions:");
-	for (unsigned int i = 0; vm[i].str; i++) fprintf(stderr, " %s", vm[i].str);
-	fprintf(stderr, "\n");
+	fmt::fprintf(stderr, "Unsupported version: %s\n", str);
+	fmt::fprintf(stderr,"Supported versions:");
+	for (unsigned int i = 0; vm[i].str; i++) fmt::fprintf(stderr, " %s", vm[i].str);
+	fmt::fprintf(stderr, "\n");
 	exit(1);
 }
 
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -169,7 +170,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 
 	if (argc < 1) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
     		// Load plugin library
     		plugin_handle = dlopen(fmt_plugin, RTLD_LAZY);
     		if (!plugin_handle) {
-			fprintf(stderr, "Failed to load formater plugin: %s\n", dlerror());
+			fmt::fprintf(stderr, "Failed to load formater plugin: %s\n", dlerror());
 			exit(1);
     		}
     		// Reset errors
@@ -194,13 +195,13 @@ int main(int argc, char *argv[])
     		plugin_ops = (hogl::plugin::format *) dlsym(plugin_handle, "__hogl_plugin_format");
     		const char* dlsym_error = dlerror();
     		if (dlsym_error) {
-			fprintf(stderr, "Failed to load plugin symbols: %s\n", dlsym_error);
+			fmt::fprintf(stderr, "Failed to load plugin symbols: %s\n", dlsym_error);
 			exit(1);
     		}
 
 		fmt = plugin_ops->create(log_format);
 		if (!fmt) {
-			fprintf(stderr, "Failed to initialize format plugin\n");
+			fmt::fprintf(stderr, "Failed to initialize format plugin\n");
 			exit(1);
 		}
 	} else

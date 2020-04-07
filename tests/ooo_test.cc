@@ -187,7 +187,7 @@ void test_thread::loop()
 	}
 
 	if (tls.ring()->dropcnt()) 
-		printf("%s drop count %lu\n", _name.c_str(), (unsigned long) tls.ring()->dropcnt());
+		fmt::printf("%s drop count %lu\n", _name.c_str(), (unsigned long) tls.ring()->dropcnt());
 
 	_running = false;
 }
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 	
 	if (argc < 0) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 	
@@ -350,15 +350,15 @@ int main(int argc, char *argv[])
 	std::cout << "Engine stats: " << std::endl;
 	std::cout << hogl::default_engine->get_stats();
 
-	printf("Number of OOO records %u\n", fmt.ooo());
+	fmt::printf("Number of OOO records %u\n", fmt.ooo());
 
 	hogl::deactivate();
 
 	if (err < 0 || fmt.ooo()) {
-		printf("Failed\n");
+		fmt::printf("Failed\n");
 		return SKIP;
 	}
 
-	printf("Passed\n");
+	fmt::printf("Passed\n");
 	return 0;
 }

@@ -399,8 +399,8 @@ void recovery_engine::dump_areas()
 
 void recovery_engine::dump_records()
 {
-	fprintf(stdout, "#### #### #### ####\n");
-	fprintf(stdout, "Dumping records from ring buffers:\n");
+	fmt::fprintf(stdout, "#### #### #### ####\n");
+	fmt::fprintf(stdout, "Dumping records from ring buffers:\n");
 
 	// Iterate over all rings and insert records into the 
 	// record_set (sorted by timestamp).
@@ -427,7 +427,7 @@ void recovery_engine::dump_records()
 
 	sb.flush();
 
-	fprintf(stdout, "#### #### #### ####\n\n");
+	fmt::fprintf(stdout, "#### #### #### ####\n\n");
 }
 
 // Simple wrapper to expose ostrbuf internals for dumping
@@ -435,8 +435,8 @@ class ostrbuf_dump : public ostrbuf {
 public:
 	void write(FILE *out, bool all)
 	{
-		fprintf(out, "#### #### #### ####\n");
-		fprintf(out, "Dumping output buffer: capacity %u size %u failed %u data %u\n",
+		fmt::fprintf(out, "#### #### #### ####\n");
+		fmt::fprintf(out, "Dumping output buffer: capacity %u size %u failed %u data %u\n",
 			(unsigned int) _capacity, (unsigned int) _size,
 			(unsigned int) _failed, (unsigned int) (_data != 0));
 		if (_failed)
@@ -451,7 +451,7 @@ public:
 			fwrite(_data, n, 1, stdout);
 
 		}
-		fprintf(out, "#### #### #### ####\n\n");
+		fmt::fprintf(out, "#### #### #### ####\n\n");
 	}
 };
 

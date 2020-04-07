@@ -494,6 +494,6 @@ int main(int argc, char *argv[])
 	for (unsigned i=0; i<3; i++) delete lo[i];
 	delete lf;
 
-	printf("Passed\n");
+	fmt::printf("Passed\n");
 	return 0;
 }

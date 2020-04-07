@@ -114,7 +114,7 @@ test_thread::test_thread(const std::string& name, unsigned int ring_capacity, un
 
 	err = pthread_create(&_thread, NULL, entry, (void *) this);
 	if (err) {
-		fprintf(stderr, "failed to create test_thread thread. %d\n", err);
+		fmt::fprintf(stderr, "failed to create test_thread thread. %d\n", err);
 		exit(1);
 	}
 }
@@ -191,7 +191,7 @@ void test_thread::loop()
 	}
 
 	if (tls.ring()->dropcnt()) 
-		printf("%s drop count %lu\n", _name.c_str(), (unsigned long) tls.ring()->dropcnt());
+		fmt::printf("%s drop count %lu\n", _name.c_str(), (unsigned long) tls.ring()->dropcnt());
 
 	_running = false;
 }
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 	
 	if (argc < 0) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 
@@ -377,10 +377,10 @@ int main(int argc, char *argv[])
 	delete lf;
 
 	if (err < 0) {
-		printf("Failed\n");
+		fmt::printf("Failed\n");
 		return 1;
 	}
 
-	printf("Passed\n");
+	fmt::printf("Passed\n");
 	return 0;
 }

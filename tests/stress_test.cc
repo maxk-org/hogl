@@ -236,7 +236,7 @@ public:
 	{
 		int err = ::mkdir(dirname().c_str(), 0777);
 		if (err < 0 && errno != EEXIST) {
-			fprintf(stderr, "failed to created directory %s : %s", dirname().c_str(), strerror(errno));
+			fmt::fprintf(stderr, "failed to created directory %s : %s", dirname().c_str(), strerror(errno));
 			return false;
 		}
 		return true;

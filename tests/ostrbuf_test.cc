@@ -42,18 +42,18 @@ class my_ostrbuf : public hogl::ostrbuf {
 private:
 	void dump(const char *how, const uint8_t* data, size_t len)
 	{
-		fprintf(stdout, "\t%s: len %u [", how, (unsigned int) len);
+		fmt::fprintf(stdout, "\t%s: len %u [", how, (unsigned int) len);
 		if (len > 60) {
 			fwrite(data,  1, 57, stdout);
 			fwrite("...", 1, 3, stdout);
 		} else
 			fwrite(data, 1, len, stdout);
-		fprintf(stdout, "]\n");
+		fmt::fprintf(stdout, "]\n");
 	}
 
 	void do_flush(const uint8_t* data, size_t len)
 	{
-		fprintf(stdout, "my-ostrbuf::flush\n");
+		fmt::fprintf(stdout, "my-ostrbuf::flush\n");
 		if (_size) {
 			dump("flush-buffered", _data, _size);
 			reset();

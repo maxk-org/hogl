@@ -39,6 +39,7 @@
 #include "hogl/mask.hpp"
 #include "hogl/post.hpp"
 #include "hogl/ring.hpp"
+#include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_USING__;
 
@@ -120,7 +121,7 @@ int main(int argc, char *argv[])
 
 		case 'h':
 		default:
-			printf("%s", main_help);
+			fmt::printf("%s", main_help);
 			exit(0);
 		}
 	}
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 	
 	if (argc < 0) {
-		printf("%s", main_help);
+		fmt::printf("%s", main_help);
 		exit(1);
 	}
 
@@ -151,7 +152,7 @@ int main(int argc, char *argv[])
 	hogl::apply_mask(logmask);
 
 	if (doTest() < 0) {
-		printf("Failed\n");
+		fmt::printf("Failed\n");
 		return 1;
 	}
 
@@ -187,6 +188,6 @@ int main(int argc, char *argv[])
 
 	delete logout;
 
-	printf("Passed\n");
+	fmt::printf("Passed\n");
 	return 0;
 }

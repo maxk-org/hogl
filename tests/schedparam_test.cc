@@ -25,6 +25,7 @@
 */
 
 #include "hogl/detail/schedparam.hpp"
+#include "hogl/fmt/printf.h"
 
 #define BOOST_TEST_MODULE schedparam_test
 #include <boost/test/included/unit_test.hpp>
@@ -36,7 +37,7 @@ __HOGL_PRIV_NS_USING__;
 
 BOOST_AUTO_TEST_CASE(basic_other)
 {
-	printf("basic sched_other test\n");
+	fmt::printf("basic sched_other test\n");
 	hogl::schedparam* sp = new hogl::schedparam();
 	BOOST_ASSERT(sp->policy == SCHED_OTHER);
 	BOOST_ASSERT(sp->priority == 0);
@@ -49,7 +50,7 @@ BOOST_AUTO_TEST_CASE(basic_other)
 
 BOOST_AUTO_TEST_CASE(basic_fifo)
 {
-	printf("basic sched_fifo test\n");
+	fmt::printf("basic sched_fifo test\n");
 	hogl::schedparam sp(SCHED_FIFO, 50);
 	BOOST_ASSERT(sp.policy == SCHED_FIFO);
 	BOOST_ASSERT(sp.priority == 50);
@@ -84,7 +85,7 @@ BOOST_AUTO_TEST_CASE(validation_bad)
 #else
 BOOST_AUTO_TEST_CASE(basic_other)
 {
-	printf("basic sched_other test\n");
+	fmt::printf("basic sched_other test\n");
 	hogl::schedparam sp;
 	BOOST_ASSERT(sp.policy == SCHED_OTHER);
 	BOOST_ASSERT(sp.priority == 0);
