@@ -39,7 +39,7 @@ namespace hogl {
 /**
  * Per thread ring pointer
  */
-__thread ringbuf *tls::_ring = &default_ring;
+thread_local ringbuf *tls::_ring = &default_ring;
 
 /**
  * TLS constructor

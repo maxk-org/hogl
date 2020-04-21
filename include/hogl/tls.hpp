@@ -49,7 +49,7 @@ private:
 	/**
 	 * Per thread ring pointer
 	 */
-	static __thread ringbuf *_ring;
+	static thread_local ringbuf *_ring;
 
 	/**
 	 * Pointer to the engine serving this TLS
