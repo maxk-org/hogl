@@ -94,11 +94,14 @@ public:
 	/**
 	 * Get pointer to the ring of the current thread
 	 */
+#if !defined(__QNXNTO__)
 	static ringbuf *ring() { return _ring; }
+#else
+	static ringbuf *ring();
+#endif
 };
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-
 
 #endif // HOGL_TLS_HPP

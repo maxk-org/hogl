@@ -89,6 +89,12 @@ tls::~tls()
 	r->release();
 }
 
+#if defined(__QNXNTO__)
+// QNX TLS implementation is broken for shared libraries.
+// Out-of-line version here is a workaround.
+ringbuf* tls::ring() { return _ring; }
+#endif
+
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
 
