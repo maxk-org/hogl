@@ -58,7 +58,7 @@ coredump::section::~section()
 
 static bfd_boolean bfd_match_vma(bfd *b, asection *sect, void *vma)
 {
-	return (uint64_t) vma == bfd_get_section_vma(b, sect);
+	return (uint64_t) vma == sect->vma;
 }
 
 static asection *bfd_get_section_by_vma(bfd *b, uint64_t vma)
@@ -88,7 +88,7 @@ void coredump::load_section(coredump::section *s)
 			return;
 		}
 
-		unsigned long ss = bfd_section_size(s->abfd, sect);
+		unsigned long ss = sect->size;
 		if (ss > size) {
 			// This basically means coalescer bug
 			fmt::fprintf(stderr, "error: section with vma 0x%lx is too large\n", vma);
@@ -169,8 +169,8 @@ void coredump::add_section(bfd *abfd, asection *sect, void *_self)
 {
 	coredump &self = *(coredump *) _self;
 
-	unsigned long vma  = bfd_get_section_vma(abfd, sect);
-	unsigned long size = bfd_section_size(abfd, sect);
+	unsigned long vma  = sect->vma;
+	unsigned long size = sect->size;
 
 	// Skip sections with no data
 	if (!vma || !size)
