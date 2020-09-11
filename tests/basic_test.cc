@@ -46,6 +46,7 @@
 #include "hogl/post.hpp"
 #include "hogl/flush.hpp"
 #include "hogl/ring.hpp"
+#include "hogl/timesource.hpp"
 #include "hogl/fmt/printf.h"
 
 __HOGL_PRIV_NS_USING__;
@@ -376,12 +377,13 @@ static struct option main_lopts[] = {
    {"help",    0, 0, 'h'},
    {"format",  1, 0, 'f'},
    {"output",  1, 0, 'o'},
+   {"timesource",    1, 0, 'T'},
    {"out-buff-size", 1, 0, 'O'},
    {"out-tee", 1, 0, 't'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:t:O:";
+static char main_sopts[] = "hf:o:T:O:t:";
 
 static char main_help[] =
    "HOGL basic test 0.1 \n"
@@ -391,6 +393,7 @@ static char main_help[] =
       "\t--help -h            Display help text\n"
       "\t--format -f <name>   Log format (basic, raw)\n"
       "\t--output -o <name>   Log output: file name, stdout, stderr, pipe\n"
+      "\t--timesource -T <T>  Timesource: rt (default), mono\n"
       "\t--out-buff-size -O <N>   Output buffer size (in bytes)\n"
       "\t--out-tee -t <name>  Tee the main output into: file name, stderr, stderror, pipe\n";
 // }
@@ -398,6 +401,7 @@ static char main_help[] =
 int main(int argc, char *argv[])
 {
 	std::string log_output("stdout");
+	std::string log_timesource("rt");
 	std::string log_tee;
 	std::string log_format("fast1");
 	unsigned int output_bufsize = 10 * 1024 * 1024;
@@ -416,6 +420,10 @@ int main(int argc, char *argv[])
 
 		case 't':
 			log_tee = optarg;
+			break;
+
+		case 'T':
+			log_timesource = optarg;
 			break;
 
 		case 'O':
@@ -437,10 +445,14 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	hogl::engine::options le_opts = hogl::engine::default_options;
 	hogl::format *lf = 0;
 	hogl::output *lo[3] = { 0, 0, 0 };
 
 	try {
+		if (log_timesource == "mono")
+			le_opts.timesource = &hogl::monotonic_timesource;
+
 		if (log_format == "raw")
 			lf = new hogl::format_raw();
 		else
@@ -454,7 +466,7 @@ int main(int argc, char *argv[])
 			lo[0] = new hogl::output_tee(lo[1], lo[2], output_bufsize);
 		}
 
-		hogl::activate(*lo[0]);
+		hogl::activate(*lo[0], le_opts);
 	} catch (std::exception &e) {
 		fmt::printf("failed to activate hogl %s\n", e.what());
 		exit(1);

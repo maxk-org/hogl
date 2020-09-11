@@ -38,7 +38,17 @@ __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
 /**
- * Default timesource.
+ * Realtime clock timesource.
+ */
+extern timesource realtime_timesource;
+
+/**
+ * Fast monotonic clock timesource.
+ */
+extern timesource monotonic_timesource;
+
+/**
+ * Default timesource (same as realtime on most platforms)
  * Weak symbol. Can be overriden by user app.
  */
 extern timesource default_timesource;

@@ -169,7 +169,7 @@ private:
 
 	static hogl::timestamp get_timestamp(bad_timesource *self)
 	{
-		hogl::timestamp now = hogl::default_timesource.timestamp();
+		hogl::timestamp now = hogl::monotonic_timesource.timestamp();
 
 		uint64_t s = self->_seq.next();
 		if (s % 20 == 0)

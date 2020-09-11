@@ -33,18 +33,37 @@
 __HOGL_PRIV_NS_OPEN__
 namespace hogl {
 
-// Default 
-static hogl::timestamp do_clock_gettime(const hogl::timesource *)
+static hogl::timestamp clock_realtime(const hogl::timesource *)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	return hogl::timestamp(ts);
 }
 
+timesource realtime_timesource("clock_realtime", clock_realtime);
+
+#if !defined(__QNXNTO__)
+static hogl::timestamp clock_monotonic(const hogl::timesource *)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return hogl::timestamp(ts);
+}
+#else
+static hogl::timestamp clock_monotonic(const hogl::timesource *)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return hogl::timestamp(ts);
+}
+#endif
+
+timesource monotonic_timesource("clock_monotonic", clock_monotonic);
+
 /**
  * Default timesource instance
  */
-timesource hogl_weak_symbol default_timesource("clock_gettime", do_clock_gettime);
+timesource hogl_weak_symbol default_timesource("clock_realtime", clock_realtime);
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
