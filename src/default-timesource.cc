@@ -28,6 +28,11 @@
 
 #include <time.h>
 
+#if defined(__QNXNTO__)
+#include <sys/neutrino.h>
+#include <sys/syspage.h>
+#endif
+
 #include "hogl/detail/timesource.hpp"
 
 __HOGL_PRIV_NS_OPEN__
@@ -52,9 +57,10 @@ static hogl::timestamp clock_monotonic(const hogl::timesource *)
 #else
 static hogl::timestamp clock_monotonic(const hogl::timesource *)
 {
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return hogl::timestamp(ts);
+	static uint64_t cps = SYSPAGE_ENTRY(qtime)->cycles_per_sec;
+	static uint64_t nspc = 1000000000ULL / cps;
+	uint64_t c = ClockCycles();
+	return hogl::timestamp( timespec{ (long int)(c / cps), (long int)((c % cps) * nspc) });
 }
 #endif
 
