@@ -27,10 +27,10 @@
 
 import argparse, re, json
 
-# Add event to the trace
-def add_event(trace, line):
-    # Split the event string into --> <evt> # [attrs] # [args]
-    s = line.strip().split('#') + [' ', ' ']
+# Process record and add convert into trace event
+def add_event(out, rec):
+    # Split the record into --> <evt> # [attrs] # [args]
+    s = rec.strip().split('#') + [' ', ' ']
 
     evt  = s[0].split()
     attr = s[1].split()
@@ -87,17 +87,18 @@ def add_event(trace, line):
     for a in args:
         s = a.split(':'); event['args'][s[0]] = s[1]
 
-    trace['traceEvents'].append(event)
+    out.write(out.sep); out.sep = ','
+    json.dump(event, out)
 
 # Process input log file
-def process_input(trace, flt, in_file):
-    print('processing {}'.format(i))
+def process_input(out, flt, in_file):
+    print('processing {}'.format(in_file))
 
-    r = open(in_file)
-    l = r.readline()
-    while l:
-        if flt.match(l): add_event(trace, l)
-        l = r.readline()
+    i = open(in_file)
+    r = i.readline()
+    while r:
+        if flt.match(r): add_event(out, r)
+        r = i.readline()
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='hogl-trace -- HOGL log/trace processing tool')
@@ -110,20 +111,18 @@ if __name__=='__main__':
         print('List of input log files and the output trace file must be specified')
         sys.exit(1)
 
-    trace = {
-        'traceEvents': [],
-        'displayTimeUnit': 'ns',
-        'otherData': { 'version': 'hogl trace v0.0.1' }
-    }
+    # Open output file for writing the traces
+    out = open(args.output, 'w')
+    out.write('{"traceEvents": [')
+    out.sep = ''
 
     # Read all input files, filter trace-log records and convert them into trace format
     flt = re.compile(args.regex)
     for i in args.input:
-        process_input(trace, flt, i)
+        process_input(out, flt, i)
 
-    if len(trace['traceEvents']) == 0:
-        print('No trace events found in the input file(s)')
-        sys.exit(1)
+    # Write out footer and close it up
+    out.write('], "displayTimeUnit": "ns", "otherData": { "version": "hogl trace v0.0.1" } }')
+    out.close()
 
-    print('writing {}'.format(args.output))
-    json.dump(trace, open(args.output, 'w'))
+    print('wrote {}'.format(args.output))
