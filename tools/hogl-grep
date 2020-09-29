@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 
-# Copyright (c) 2015-2019 Max Krasnyansky <max.krasnyansky@gmail.com>
+# Copyright (c) 2015-2020 Max Krasnyansky <max.krasnyansky@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -44,7 +44,7 @@ class log_converter:
 
 		log_match = re.match( r'^([0-9]*)\.([0-9]*) \([0-9]*\) (.*)', line, re.M|re.I)
 		if log_match is None:
-			print "Failed to find a valid hogl record line"
+			print("Failed to find a valid hogl record line")
 			return False
 
 		# first time just assign the current ts to self.secs/nsec
@@ -78,7 +78,7 @@ if not len(args):
 
 # Filter log file using external grep.
 # 'grep' is much faster at this.
-grep = subprocess.Popen(['/bin/grep'] + args, bufsize=1, stdout = subprocess.PIPE)
+grep = subprocess.Popen(['/bin/grep'] + args, stdout = subprocess.PIPE)
 data_in = grep.stdout
 
 try:
@@ -100,7 +100,7 @@ try:
 			raise Exception("error in parsing log" + args)
 
 except IOError as err:
-	print err
+	print(err)
 	grep.kill()
 	sys.exit(1)
 

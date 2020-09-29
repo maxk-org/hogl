@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+#
+
+# Copyright (c) 2015-2020 Max Krasnyansky <max.krasnyansky@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import argparse, re, json
+
+# Add event to the trace
+def add_event(trace, line):
+    # Split the event string into --> <evt> # [attrs] # [args]
+    s = line.strip().split('#') + [' ', ' ']
+
+    evt  = s[0].split()
+    attr = s[1].split()
+    args = s[2].split()
+
+    ## Supported log record formats
+    # ['00000028536.361036022', 'AREA:TRACE', 'category', 'name', 'PID']
+    # ['00000028442.537435106', 'TID:1234', 'AREA:TRACE', 'category', 'name', 'PID']
+    # ['00000028363.625193560', '(197)', 'TID:2749', 'AREA:TRACE', 'category', 'name', 'PID']
+
+    ## Timestamp is always first (and must be timespec)
+    ts_trace = int(float(evt[0]) * 1000000) # convert timestamp into usec
+
+    # Generate event skeleton
+    # See Chrome Trace Event Format for detailed description of the fields
+    event = {
+        'ts' :  ts_trace, ## timestamp (in usec)
+        'cat':  'none',   ## event category
+        'name': 'none',   ## event name
+        'pid':  'NONE',   ## process id / name
+        'tid':  'NONE',   ## thread id (hogl ringbuf name)
+        'dur':  1,        ## event duration (in usec, using fixed duration for now)
+        'ph':   'X',      ## phase
+        'args': { }       ## event args (shown in trace viewer details)
+    }
+
+    # Figure out record format
+    if len(evt) == 5:
+        event['cat']  = evt[2]
+        event['name'] = evt[3]
+        event['pid']  = evt[4]
+        event['tid']  = evt[4]  ## same as pid in this format
+    elif len(evt) == 6:
+        event['cat']  = evt[3]
+        event['name'] = evt[4]
+        event['pid']  = evt[5]
+        event['tid']  = evt[1].split(':')[0]
+    elif len(evt) == 7:
+        event['cat']  = evt[4]
+        event['name'] = evt[5]
+        event['pid']  = evt[6]
+        event['tid']  = evt[2].split(':')[0]
+    else:
+        print('warn: unsupported record format: {}'.format(evt))
+        return
+
+    # ['ph:X']
+    # ['seqno:788', 'timestamp:28363576704147']
+
+    attr = attr[4:]
+    for a in attr:
+        s = a.split(':'); event[s[0]] = s[1]
+
+    for a in args:
+        s = a.split(':'); event['args'][s[0]] = s[1]
+
+    trace['traceEvents'].append(event)
+
+# Process input log file
+def process_input(trace, flt, in_file):
+    print('processing {}'.format(i))
+
+    r = open(in_file)
+    l = r.readline()
+    while l:
+        if flt.match(l): add_event(trace, l)
+        l = r.readline()
+
+if __name__=='__main__':
+    parser = argparse.ArgumentParser(description='hogl-trace -- HOGL log/trace processing tool')
+    parser.add_argument('-r', '--regex',  default='.*:TRACE.*', help='Regex used for filtering TRACE records')
+    parser.add_argument('-o', '--output', help='Output file')
+    parser.add_argument('input', nargs='+', help='Input file(s)')
+    args = parser.parse_args()
+
+    if args.output == None or len(args.input) == 0:
+        print('List of input log files and the output trace file must be specified')
+        sys.exit(1)
+
+    trace = {
+        'traceEvents': [],
+        'displayTimeUnit': 'ns',
+        'otherData': { 'version': 'hogl trace v0.0.1' }
+    }
+
+    # Read all input files, filter trace-log records and convert them into trace format
+    flt = re.compile(args.regex)
+    for i in args.input:
+        process_input(trace, flt, i)
+
+    if len(trace['traceEvents']) == 0:
+        print('No trace events found in the input file(s)')
+        sys.exit(1)
+
+    print('writing {}'.format(args.output))
+    json.dump(trace, open(args.output, 'w'))

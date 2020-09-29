@@ -250,7 +250,7 @@ endif
 #
 if BUILD_TOOLS
 bin_PROGRAMS = tools/hogl-recover tools/hogl-cook
-bin_SCRIPTS  = tools/hogl-grep
+bin_SCRIPTS  = tools/hogl-grep tools/hogl-trace
 
 tools_hogl_recover_SOURCES  = \
 		tools/coredump.cc tools/coredump.hpp tools/ring-validator.hpp \
