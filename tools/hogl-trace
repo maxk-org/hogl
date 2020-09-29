@@ -101,10 +101,15 @@ def process_input(out, flt, in_file):
         r = i.readline()
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='hogl-trace -- HOGL log/trace processing tool')
-    parser.add_argument('-r', '--regex',  default='.*:TRACE', help='Regex used for filtering TRACE records')
-    parser.add_argument('-o', '--output', help='Output file')
-    parser.add_argument('input', nargs='+', help='Input file(s)')
+    # Option parsing
+    parser = argparse.ArgumentParser(
+            description = 'tool for convering hogl logs into trace files',
+            usage = 'hogl-trace [options] [input log files]' )
+    parser.add_argument('-r', '--regex',  default='.*:TRACE',  help='Regex used for filtering TRACE records')
+    parser.add_argument('-g', '--grep',   default='/bin/grep', help='path to grep exec')
+    parser.add_argument('-o', '--output',   help='output trace file')
+    parser.add_argument('input', nargs='+', help='input log file(s)')
+
     args = parser.parse_args()
 
     if args.output == None or len(args.input) == 0:

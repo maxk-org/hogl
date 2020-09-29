@@ -29,82 +29,68 @@
 # new records with the time diff in parenthesis corresponds to the
 # actual grepped records rather the original timediff.
 
-import sys, optparse, subprocess, re
+import sys, argparse, subprocess, re
 
-class log_converter:
-	def __init__(self):
-		self.last_secs = 0
-		self.last_nsec = 0
+#
+# Typical hogl::format_basic log records look like this:
+#    01451508993.696685263 (257) AREA:DEBUG some message here
+#    01451508993.696685263 AREA:DEBUG some message here
+#
+# 01451508993.696685263 is in seconds.nanoseconds
+# (257) is a delta nanoseconds
 
-	def process(self, line, log_out):
-		# Typical logging record looks like this:
-		# 01451508993.696685263 (257) LOG_DEBUG some message here
-		# (257) ts in nanoseconds and is relative to the previous logging record
-		# 01451508993.696685263 is seconds.nanoseconds
+ts_fmt = [
+    re.compile('^([0-9]*.[0-9]*) \([0-9]*\) (.*)'),
+    re.compile('^([0-9]*\.[0-9]*) (.*)') ]
 
-		log_match = re.match( r'^([0-9]*)\.([0-9]*) \([0-9]*\) (.*)', line, re.M|re.I)
-		if log_match is None:
-			print("Failed to find a valid hogl record line")
-			return False
+ts_last = 0
 
-		# first time just assign the current ts to self.secs/nsec
-		if self.last_secs == 0:
-			self.last_secs = int(log_match.group(1))
-			self.last_nsec = int(log_match.group(2))
+def process_rec(rec, out):
+    global ts_last
 
-		secs_diff = int(log_match.group(1)) - self.last_secs
-		nsec_diff = abs(int(log_match.group(2)) - self.last_nsec)
-		if int(log_match.group(2)) < self.last_nsec:
-			nsec_diff = 1000*1000*1000 - nsec_diff
-			secs_diff = secs_diff - 1
-		new_diff = "(" + str(nsec_diff + secs_diff * 1000 *1000 * 1000)  + ")"
-		new_line = log_match.group(1) + "." + log_match.group(2) + " " + new_diff + " " + log_match.group(3)
+    for tf in ts_fmt:
+        m = tf.match(rec)
+        if m: break
 
-		log_out.write(new_line + "\n")
-		self.last_secs = int(log_match.group(1))
-		self.last_nsec = int(log_match.group(2))
+    if m is None:
+        print('invalid timestamp [ {} ]'.format(rec))
+        sys.exit(1)
 
-		return True
+    ts = int(float(m.group(1)) * 1000000000) # to nsec
+    if ts_last == 0:
+        ts_last = ts
 
-# Option parsing
-parser = optparse.OptionParser(usage = "Usage: hogl-grep [options] [--] [grep-options] <pattern> [input log files]" )
-parser.add_option("-o", "--output", dest="output", type="string", action="store", help="output log file")
+    out.write('{} ({}) {}\n'.format(m.group(1), ts - ts_last, m.group(2)))
+    ts_last = ts
+    return True
 
-(options, args) = parser.parse_args()
+if __name__=='__main__':
+    parser = argparse.ArgumentParser(
+            description = 'grep based tool for recomputing timestamp deltas ',
+            usage = 'hogl-grep [options] [--] [grep-options] <pattern> [input log files]' )
+    parser.add_argument('-g', '--grep',   default='/bin/grep', help='path to grep exec')
+    parser.add_argument('-o', '--output',   help='output log file')
+    parser.add_argument('input', nargs='+', help='input log file(s)')
 
-if not len(args):
-	parser.print_help()
-	sys.exit(1)
+    args = parser.parse_args()
 
-# Filter log file using external grep.
-# 'grep' is much faster at this.
-grep = subprocess.Popen(['/bin/grep'] + args, stdout = subprocess.PIPE)
-data_in = grep.stdout
+    if not len(args.input):
+        parser.print_help()
+        sys.exit(1)
 
-try:
-	conv = log_converter()
+    # Filter log file using external grep.
+    # 'grep' is much faster at this.
+    grep = subprocess.Popen([args.grep] + args.input, stdin=None, stdout=subprocess.PIPE, text=True, bufsize=1)
 
-	# Open log output file
-	if options.output:
-		log_out = open(options.output, 'wb')
-	else:
-		log_out = sys.stdout
+    # Open log output file
+    out = sys.stdout
+    if args.output:
+        out = open(args.output, 'wb')
 
-	# Iterate over log records (one line at a time)
-	while True:
-		line = data_in.readline()
-		if line == '':
-			break
-		ret = conv.process(line, log_out)
-		if ret != True:
-			raise Exception("error in parsing log" + args)
+    # Iterate over log records (one line at a time)
+    while True:
+        rec = grep.stdout.readline()
+        if rec == '': break
+        process_rec(rec, out)
 
-except IOError as err:
-	print(err)
-	grep.kill()
-	sys.exit(1)
-
-except:
-	grep.kill()
-
-sys.exit(0)
+    sys.exit(0)
