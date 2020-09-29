@@ -97,12 +97,12 @@ def process_input(out, flt, in_file):
     i = open(in_file)
     r = i.readline()
     while r:
-        if flt.match(r): add_event(out, r)
+        if flt.search(r): add_event(out, r)
         r = i.readline()
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='hogl-trace -- HOGL log/trace processing tool')
-    parser.add_argument('-r', '--regex',  default='.*:TRACE.*', help='Regex used for filtering TRACE records')
+    parser.add_argument('-r', '--regex',  default='.*:TRACE', help='Regex used for filtering TRACE records')
     parser.add_argument('-o', '--output', help='Output file')
     parser.add_argument('input', nargs='+', help='Input file(s)')
     args = parser.parse_args()
