@@ -25,10 +25,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import argparse, re, json
+import sys, argparse, re, json, subprocess
 
 # Process record and add convert into trace event
-def add_event(out, rec):
+def process_rec(rec, out):
     # Split the record into --> <evt> # [attrs] # [args]
     s = rec.strip().split('#') + [' ', ' ']
 
@@ -90,15 +90,6 @@ def add_event(out, rec):
     out.write(out.sep); out.sep = ','
     json.dump(event, out)
 
-# Process input log file
-def process_input(out, flt, in_file):
-    print('processing {}'.format(in_file))
-
-    i = open(in_file)
-    r = i.readline()
-    while r:
-        if flt.search(r): add_event(out, r)
-        r = i.readline()
 
 if __name__=='__main__':
     # Option parsing
@@ -112,21 +103,29 @@ if __name__=='__main__':
 
     args = parser.parse_args()
 
-    if args.output == None or len(args.input) == 0:
+    if len(args.input) == 0:
         print('List of input log files and the output trace file must be specified')
         sys.exit(1)
 
-    # Open output file for writing the traces
-    out = open(args.output, 'w')
+    # Open log output file
+    out = sys.stdout
+    if args.output:
+        out = open(args.output, 'w')
+
     out.write('{"traceEvents": [')
     out.sep = ''
 
-    # Read all input files, filter trace-log records and convert them into trace format
-    flt = re.compile(args.regex)
-    for i in args.input:
-        process_input(out, flt, i)
+    # Filter log file using external grep.
+    # 'grep' is much faster at this.
+    grep = subprocess.Popen([args.grep, args.regex] + args.input, stdin=None, stdout=subprocess.PIPE, text=True, bufsize=1)
 
-    # Write out footer and close it up
+    # Iterate over log records (one line at a time)
+    while True:
+        rec = grep.stdout.readline()
+        if rec == '': break
+        process_rec(rec, out)
+
+    # Write out the footer and close it up
     out.write('], "displayTimeUnit": "ns", "otherData": { "version": "hogl trace v0.0.1" } }')
     out.close()
 
