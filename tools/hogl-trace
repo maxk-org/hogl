@@ -80,10 +80,11 @@ def process_rec(rec, out):
     # ['ph:X']
     # ['seqno:788', 'timestamp:28363576704147']
 
-    attr = attr[4:]
+    # Add / override attrs (if any)
     for a in attr:
         s = a.split(':'); event[s[0]] = s[1]
 
+    # Add args (if any)
     for a in args:
         s = a.split(':'); event['args'][s[0]] = s[1]
 
@@ -128,5 +129,3 @@ if __name__=='__main__':
     # Write out the footer and close it up
     out.write('], "displayTimeUnit": "ns", "otherData": { "version": "hogl trace v0.0.1" } }')
     out.close()
-
-    print('wrote {}'.format(args.output))
