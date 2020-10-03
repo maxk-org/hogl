@@ -70,16 +70,20 @@ private:
 	tls(const tls&);
 	tls& operator=( const tls& );
 
+	// Update ring pointers (called from constructors)
+	void update(ringbuf *r);
+
 public:
 	/**
 	 * Setup hogl per thread settings.
-	 * This constructor will atomatically create and register new private
-	 * ring buffer.
+	 * This constructor is going to create and register new ring buffer using provided opts.
+	 * If ringbuf::SHARED and ringbuf::REUSABLE flags are not set the name must be unique for this
+	 * engine. Otherwise the allocation will fail, the engine will log an error, and this tls will
+	 * reuse current ringbuf (usually default_ring).
  	 */
 	tls(const char *name,
 		ringbuf::options &opts = ringbuf::default_options,
 		engine *engine = default_engine);
-
 	/**
 	 * Setup hogl per thread settings.
 	 * This constructor will use an existing ring.
@@ -90,6 +94,11 @@ public:
 	 * Cleanup per thread settings.
 	 */
 	~tls();
+
+	/**
+	 * Check if tls (ring, etc) was allocated correctly
+	 */
+	const bool valid() const { return _current_ring != nullptr; }
 
 	/**
 	 * Get pointer to the ring of the current thread

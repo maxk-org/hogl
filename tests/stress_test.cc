@@ -408,7 +408,9 @@ void test_thread::loop()
 	if (_use_blocking)
 		ring_opts.flags |= hogl::ringbuf::BLOCKING;
 
-	hogl::tls tls(_name.c_str(), ring_opts);
+	// allocate twice to check for graceful handling of failed allocations
+	hogl::tls tls0(_name.c_str(), ring_opts);
+	hogl::tls tls1(_name.c_str(), ring_opts); 
 
 	hogl::post(_log_area, INFO, "test_thread %p(%s) running", this, _name);
 
