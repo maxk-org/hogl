@@ -485,11 +485,8 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	hogl::mask logmask0(".*", ".*:DEBUG", 0);
-	hogl::apply_mask(logmask0);
-
-	hogl::mask logmask1( { ".*", ".*:DEBUG" } );
-	hogl::apply_mask(logmask1);
+	hogl::mask logmask(".*", ".*:DEBUG", 0);
+	hogl::apply_mask(logmask);
 
 	fmt::printf("sizeof(hogl::record)  = %lu\n", (unsigned long) sizeof(hogl::record));
 	fmt::printf("sizeof(hogl::ringbuf) = %lu\n", (unsigned long) sizeof(hogl::ringbuf));
