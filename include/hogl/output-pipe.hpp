@@ -43,6 +43,11 @@ namespace hogl {
 class output_pipe : public output {
 public:
 	output_pipe(const char *command, format &fmt, unsigned int buffer_capacity = 8192);
+
+	output_pipe(const std::string &command, format &fmt, unsigned int buffer_capacity = 8192) :
+		output_pipe(command.c_str(), fmt, buffer_capacity)
+	{}
+
 	virtual ~output_pipe();
 };
 

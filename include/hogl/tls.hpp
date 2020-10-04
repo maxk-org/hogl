@@ -84,6 +84,11 @@ public:
 	tls(const char *name,
 		ringbuf::options &opts = ringbuf::default_options,
 		engine *engine = default_engine);
+
+	tls(const std::string &name,
+		ringbuf::options &opts = ringbuf::default_options,
+		engine *engine = default_engine) : tls(name.c_str(), opts, engine) {}
+
 	/**
 	 * Setup hogl per thread settings.
 	 * This constructor will use an existing ring.

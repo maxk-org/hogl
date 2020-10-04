@@ -49,6 +49,11 @@ void post_early(unsigned int section, const char *fmt, const char *arg0, const c
 // Set the title/name of the current thread
 void set_thread_title(const char *str);
 
+static inline void set_thread_title(const std::string &str)
+{
+	return set_thread_title(str.c_str());
+}
+
 /**
  * Typically coredump files do not contain file-backed mappings.
  * Which means that hogl-recover tool will have to have access 

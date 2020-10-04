@@ -52,10 +52,15 @@ private:
 
 public:
 	/**
- 	 * Construct new mask 
- 	 * @param str pointer to the array of mask strings. Must be null terminated.
- 	 */
-	mask(const char *str = 0,...);
+	 * Construct new mask
+	 */
+	mask();
+
+	/**
+	 * Construct new mask (legacy interface)
+	 * @param str pointer to the array of mask strings. Must be null terminated.
+	 */
+	mask(const char *str,...);
 
 	/**
 	 * Copy constructor

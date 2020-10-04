@@ -367,9 +367,9 @@ hogl::output* create_output(std::string& out, hogl::format& fmt, size_t bufsize)
 		return new hogl::output_stdout(fmt, bufsize);
 
 	if (out[0] == '|')
-		return new hogl::output_pipe(out.substr(1).c_str(), fmt, bufsize);
+		return new hogl::output_pipe(out.substr(1), fmt, bufsize);
 
-	return new hogl::output_plainfile(out.c_str(), fmt, bufsize);
+	return new hogl::output_plainfile(out, fmt, bufsize);
 }
 
 // Command line args {
@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
 		if (log_format == "raw")
 			lf = new hogl::format_raw();
 		else
-			lf = new hogl::format_basic(log_format.c_str());
+			lf = new hogl::format_basic(log_format);
 
 		if (log_tee.empty()) {
 			lo[0] = create_output(log_output, *lf, output_bufsize);
@@ -485,8 +485,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	hogl::mask logmask(".*", ".*:DEBUG", 0);
-	hogl::apply_mask(logmask);
+	hogl::mask logmask0(".*", ".*:DEBUG", 0);
+	hogl::apply_mask(logmask0);
+
+	hogl::mask logmask1( { ".*", ".*:DEBUG" } );
+	hogl::apply_mask(logmask1);
 
 	fmt::printf("sizeof(hogl::record)  = %lu\n", (unsigned long) sizeof(hogl::record));
 	fmt::printf("sizeof(hogl::ringbuf) = %lu\n", (unsigned long) sizeof(hogl::ringbuf));

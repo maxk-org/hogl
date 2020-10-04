@@ -42,6 +42,11 @@ namespace hogl {
 class output_plainfile : public output {
 public:
 	output_plainfile(const char *filename, format &fmt, unsigned int buffer_capacity = 8129);
+
+	output_plainfile(const std::string &filename, format &fmt, unsigned int buffer_capacity = 8129) :
+		output_plainfile(filename.c_str(), fmt, buffer_capacity)
+	{}
+
 	virtual ~output_plainfile();
 };
 

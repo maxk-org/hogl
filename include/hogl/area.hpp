@@ -51,6 +51,11 @@ static inline area *add_area(const char *name, const char **sections = 0)
 	return default_engine->add_area(name, sections);
 }
 
+static inline area *add_area(const std::string &name, const char **sections = 0)
+{
+	return add_area(name.c_str(), sections);
+}
+
 /**
  * Find an area in the default engine
  * @param name area name
@@ -59,6 +64,11 @@ static inline area *add_area(const char *name, const char **sections = 0)
 static inline const area *find_area(const char *name)
 {
 	return default_engine->find_area(name);
+}
+
+static inline const area *find_area(const std::string &name)
+{
+	return find_area(name.c_str());
 }
 
 /**

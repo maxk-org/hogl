@@ -51,6 +51,11 @@ static inline ringbuf *add_ring(const char *name, const ringbuf::options &opts)
 	return default_engine->add_ring(name, opts);
 }
 
+static inline ringbuf *add_ring(const std::string &name, const ringbuf::options &opts)
+{
+	return default_engine->add_ring(name.c_str(), opts);
+}
+
 /**
  * Find ringbuf in the default engine.
  * @param name ringbuf name
@@ -59,6 +64,11 @@ static inline ringbuf *add_ring(const char *name, const ringbuf::options &opts)
 static inline ringbuf *find_ring(const char *name)
 {
 	return default_engine->find_ring(name);
+}
+
+static inline ringbuf *find_ring(const std::string &name)
+{
+	return default_engine->find_ring(name.c_str());
 }
 
 /**
@@ -72,6 +82,5 @@ static inline void list_rings(string_list &l)
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-
 
 #endif // HOGL_RING_HPP

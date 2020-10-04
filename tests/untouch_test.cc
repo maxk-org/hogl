@@ -131,7 +131,7 @@ void *test_thread::entry(void *_self)
 {
 	test_thread *self = (test_thread *) _self;
 
-	hogl::platform::set_thread_title(self->_name.c_str());
+	hogl::platform::set_thread_title(self->_name);
 
 	// Run the loop
 	self->loop();
@@ -178,7 +178,7 @@ void test_thread::loop()
 
 	// Create private thread ring
 	hogl::ringbuf::options ring_opts = { .capacity = _ring_capacity, .prio = 0, .flags = 0, .record_tailroom = 128 };
-	hogl::tls tls(_name.c_str(), ring_opts);
+	hogl::tls tls(_name, ring_opts);
 
 	while (!_killed) {
 		unsigned int i;
@@ -193,7 +193,7 @@ void test_thread::loop()
 	}
 
 	if (tls.ring()->dropcnt()) 
-		fmt::printf("%s drop count %lu\n", _name.c_str(), (unsigned long) tls.ring()->dropcnt());
+		fmt::printf("%s drop count %lu\n", _name, (unsigned long) tls.ring()->dropcnt());
 
 	_running = false;
 }
@@ -347,12 +347,12 @@ int main(int argc, char *argv[])
 	if (log_format == "raw")
 		lf = new hogl::format_raw();
 	else
-		lf = new hogl::format_basic(log_format.c_str());
+		lf = new hogl::format_basic(log_format);
 
 	if (log_output == "stderr")
 		lo = new hogl::output_stderr(*lf);
 	else if (log_output[0] == '|')
-		lo = new hogl::output_pipe(log_output.substr(1).c_str(), *lf);
+		lo = new hogl::output_pipe(log_output.substr(1), *lf);
 	else if (log_output.find('#') != log_output.npos) {
 		hogl::output_file::options opts = {
 			.perms     = 0666,
@@ -361,9 +361,9 @@ int main(int argc, char *argv[])
 			.buffer_capacity = 8129,
 			.schedparam = 0
 		};
-		lo = new hogl::output_file(log_output.c_str(), *lf, opts);
+		lo = new hogl::output_file(log_output, *lf, opts);
 	} else
-		lo = new hogl::output_plainfile(log_output.c_str(), *lf);
+		lo = new hogl::output_plainfile(log_output, *lf);
 
 	hogl::activate(*lo, log_eng_opts);
 	hogl::platform::enable_verbose_coredump();

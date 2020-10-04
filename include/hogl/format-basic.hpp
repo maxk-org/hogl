@@ -59,6 +59,7 @@ public:
 
 	explicit format_basic(uint32_t fields = DEFAULT);
 	explicit format_basic(const char *fields);
+	explicit format_basic(const std::string &fields) : format_basic(fields.c_str()) {}
 
 	virtual void process(ostrbuf &s, const format::data &d);
 

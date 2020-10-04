@@ -101,12 +101,21 @@ public:
 	 */
 	bool switch_name(const char* filename);
 
+	bool switch_name(const std::string &filename)
+	{
+		return switch_name(filename.c_str());
+	}
+
 	/**
  	 * File output constuctor. Open the file and set things up for writing.
  	 * @param name file name. Format 'prefix.#.suffix'. '#' will be replaced with the file sequence number.
  	 * @param fmt format handler.
  	 */
 	output_file(const char *name, format &fmt, const options &opts = default_options);
+
+	output_file(const std::string &name, format &fmt, const options &opts = default_options) :
+		output_file(name.c_str(), fmt, opts)
+	{}
 
 	/**
 	 * Close file output

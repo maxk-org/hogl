@@ -145,12 +145,15 @@ std::ostream& operator<< (std::ostream& s, const mask& mask)
 	return s;
 }
 
-mask::mask(const char *str,...)
+mask::mask()
 {
 	_list = new data_list;
 
 	dprint("created mask %p list %p", (void*)this, (void*)_list);
+}
 
+mask::mask(const char *str,...) : mask()
+{
 	if (!str)
 		return;
 

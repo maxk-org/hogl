@@ -254,7 +254,7 @@ public:
 	{
 		_idx++;
 		mkdir();
-		_out->switch_name(filename().c_str());
+		_out->switch_name(filename());
 	}
 };
 
@@ -384,7 +384,7 @@ void *test_thread::entry(void *_self)
 {
 	test_thread *self = (test_thread *) _self;
 
-	hogl::platform::set_thread_title(self->_name.c_str());
+	hogl::platform::set_thread_title(self->_name);
 
 	// Run the loop
 	self->loop();
@@ -409,8 +409,8 @@ void test_thread::loop()
 		ring_opts.flags |= hogl::ringbuf::BLOCKING;
 
 	// allocate twice to check for graceful handling of failed allocations
-	hogl::tls tls0(_name.c_str(), ring_opts);
-	hogl::tls tls1(_name.c_str(), ring_opts); 
+	hogl::tls tls0(_name, ring_opts);
+	hogl::tls tls1(_name.c_str(), ring_opts);
 
 	hogl::post(_log_area, INFO, "test_thread %p(%s) running", this, _name);
 
@@ -547,7 +547,7 @@ hogl::output* create_output(std::string& out, std::string& dir_switch, hogl::for
 		return new hogl::output_stdout(fmt, bufsize);
 
 	if (out[0] == '|')
-		return new hogl::output_pipe(out.substr(1).c_str(), fmt, bufsize);
+		return new hogl::output_pipe(out.substr(1), fmt, bufsize);
 
 	if (out.find('#') != out.npos) {
 		// Enable output directory switching
@@ -565,13 +565,13 @@ hogl::output* create_output(std::string& out, std::string& dir_switch, hogl::for
 			.schedparam = 0
 		};
 
-		hogl::output_file* o = new hogl::output_file(out.c_str(), fmt, opts);
+		hogl::output_file* o = new hogl::output_file(out, fmt, opts);
 		if (!dir_switch.empty())
 			out_switcher->init(o);
 		return o;
 	}
 
-	return new hogl::output_plainfile(out.c_str(), fmt, bufsize);
+	return new hogl::output_plainfile(out, fmt, bufsize);
 }
 
 // Command line args {
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
 	else if (log_format == "stats")
 		lf = new stats_format(interval_usec * 1000 /* max threshold in nsec */);
 	else
-		lf = new hogl::format_basic(log_format.c_str());
+		lf = new hogl::format_basic(log_format);
 
 	if (out_tee.empty()) {
 		lo[0] = create_output(log_output, out_switch_dir, *lf, out_buff_size, out_file_size);

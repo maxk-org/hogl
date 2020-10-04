@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 
 	std::cerr << "Areas:" << std::endl;
 	for (it = alist.begin(); it != alist.end(); ++it) {
-		const hogl::area *area = hogl::find_area(it->c_str());
+		const hogl::area *area = hogl::find_area(*it);
 		if (area) {
 			std::cerr.width(4);
 			std::cerr << *area;
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 
 	std::cerr << "Rings:" << std::endl;
 	for (it = rlist.begin(); it != rlist.end(); ++it) {
-		const hogl::ringbuf *ring = hogl::find_ring(it->c_str());
+		const hogl::ringbuf *ring = hogl::find_ring(*it);
 		if (ring) {
 			std::cerr.width(4);
 			std::cerr << *ring;
