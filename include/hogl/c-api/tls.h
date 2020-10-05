@@ -67,7 +67,7 @@ hogl_tls_t hogl_new_tls(const char *name, struct hogl_tls_options *opts);
 
 /**
  * Delete TLS object.
- * Must be called before the thread exits, otherise TLS object and ring 
+ * Must be called before the thread exits, otherwise TLS object and ring 
  * buffer will be leaked.
  * @param tls TLS handle
  */

@@ -42,9 +42,11 @@ extern engine *default_engine;
 
 /**
  * Add new ringbuf to the default engine.
+ * If ringbuf::SHARED and ringbuf::REUSABLE flags are not set the name must be unique for this
+ * engine. Otherwise the allocation will fail, the engine will log an error, and return nullptr.
  * @param name ringbuf name
  * @param opts ringbuf options
- * @return pointer to the new ringbuf
+ * @return pointer to the new ringbuf or nullptr of allocation failed
  */ 
 static inline ringbuf *add_ring(const char *name, const ringbuf::options &opts)
 {

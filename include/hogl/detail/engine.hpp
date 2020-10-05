@@ -207,7 +207,11 @@ public:
 	const mask& get_mask() const { return _mask; }
 
 	/**
-	 * Add new log area.
+	 * Add log area.
+	 * The name must be unique for this engine. If the area with this name does not exist,
+	 * a new one will be allocated and registered with the engine.
+	 * If the area already exists and contains exactly the same sections it will be reused,
+	 * otherwise the allocation will fail.
 	 */
 	area *add_area(const char *name, const char **sections = 0);
 
@@ -223,6 +227,8 @@ public:
 
 	/**
 	 * Allocate new ringbuf
+	 * If ringbuf::SHARED and ringbuf::REUSABLE flags are not set the name must be unique for this engine.
+	 * Otherwise the allocation will fail, the engine will log an error, and return nullptr.
 	 */
 	ringbuf *add_ring(const char *name, const ringbuf::options &opts);
 

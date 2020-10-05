@@ -42,9 +42,13 @@ extern engine *default_engine;
 
 /**
  * Add a new area to the default engine
+ * The name must be unique for this engine. If the area with this name does not exist,
+ * a new one will be allocated and registered with the engine.
+ * If the area already exists and contains exactly the same sections it will be reused,
+ * otherwise the allocation will fail.
  * @param name area name
  * @param sections pointer to section numbers (must be null terminated)
- * @return pointer to the new area
+ * @return pointer to the new/reused area, nullptr if allocation failed
  */
 static inline area *add_area(const char *name, const char **sections = 0)
 {
