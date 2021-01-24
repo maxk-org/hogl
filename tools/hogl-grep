@@ -78,19 +78,26 @@ if __name__=='__main__':
         parser.print_help()
         sys.exit(1)
 
-    # Filter log file using external grep.
-    # 'grep' is much faster at this.
-    grep = subprocess.Popen([args.grep] + args.input, stdin=None, stdout=subprocess.PIPE, text=True, bufsize=1)
-
     # Open log output file
     out = sys.stdout
     if args.output:
         out = open(args.output, 'wb')
 
+    # Filter log file using external grep.
+    # 'grep' is much faster at this.
     # Iterate over log records (one line at a time)
-    while True:
-        rec = grep.stdout.readline()
-        if rec == '': break
-        process_rec(rec, out)
+
+    if (sys.version_info.major, sys.version_info.minor) > (3,6):
+       grep = subprocess.Popen([args.grep] + args.input, stdin=None, text=True, stdout=subprocess.PIPE, bufsize=1)
+       while True:
+           rec = grep.stdout.readline()
+           if rec == '': break
+           process_rec(rec, out)
+    else:
+       grep = subprocess.Popen([args.grep] + args.input, stdin=None, stdout=subprocess.PIPE, bufsize=1)
+       while True:
+           rec = grep.stdout.readline().decode()
+           if rec == '': break
+           process_rec(rec, out)
 
     sys.exit(0)

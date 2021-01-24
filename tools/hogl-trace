@@ -27,8 +27,8 @@
 
 import sys, argparse, re, json, subprocess
 
-# Process record and add convert into trace event
-def process_rec(rec, out):
+# Convert record into the trace event
+def convert_rec(rec):
     # Split the record into --> <evt> # [attrs] # [args]
     s = rec.strip().split('#') + [' ', ' ']
 
@@ -74,23 +74,37 @@ def process_rec(rec, out):
         event['pid']  = evt[6]
         event['tid']  = evt[2].split(':')[0]
     else:
-        print('warn: unsupported record format: {}'.format(evt))
-        return
+        raise Exception('failed to parse common fields: cat,name,pid,tid')
 
     # ['ph:X']
     # ['seqno:788', 'timestamp:28363576704147']
 
     # Add / override attrs (if any)
-    for a in attr:
-        s = a.split(':'); event[s[0]] = s[1]
+    try:
+        for a in attr:
+            s = a.split(':'); event[s[0]] = s[1]
+    except Exception as e:
+        raise Exception('failed to parse event attrs {}\n\texpected space-separated attr:value pairs'.format(attr))
 
     # Add args (if any)
-    for a in args:
-        s = a.split(':'); event['args'][s[0]] = s[1]
+    try:
+        for a in args:
+            s = a.split(':'); event['args'][s[0]] = s[1]
+    except Exception as e:
+        raise Exception('failed to parse event args {}\n\texpected space-separated arg:value pairs'.format(args))
+
+    return event
+
+# Process record and add convert into trace event
+def process_rec(rec, out):
+    try:
+        event = convert_rec(rec)
+    except Exception as e:
+        print('warn: unsupported record format:\n\t{}\n\t{}'.format(rec[:-1], e))
+        return
 
     out.write(out.sep); out.sep = ','
     json.dump(event, out)
-
 
 if __name__=='__main__':
     # Option parsing
@@ -118,13 +132,20 @@ if __name__=='__main__':
 
     # Filter log file using external grep.
     # 'grep' is much faster at this.
-    grep = subprocess.Popen([args.grep, args.regex] + args.input, stdin=None, stdout=subprocess.PIPE, text=True, bufsize=1)
-
     # Iterate over log records (one line at a time)
-    while True:
-        rec = grep.stdout.readline()
-        if rec == '': break
-        process_rec(rec, out)
+
+    if (sys.version_info.major, sys.version_info.minor) > (3,6):
+       grep = subprocess.Popen([args.grep, args.regex] + args.input, stdin=None, text=True, stdout=subprocess.PIPE, bufsize=1)
+       while True:
+           rec = grep.stdout.readline()
+           if rec == '': break
+           process_rec(rec, out)
+    else:
+       grep = subprocess.Popen([args.grep, args.regex] + args.input, stdin=None, stdout=subprocess.PIPE, bufsize=1)
+       while True:
+           rec = grep.stdout.readline().decode()
+           if rec == '': break
+           process_rec(rec, out)
 
     # Write out the footer and close it up
     out.write('], "displayTimeUnit": "ns", "otherData": { "version": "hogl trace v0.0.1" } }')
