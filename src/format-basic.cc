@@ -156,6 +156,14 @@ static void do_xdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
 	case 'H':
 		return do_hexdump(sb, ptr, len, xf);
 
+	case 'x':
+		switch (xf.byte_width) {
+		case 1: return xdump_multi(sb, (int8_t*)  ptr, len, "%x",   xf);
+		case 2: return xdump_multi(sb, (int16_t*) ptr, len, "%x",   xf);
+		case 4: return xdump_multi(sb, (int32_t*) ptr, len, "%lx",  xf);
+		case 8: return xdump_multi(sb, (int64_t*) ptr, len, "%llx", xf); }
+		break;
+
 	case 'd':
 		switch (xf.byte_width) {
 		case 1: return xdump_multi(sb, (int8_t*)  ptr, len, "%d",   xf);

@@ -144,6 +144,9 @@ void *run_thread_locked(void *)
 		hogl::post(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data)));
 		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
 
+		hogl::post(test_area, TEST_HEXDUMP, "uint8_t single-line hexdump",
+				hogl::arg_xdump(data, sizeof(data), 'x', sizeof(data[0]), 0, 0, ','));
+
 		// Post raw data for kicks
 		hogl::post(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));
 		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_raw(data, sizeof(data)));
