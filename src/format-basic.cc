@@ -68,11 +68,9 @@ format_basic::format_basic(const char *fields) :
 
 static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t n, const hogl::arg_xdump::format& xf)
 {
-	sb.push_back('\n');
-
 	unsigned int offset;
 	for (offset = 0; offset < n; offset += xf.line_width) {
-		sb.printf("\t%03d: ", offset);
+		sb.printf("\n\t%03d: ", offset);
 
 		unsigned int i;
 		for (i = 0; i < xf.line_width; i++) {
@@ -86,7 +84,6 @@ static void do_hexdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t n, const
 			uint8_t b = data[offset + i];
 			sb.push_back(isprint(b) ? b : '.');
 		}
-		sb.push_back('\n');
 	}
 }
 
@@ -96,31 +93,34 @@ static void xdump_single(hogl::ostrbuf &sb, const T* data, uint32_t n, const cha
 	struct safe_ptr { T v; } hogl_packed;
 	safe_ptr* ptr = (safe_ptr*) data;
 
-	for (unsigned int i=0; i < n; i++) {
-		if (i) sb.push_back(xf.delim);
-		sb.printf(fmt, ptr[i].v);
+	unsigned int i=0;
+
+	sb.printf(fmt, ptr[i++].v);
+	while (i < n) {
+		sb.push_back(xf.delim);
+		sb.printf(fmt, ptr[i++].v);
 	}
-	sb.push_back('\n');
 }
 
 template <typename T>
 static void xdump_multi(hogl::ostrbuf &sb, const T* data, uint32_t n, const char *fmt, const hogl::arg_xdump::format& xf)
 {
+	if (!n) return;
+
 	if (!xf.line_width)
 		return xdump_single(sb, data, n, fmt, xf);
 
 	struct safe_ptr { T v; } hogl_packed;
 	safe_ptr* ptr = (safe_ptr*) data;
 
-	sb.push_back("\n");
-	unsigned int lw = 0;
-	for (unsigned int i=0; i < n; i++) {
-		sb.push_back(lw ? xf.delim : '\t');
-		sb.printf(fmt, ptr[i].v); lw += 1;
-		if (lw == xf.line_width) { sb.push_back("\n"); lw = 0; }
+	for (unsigned int i=0; i < n;) {
+		sb.push_back("\n\t");
+		sb.printf(fmt, ptr[i++].v);
+		for (unsigned int lw=1; i < n && lw < xf.line_width; lw++) {
+			sb.push_back(xf.delim);
+			sb.printf(fmt, ptr[i++].v);
+		}
 	}
-	if (lw)
-		sb.push_back('\n');
 }
 
 static const char* __flt_fmt(unsigned int pr)
@@ -192,7 +192,7 @@ static void do_xdump(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
 
 static void do_raw(hogl::ostrbuf &sb, const uint8_t *data, uint32_t len)
 {
-	sb.printf("rawdata %u bytes @ %p\n", len, data);
+	sb.printf("rawdata %u bytes @ %p", len, data);
 }
 
 void format_basic::output_plain(hogl::ostrbuf &sb, record_data& d) 
@@ -327,6 +327,7 @@ void format_basic::output_raw(hogl::ostrbuf& sb, record_data& d)
 	const record& r = *d.record;
 	unsigned int len; const uint8_t *data = r.get_arg_data(0, len);
 	do_raw(sb, data, len);
+	sb.push_back('\n');
 }
 
 void format_basic::tscache::update(hogl::timestamp t)

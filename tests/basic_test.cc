@@ -142,17 +142,29 @@ void *run_thread_locked(void *)
 			data[i] = i;
 
 		hogl::post(test_area, TEST_HEXDUMP, hogl::arg_xdump(data, sizeof(data)));
-		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)));
+		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_xdump(data, sizeof(data)-1));
 
 		hogl::post(test_area, TEST_HEXDUMP, "uint8_t single-line hexdump",
 				hogl::arg_xdump(data, sizeof(data), 'x', sizeof(data[0]), 0, 0, ','));
+
+		hogl::post(test_area, TEST_HEXDUMP, "uint8_t multi-line hexdump",
+				hogl::arg_xdump(data, sizeof(data), 'x', sizeof(data[0]), 0, 10, ','));
+
+		hogl::post(test_area, TEST_HEXDUMP, "uint8_t 1-byte 1-line hexdump",
+				hogl::arg_xdump(data, 1, 'x', sizeof(data[0]), 0, 0, ','));
+
+		hogl::post(test_area, TEST_HEXDUMP, "uint8_t 1-byte 10-line hexdump",
+				hogl::arg_xdump(data, 1, 'x', sizeof(data[0]), 0, 10, ','));
+
+		hogl::post(test_area, TEST_HEXDUMP, "uint8_t 4-byte 3-line hexdump",
+				hogl::arg_xdump(data, 4, 'x', sizeof(data[0]), 0, 3, ','));
 
 		// Post raw data for kicks
 		hogl::post(test_area, TEST_INFO, hogl::arg_raw(data, sizeof(data)));
 		hogl::post(test_area, TEST_INFO, "%s", hogl::arg_raw(data, sizeof(data)));
 	}
 
-	// Populate data pattern for xdump (uint9)
+	// Populate data pattern for xdump (uint8)
 	{
 		uint8_t data[120];
 		for (unsigned int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
