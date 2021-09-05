@@ -599,10 +599,11 @@ static struct option main_lopts[] = {
    {"eng-ssched",  1, 0, 'S'},
    {"flush",       0, 0, 'F'},
    {"ts-badness",  1, 0, 'B'},
+   {"timesource",  1, 0, 'Y'},
    {0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hf:o:O:t:D:R:n:r:b:wi:l:p:N:T:A:P:S:FB:WC";
+static char main_sopts[] = "hf:o:O:t:D:R:n:r:b:wi:l:p:N:T:A:P:S:FB:WCY:";
 
 static char main_help[] =
    "HOGL stress test\n"
@@ -631,7 +632,8 @@ static char main_help[] =
       "\t--eng-cpu-affi -A <A>   Set hogl::engine CPU affinity\n"
       "\t--eng-prio -P <N>       Set hogl::engine scheduling priority (with SCHED_FIFO)\n"
       "\t--eng-ssched -S <N>     Use strict (extra checks) schedparam for the hogl::engine\n"
-      "\t--ts-badness -B <N>     Timesource badness N (0 - perfect, +/- badness delta)\n";
+      "\t--ts-badness -B <N>     Timesource badness N (0 - perfect, +/- badness delta)\n"
+      "\t--timesource -Y <T>     Timesource: rt (default), mono\n";
 // }
 
 int main(int argc, char *argv[])
@@ -641,6 +643,7 @@ int main(int argc, char *argv[])
 	hogl::engine::options log_eng_opts = hogl::engine::default_options;
 	std::string log_output("null");
 	std::string log_format("custom");
+	std::string log_timesource("rt");
 	size_t      out_file_size = 1024 * 1024 * 1024;
 	size_t      out_buff_size = 64 * 1024;
 	std::string out_tee;
@@ -729,6 +732,10 @@ int main(int argc, char *argv[])
 			ts_badness = strtol(optarg, 0, 0);
 			break;
 
+		case 'Y':
+			log_timesource = optarg;
+			break;
+
 		case 'P':
 			ssched.priority = strtol(optarg, 0, 0);
 			if (ssched.priority)
@@ -760,6 +767,9 @@ int main(int argc, char *argv[])
 
 	hogl::format *lf;
 	hogl::output *lo[3] = { 0, 0, 0 };
+
+	if (log_timesource == "mono")
+		log_eng_opts.timesource = &hogl::monotonic_timesource;
 
 	if (log_format == "null")
 		lf = new hogl::format_null();
@@ -799,6 +809,7 @@ int main(int argc, char *argv[])
 			abort();
 		}
 	}
+
 
 	int err = doTest();
 
