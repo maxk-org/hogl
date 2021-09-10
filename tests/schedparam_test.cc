@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE(basic_other)
 	BOOST_ASSERT(sp->policy == SCHED_OTHER);
 	BOOST_ASSERT(sp->priority == 0);
 	BOOST_ASSERT(sp->cpu_affinity.empty());
+	BOOST_ASSERT(sp->validate());
 	BOOST_ASSERT(sp->thread_enter("test"));
 
 	sp->flags = sp->DELETE_ON_EXIT;
@@ -57,6 +58,7 @@ BOOST_AUTO_TEST_CASE(basic_fifo)
 	BOOST_ASSERT(sp.policy == SCHED_FIFO);
 	BOOST_ASSERT(sp.priority == 50);
 	BOOST_ASSERT(sp.cpu_affinity.empty());
+	BOOST_ASSERT(sp.validate());
 	BOOST_ASSERT(!sp.thread_enter("test"));
 }
 
