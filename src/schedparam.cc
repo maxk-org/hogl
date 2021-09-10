@@ -69,7 +69,6 @@ struct cpumask {
 			CPU_FREE(cpuset);
 	}
 
-
 	bool valid() const { return cpuset != nullptr; }
 
 	void set(unsigned int i) { CPU_SET_S(i, nbytes, cpuset); }
@@ -83,32 +82,46 @@ struct cpumask {
 #elif defined(__QNXNTO__)
 
 struct cpumask {
-	unsigned *runmask;
+	int      *data;
+	unsigned *rmask;
+	unsigned *imask;
 	size_t    ncpus;
 
-	cpumask(unsigned int capacity = _syspage_ptr->num_cpu) :
-		runmask(nullptr), ncpus(capacity)
-	{
-		int nbytes = RMSK_SIZE(ncpus) * sizeof(unsigned);
+	// Code below implements this layout
+	// struct _thread_runmask {
+	//     int size;
+	//     unsigned runmask[size];
+	//     unsigned inherit_mask[size];
+	// };
 
-		runmask = (unsigned *) malloc(nbytes);
-		if (!runmask)
+	cpumask(unsigned int capacity = _syspage_ptr->num_cpu) :
+		data(nullptr), ncpus(capacity)
+	{
+		int mask_bytes = RMSK_SIZE(ncpus) * sizeof(unsigned);
+
+		data = (int*) calloc(1, sizeof(int) + mask_bytes * 2);
+		if (!data)
 			return;
-		memset(runmask, 0, nbytes);
+
+		uint8_t *ptr = (uint8_t *) data;
+
+		*data = RMSK_SIZE(ncpus); ptr += sizeof(int);
+		rmask = (unsigned *) ptr; ptr += mask_bytes;
+		imask = (unsigned *) ptr; ptr += mask_bytes;
 	}
 
 	~cpumask()
 	{
-		free(runmask);
+		free(data);
 	}
 
-	bool valid() const { return false; }
+	bool valid() const { return data != nullptr; }
 
-	void set(unsigned int i) { RMSK_SET(i, runmask); }
+	void set(unsigned int i) { RMSK_SET(i, rmask); RMSK_SET(i, imask); }
 
 	int apply()
 	{
-		return ThreadCtl_r(_NTO_TCTL_RUNMASK, runmask);
+		return ThreadCtl_r(_NTO_TCTL_RUNMASK_GET_AND_SET_INHERIT, data);
 	}
 };
 
