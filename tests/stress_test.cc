@@ -412,7 +412,7 @@ void test_thread::loop()
 	hogl::tls tls0(_name, ring_opts);
 	hogl::tls tls1(_name.c_str(), ring_opts);
 
-	hogl::post(_log_area, INFO, "test_thread %p(%s) running", this, _name);
+	hogl::post(_log_area, INFO, "test_thread %p(%s) running: intval %u burst %u", this, _name, _interval_usec, _burst_size);
 
 	while (!_killed) {
 		unsigned int i;
@@ -613,7 +613,7 @@ static char main_help[] =
       "\t--help -h               Display help text\n"
       "\t--format -f <name>      Log format (null, basic)\n"
       "\t--output -o <name>      Log output (file name, stderr, or null)\n"
-      "\t--out-bufsize -O <N>    Output buffer size (number of bytes)\n"
+      "\t--out-buff-size -O <N>  Output buffer size (number of bytes)\n"
       "\t--out-file-size -R <S>  Maximum size of each output file chunk (in megabytes)\n"
       "\t--out-tee -t <name>     Tee the main output into: file name, stderr, stderror, pipe\n"
       "\t--out-switch-dir -D <name> Enable output directory switching\n"
