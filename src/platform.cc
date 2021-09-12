@@ -29,6 +29,7 @@
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include <string>
 
@@ -119,6 +120,13 @@ void set_thread_title(const char *str)
 void set_thread_title(const char *str)
 {
 	setproctitle("%s", str);
+}
+
+#elif defined(__QNXNTO__)
+
+void set_thread_title(const char *str)
+{
+	pthread_setname_np(pthread_self(), str);
 }
 
 #else // OS
