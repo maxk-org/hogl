@@ -107,12 +107,11 @@ bool enable_verbose_coredump()
 	return false;
 }
 
-#if defined(__linux__) // OS
+#if defined(__linux__) || defined(__QNXNTO__) // OS
 
-#include <sys/prctl.h>
 void set_thread_title(const char *str)
 {
-	prctl(PR_SET_NAME, str);
+	pthread_setname_np(pthread_self(), str);
 }
 
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -120,13 +119,6 @@ void set_thread_title(const char *str)
 void set_thread_title(const char *str)
 {
 	setproctitle("%s", str);
-}
-
-#elif defined(__QNXNTO__)
-
-void set_thread_title(const char *str)
-{
-	pthread_setname_np(pthread_self(), str);
 }
 
 #else // OS
