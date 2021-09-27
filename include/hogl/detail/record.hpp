@@ -55,7 +55,7 @@ struct record {
 	hogl::timestamp   timestamp;
 	uint64_t seqnum  :52;
 	uint64_t section :12;
-	uint64_t argtype;
+	uint64_t argtype;  // bitmask: 4-bits per argument
 	union {
 		uint64_t u64;
 		uint32_t u32;
@@ -63,17 +63,22 @@ struct record {
 			uint32_t offset;
 			uint32_t len;
 		} data;
-	} argval[NARGS];
+	} argval[NARGS];  // argument values
 
 	// Note that this layout is important.
 	// It ensures that the record with 4 arguments fits nicely into
 	// the 64 byte cacheline.
 
 	/**
+	 * Get the size of the record argument storage excluding the header.
+	 */
+	static unsigned int argval_size() { return sizeof(argval); }
+
+	/**
 	 * Get the size of the record header portion.
 	 * i.e. excluding the argument storage. 
 	 */
-	static unsigned int header_size() { return sizeof(record) - sizeof(uint64_t) * NARGS; }
+	static unsigned int header_size() { return sizeof(record) - argval_size(); }
 
 	/**
  	 * Set argument type

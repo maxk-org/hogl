@@ -205,10 +205,10 @@ public:
  	 * Ring options
  	 */
 	struct options {
-		unsigned int capacity;
-		unsigned int prio;
-		unsigned int flags;
-		unsigned int record_tailroom;
+		unsigned int capacity;        // Number of records (rounded to power-of-two)
+		unsigned int prio;            // Ring priority
+		unsigned int flags;           // Flags (see above)
+		unsigned int record_tailroom; // Tailroom (includes argument storage, see record::argval_size)
 	};
 
 	static options default_options;
@@ -245,7 +245,9 @@ public:
 	unsigned int record_size() const { return (1 << _rec_shift); }
 
 	/**
-	 * Get number of bytes allocated for user data at the tail of each record
+	 * Get number of bytes allocated for user data at the tail of each record.
+	 * This value includes both argument storage (see record::argval_size) and
+	 * any extra room for strings, data, etc.
 	 * @return record tail room in bytes
 	 */
 	unsigned int record_tailroom() const { return _rec_tailroom; }
