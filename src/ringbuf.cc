@@ -106,8 +106,8 @@ ringbuf::ringbuf(const char *name, const options &opts) :
 	if (opts.record_tailroom > record::argval_size())
 		_rec_tailroom = opts.record_tailroom - record::argval_size();
 	else
-		_rec_tailroom = record::argval_size();
-	_rec_shift    = __roundup_log2(record::header_size() + _rec_tailroom);
+		_rec_tailroom = 0;
+	_rec_shift    = __roundup_log2(sizeof(record) + _rec_tailroom);
 	_rec_tailroom = record_size() - record::header_size();
 
 	// At this point this->record_size() and this->capacity() functions
