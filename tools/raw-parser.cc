@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cctype>
 
 #include "hogl/detail/ringbuf.hpp"
 #include "hogl/detail/magic.hpp"
@@ -64,6 +65,8 @@ raw_area::raw_area() : hogl::area("dummy")
 
 void raw_parser::read_args(hogl::record &r)
 {
+	if (_failed) return;
+
 	unsigned long offset = 16 * 8;
 
 	r.argtype = read_uint<uint64_t>("argtype");
@@ -85,7 +88,7 @@ void raw_parser::read_args(hogl::record &r)
 			r.set_arg_type(i, hogl::arg::CSTR);
 			// fall through
 		case arg::CSTR:
-			n = read_str<uint16_t>((char *) r.argval + offset);
+			n = read_str<uint16_t>((char *) r.argval + offset, "cstr-arg");
 			r.set_arg_data(i, offset, n - 1);
 			offset += n;
 			break;
@@ -93,19 +96,19 @@ void raw_parser::read_args(hogl::record &r)
 		case arg::XDUMP:
 		case arg::RAW:
 			if (_ver == V1)
-				n = read_blob<uint16_t>((char *) r.argval + offset);
+				n = read_blob<uint16_t>((char *) r.argval + offset, "raw-arg");
 			else
-				n = read_blob<uint32_t>((char *) r.argval + offset);
+				n = read_blob<uint32_t>((char *) r.argval + offset, "raw-arg");
 
 			r.set_arg_data(i, offset, n);
 			offset += n;
 			break;
 		case arg::INT32:
 		case arg::UINT32:
-			r.set_arg_val32(i, read_uint<uint32_t>());
+			r.set_arg_val32(i, read_uint<uint32_t>("uint32-arg"));
 			break;
 		default:
-			r.set_arg_val64(i, read_uint<uint64_t>());
+			r.set_arg_val64(i, read_uint<uint64_t>("uint64-arg"));
 			break;
 		}
 	}
@@ -120,7 +123,7 @@ raw_parser::raw_parser(hogl::rdbuf &in, unsigned int ver, unsigned int max_recor
 	// we're going to populate with data read from the file.
 	int err = posix_memalign((void **)&_record, 64, max_record_size);
 	if (err) {
-		_error << "failed to allocate record buffer. "
+		_error << "init: failed to allocate record buffer. "
 			<< strerror(errno) << "(" <<  errno << ")";
 		_failed = true;
 		return;
@@ -128,7 +131,7 @@ raw_parser::raw_parser(hogl::rdbuf &in, unsigned int ver, unsigned int max_recor
 
 	_ring_name = (char *) malloc(_area.MAX_NAME_LEN);
 	if (!_ring_name) {
-		_error << "failed to allocate ring name. "
+		_error << "init: failed to allocate ring name. "
 			<< strerror(errno) << "(" <<  errno << ")";
 		_failed = true;
 		return;
@@ -150,6 +153,34 @@ void raw_parser::reset()
 	_failed = false;
 }
 
+// Simple name validator for Ring, Area and Section.
+// Technically there are no restrictions on the format and length (up to 255)
+// but any sane app should use consistent, clean, printable names.
+static bool valid_name(const char *str)
+{
+	const char *ptr = str;
+
+	while (*ptr) { if (!std::isgraph(*ptr++)) return false; }
+
+	unsigned int n = ptr - str;
+
+	if (n >= 2 && n <= 128) return true;
+
+	return false;
+}
+
+void raw_parser::read_name(char *str, const char *stage)
+{
+	read_str<uint8_t>(str, stage);
+
+	if (_failed) return;
+
+	if (!valid_name(str)) {
+		_error << "format: failed to validate name @" << stage;
+		_failed = true;
+	}
+}
+
 // Read and return next record from the input
 const hogl::format::data* raw_parser::next()
 {
@@ -166,21 +197,15 @@ const hogl::format::data* raw_parser::next()
 	}
 
 	r.seqnum = read_uint<uint64_t>("seqnum");
-	read_str<uint8_t>(_ring_name,     "ring-name");
-	read_str<uint8_t>(_area.name(),   "area-name");
-	read_str<uint8_t>(_area.section(),"section-name");
-
-	if (_failed)
-		return 0;
-
+	read_name(_ring_name,     "ring-name");
+	read_name(_area.name(),   "area-name");
+	read_name(_area.section(),"section-name");
 	read_args(r);
 
-	if (_failed)
-		return 0;
+	if (_failed) return 0;
 
 	return &_format_data;
 }
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-

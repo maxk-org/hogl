@@ -50,40 +50,64 @@ __HOGL_PRIV_NS_USING__;
 
 using hogl::raw_parser;
 
-unsigned int max_record_size = 10 * 1024 * 1024; // 10MB should be plenty for all cases
-unsigned int output_buf_size = 1 * 1024 * 1024;
-unsigned int version = raw_parser::V1_1;
+static unsigned int max_record_size = 10 * 1024 * 1024; // 10MB should be plenty for all cases
+static unsigned int output_buf_size = 1 * 1024 * 1024;
+static unsigned int version = raw_parser::V1_1;
 
-static void process(const std::string& infile, unsigned int flags, hogl::format &fmt)
+// Returns true if processing is complete, and false if we need to retry.
+// Calls exit() directly on critical errors.
+static bool reprocess(const std::string& infile, unsigned int flags, size_t offset, hogl::format &fmt, hogl::ostrbuf_stdio& out)
 {
 	// Open input
 	hogl::file_rdbuf in(infile, flags);
 	if (!in.valid()) {
-		fmt::fprintf(stderr, "failed to open input file %s, %s(%d)\n",
-				infile, strerror(in.error()), in.error());
+		fmt::fprintf(stderr, "failed to open file %s, %s(%d)\n", infile, strerror(in.error()), in.error());
 		exit(1);
 	}
 
 	// Allocate raw parser
 	hogl::raw_parser parser(in, version, max_record_size);
 	if (parser.failed()) {
-		fmt::fprintf(stderr, "failed to allocate raw parser. %s\n", parser.error());
+		fmt::fprintf(stderr, "failed to allocate raw parser : %s\n", parser.error());
 		exit(1);
 	}
 
-	// Allocate the output buffer
-	hogl::ostrbuf_stdio out(stdout, 0, output_buf_size);
+	// Skip offset bytes
+	if (offset) in.read(nullptr, offset);
 
 	// Fetch records from the parser and feed them to the formatter
-	const hogl::format::data *fd;
-	while ((fd = parser.next())) {
+	while (1) {
+		// Update offset at the start of the record
+		offset = in.count();
+
+		auto* fd = parser.next();
+		if (!fd) break;
+
 		fmt.process(out, *fd);
 		out.flush();
 	}
 
 	if (parser.failed()) {
-		fmt::fprintf(stderr, "failed to parse input. %s\n", parser.error());
-		exit(1);
+		fmt::fprintf(stderr, "%s : offset %u\n", parser.error(), offset);
+
+		if (parser.error().find_first_of("format:") == 0)
+			return false; // retry @ different offset
+	}
+
+	return true; // done with input
+}
+
+static void process(const std::string& infile, unsigned int flags, hogl::format &fmt)
+{
+	// Allocate the output buffer
+	hogl::ostrbuf_stdio out(stdout, 0, output_buf_size);
+
+	size_t offset = 0;
+	while (!reprocess(infile, flags, offset, fmt, out)) {
+		if (++offset > max_record_size) {
+			fmt::fprintf(stderr, "all validation attempts failed\n");
+			exit(1);
+		}
 	}
 }
 
@@ -111,26 +135,28 @@ static unsigned int get_version(const char *str)
 
 // Command line args {
 static struct option main_lopts[] = {
-   {"help",    0, 0, 'h'},
-   {"version", 1, 0, 'v'},
-   {"format",  1, 0, 'f'},
-   {"plugin",  1, 0, 'p'},
-   {"tailf",   0, 0, 't'},
-   {0, 0, 0, 0}
+	{"help",    0, 0, 'h'},
+	{"version", 1, 0, 'v'},
+	{"format",  1, 0, 'f'},
+	{"plugin",  1, 0, 'p'},
+	{"tailf",   0, 0, 't'},
+	{"max-record-size", 1, 0, 'M'},
+	{0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hv:f:p:t:";
+static char main_sopts[] = "hv:f:p:tM:";
 
 static char main_help[] =
-   "hogl-cook - HOGL raw log processor\n"
-   "Usage:\n"
-      "\thogl-cook [options] <raw-log.file or - for stdin>\n"
-   "Options:\n"
-      "\t--help -h              Display help text\n"
-      "\t--tailf -t             Follow the growth of a log file\n"
-      "\t--version -v <ver>     Force a specific RAW version for compatibility\n"
-      "\t--format -f <fmt>      Format of the output log records\n"
-      "\t--plugin -p <fmt.so>   Plugin used for formating records\n";
+	"hogl-cook - HOGL raw log processor\n"
+	"Usage:\n"
+		"\thogl-cook [options] <raw-log.file or - for stdin>\n"
+	"Options:\n"
+		"\t--help -h                  Display help text\n"
+		"\t--version -v <ver>         Force a specific RAW version for compatibility\n"
+		"\t--format -f <fmt>          Format of the output log records\n"
+		"\t--plugin -p <fmt.so>       Plugin used for formating records\n"
+		"\t--tailf -t                 Follow the growth of a log file\n"
+		"\t--max-record-size -M <N>   Set max size of the RAW record\n";
 // }
 
 int main(int argc, char *argv[])
@@ -157,6 +183,10 @@ int main(int argc, char *argv[])
 
 		case 't':
 			flags |= hogl::file_rdbuf::TAILF;
+			break;
+
+		case 'M':
+			max_record_size = strtoul(optarg, 0, 0);
 			break;
 
 		case 'h':

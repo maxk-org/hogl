@@ -80,7 +80,7 @@ private:
 		T v = 0;
 		_failed = ! _in.read(&v, sizeof(T));
 		if (_failed)
-			_error << "failed to read uint @ " << stage;
+			_error << "input: failed to read uint @ " << stage;
 		return v;
 	}
 
@@ -96,7 +96,7 @@ private:
 
 		_failed = ! _in.read(data, len);
 		if (_failed) {
-			_error << "failed to read blob @ " << stage;
+			_error << "input: failed to read blob @ " << stage;
 			return 0;
 		}
 		return len;
@@ -117,6 +117,8 @@ private:
 		str[len++] = 0;
 		return len;
 	}
+
+	void read_name(char *str, const char *stage = "");
 
 	// Read and reconstruct record arguments from the input stream
 	void read_args(hogl::record &r);

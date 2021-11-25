@@ -50,6 +50,9 @@ public:
 	// Get last error code (errno)
 	virtual int  error() const = 0;
 
+	// Number of byte read since open / reset
+	virtual size_t count() const = 0;
+
 	// Reset rfbuf
 	virtual void reset() = 0;
 
@@ -69,6 +72,7 @@ private:
 	unsigned int _capacity; // buffer capacity 
 	unsigned int _head;     // head of available data
 	unsigned int _size;     // size of available data
+	size_t       _count;    // Number of bytes read since open/reset
 
 	unsigned int _flags;    // rdbuf flags
 	int          _fd;       // file descriptor
@@ -90,14 +94,16 @@ public:
 	bool valid() const { return _fd != -1; }
 	bool fail()  const { return _errno != 0; }
 	int  error() const { return _errno; }
+	size_t count() const { return _count; }
 
 	uint8_t* head() { return _data + _head; }
-	unsigned int  size() { return _size; }
+	unsigned int size() const { return _size; }
 
 	void reset()
 	{
 		_head = _size = 0;
 		_errno = 0;
+		_count = 0;
 	}
 
 	file_rdbuf(const std::string &filename, unsigned int flags = 0, unsigned int capacity = 4096);
@@ -108,6 +114,5 @@ public:
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-
 
 #endif // HOGL_RDBUF_HPP

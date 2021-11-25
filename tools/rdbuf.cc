@@ -88,11 +88,11 @@ file_rdbuf::~file_rdbuf()
 void file_rdbuf::copy_out(uint8_t* &dst, unsigned int &len)
 {
 	unsigned int n = std::min(_size, len);
-	memcpy(dst, head(), n);
-	_head += n;
-	_size -= n;
-	dst += n;
-	len -= n;
+	if (dst) { memcpy(dst, head(), n); dst += n; }
+	_count += n;
+	_head  += n;
+	_size  -= n;
+	len    -= n;
 }
 
 bool file_rdbuf::read_in()
@@ -134,4 +134,3 @@ bool file_rdbuf::read(void *ptr, unsigned int len)
 
 } // namespace hogl
 __HOGL_PRIV_NS_CLOSE__
-
