@@ -57,6 +57,11 @@ public:
 	}
 };
 
+// FIXME: expose this from hogl::area
+static const char *default_section_names[] = {
+	"INFO", "WARN", "ERROR", "FATAL", "DEBUG", "TRACE", 0
+};
+
 // Area validation and fixup 
 class area_validator : public area
 {
@@ -89,8 +94,21 @@ public:
 			return 0;
 
 		unsigned int i;
-		for (i=0; i < a->count(); ++i)
+		for (i=0; i < a->count(); ++i) {
 			a->_section[i] = (const char *) core.remap((void *) a->_section[i]);
+			if (a->_section[i]) continue;
+
+			// Section name not found, likely because it was set to default (ie mmaped from hogl.so)
+			// in which case we can just point all sections to the default names.
+			// Otherwise set to a dummy string to avoid segfaults in the optimized header formats.
+
+			if (i == 0 && a->count() == 6) {
+				a->_section = default_section_names;
+				break;
+			}
+
+			a->_section[i]="NA";
+		}
 
 		return a;
 	}
@@ -414,7 +432,7 @@ void recovery_engine::dump_records()
 
 	// Iterate over sorted record set, format the records
 	// and pipe them to stdout
-	ostrbuf_stdio sb(stdout, 8192);
+	ostrbuf_stdio sb(stdout, 64*1024);
 
 	record_set::const_iterator rec_it;
 	for (rec_it = _records.begin(); rec_it != _records.end(); ++rec_it) {
