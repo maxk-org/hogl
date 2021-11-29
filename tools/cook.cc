@@ -50,6 +50,7 @@ __HOGL_PRIV_NS_USING__;
 
 using hogl::raw_parser;
 
+static unsigned int min_valid_recs  = 4; // 4 valid records seems reasoanble for most cases
 static unsigned int max_record_size = 10 * 1024 * 1024; // 10MB should be plenty for all cases
 static unsigned int output_buf_size = 1 * 1024 * 1024;
 static unsigned int version = raw_parser::V1_1;
@@ -75,6 +76,9 @@ static bool reprocess(const std::string& infile, unsigned int flags, size_t offs
 	// Skip offset bytes
 	if (offset) in.read(nullptr, offset);
 
+	// Numer of records processed
+	uint64_t nrecs = 0;
+
 	// Fetch records from the parser and feed them to the formatter
 	while (1) {
 		// Update offset at the start of the record
@@ -85,10 +89,15 @@ static bool reprocess(const std::string& infile, unsigned int flags, size_t offs
 
 		fmt.process(out, *fd);
 		out.flush();
+
+		nrecs++;
 	}
 
 	if (parser.failed()) {
 		fmt::fprintf(stderr, "%s : offset %u\n", parser.error(), offset);
+
+		if (min_valid_recs && nrecs >= min_valid_recs)
+			return true; // done with input
 
 		if (parser.error().find_first_of("format:") == 0)
 			return false; // retry @ different offset
@@ -141,10 +150,11 @@ static struct option main_lopts[] = {
 	{"plugin",  1, 0, 'p'},
 	{"tailf",   0, 0, 't'},
 	{"max-record-size", 1, 0, 'M'},
+	{"min-valid-recs",  1, 0, 'R'},
 	{0, 0, 0, 0}
 };
 
-static char main_sopts[] = "hv:f:p:tM:";
+static char main_sopts[] = "hv:f:p:tM:R:";
 
 static char main_help[] =
 	"hogl-cook - HOGL raw log processor\n"
@@ -156,7 +166,8 @@ static char main_help[] =
 		"\t--format -f <fmt>          Format of the output log records\n"
 		"\t--plugin -p <fmt.so>       Plugin used for formating records\n"
 		"\t--tailf -t                 Follow the growth of a log file\n"
-		"\t--max-record-size -M <N>   Set max size of the RAW record\n";
+		"\t--max-record-size -M <N>   Max size of the RAW record (default: 10MB)\n"
+		"\t--min-valid-recs  -R <N>   Min number of valid records (default: 4)\n";
 // }
 
 int main(int argc, char *argv[])
@@ -187,6 +198,10 @@ int main(int argc, char *argv[])
 
 		case 'M':
 			max_record_size = strtoul(optarg, 0, 0);
+			break;
+
+		case 'R':
+			min_valid_recs = strtoul(optarg, 0, 0);
 			break;
 
 		case 'h':

@@ -160,7 +160,7 @@ static bool valid_name(const char *str)
 {
 	const char *ptr = str;
 
-	while (*ptr) { if (!std::isgraph(*ptr++)) return false; }
+	while (*ptr) { if (!std::isprint(*ptr++)) return false; }
 
 	unsigned int n = ptr - str;
 
