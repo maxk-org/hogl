@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(hogl, 1.0)
+AC_INIT([hogl],[1.0])
 
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([silent-rules subdir-objects])
 AM_SILENT_RULES([yes])
@@ -11,7 +11,7 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+LT_INIT
 
 dnl C++11 is manadatory
 AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
@@ -27,12 +27,12 @@ AC_SUBST(HOGL_LIBS)
 AC_SUBST(HOGL_CXXFLAGS)
 
 AC_ARG_ENABLE(debug,
-     AC_HELP_STRING([--enable-debug], [Enable internal HOGL debug]),
+     AS_HELP_STRING([--enable-debug],[Enable internal HOGL debug]),
      AC_DEFINE(HOGL_DEBUG)
 )
 
 AC_ARG_ENABLE(openmp,
-     AC_HELP_STRING([--enable-openmp], [Enable OpenMP unit-test]),
+     AS_HELP_STRING([--enable-openmp],[Enable OpenMP unit-test]),
      openmp=true
 )
 AM_CONDITIONAL([OPENMP], [test "$openmp" = "true"])
@@ -62,6 +62,7 @@ AS_IF([test "$with_tests" != "no"], [ AX_BOOST_BASE(1.40.0) ])
 
 AC_SUBST(prefix)
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
     Makefile
 ])
+AC_OUTPUT
