@@ -31,6 +31,8 @@
 #ifndef HOGL_DETAIL_SCHEDPARAM_HPP
 #define HOGL_DETAIL_SCHEDPARAM_HPP
 
+#include <sched.h>
+
 #include <hogl/detail/compiler.hpp>
 #include <string>
 
@@ -47,9 +49,9 @@ public:
 		DELETE_ON_EXIT = (1 << 0)
 	};
 
-	int policy;
-	int priority;
-	unsigned int flags;
+	int policy{SCHED_OTHER};
+	int priority{0};
+	unsigned int flags{0};
 	std::string  cpu_affinity;
 
 	/**
@@ -73,9 +75,9 @@ public:
 	virtual bool validate() const;
 
 	schedparam(int policy, int priority, unsigned int flags = 0, std::string cpu_affinity = std::string());
-	schedparam();
+	schedparam() = default;
 
-	virtual ~schedparam() {}
+	virtual ~schedparam() = default;
 };
 
 std::ostream& operator<< (std::ostream& s, const schedparam& param);

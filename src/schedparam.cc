@@ -176,11 +176,15 @@ static int parse_cpumask(const std::string& str, cpumask& mask)
 {
 	// FIXME: limited to 64 cpus
 
-	errno = 0;
-	unsigned long long m = std::strtoull(str.c_str(), 0, 0);
-	if (errno)
-		return errno;
+	const char *sptr = str.c_str();
+	char *eptr = nullptr;
 
+	errno = 0;
+	unsigned long long m = std::strtoull(sptr, &eptr, 0);
+	if (errno) 
+		return errno;
+	if (eptr != sptr + str.size())
+		return EINVAL;
 	for (unsigned int i=0; i < mask.ncpus; i++)
 		if (m & (1<<i)) mask.set(i);
 	return 0;
@@ -215,10 +219,6 @@ static int set_cpu_affinity(const std::string& cpuset_str, bool dryrun = false)
 
 schedparam::schedparam(int _policy, int _priority, unsigned int _flags, const std::string _cpu_affinity) :
 	policy(_policy), priority(_priority), flags(_flags), cpu_affinity(_cpu_affinity)
-{ }
-
-schedparam::schedparam() :
-	policy(SCHED_OTHER), priority(0), flags(0), cpu_affinity()
 { }
 
 bool schedparam::thread_enter(const char * /* title */)

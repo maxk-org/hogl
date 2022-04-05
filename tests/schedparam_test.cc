@@ -84,6 +84,10 @@ BOOST_AUTO_TEST_CASE(validation_bad)
 	hogl::schedparam sp0(0,0,0,"list:12345"); // crazy CPU number
 	// If affinity is not support it won't fail as expected.
 	BOOST_ASSERT(!sp0.validate());
+
+	// Bad params
+	hogl::schedparam sp1(0,0,0,"0xr"); // bad mask
+	BOOST_ASSERT(!sp1.validate());
 }
 
 #else
