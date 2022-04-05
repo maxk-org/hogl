@@ -53,7 +53,7 @@ private:
 	};
 
 	struct record_sorter {
-		bool operator() (const record_entry &r0, const record_entry &r1)
+		bool operator() (const record_entry &r0, const record_entry &r1) const
 		{
 			return r0.rec->timestamp < r1.rec->timestamp;
 		}

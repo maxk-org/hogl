@@ -103,7 +103,7 @@ public:
 	/**
 	 * Check if tls (ring, etc) was allocated correctly
 	 */
-	const bool valid() const { return _current_ring != nullptr; }
+	bool valid() const { return _current_ring != nullptr; }
 
 	/**
 	 * Get pointer to the ring of the current thread

@@ -61,7 +61,7 @@ enum hogl_arg_type {
 	HOGL_ARG_GSTR,   // Global C string
 	HOGL_ARG_HEXDUMP,// Hexdump 
 	HOGL_ARG_RAW,    // Raw data
-} types;
+};
 
 /**
  * Record argument.

@@ -64,18 +64,6 @@ BOOST_AUTO_TEST_CASE(basic)
 	BOOST_REQUIRE (hogl::default_ring.shared() == true);
 }
 
-BOOST_AUTO_TEST_CASE(immortal_ring)
-{
-	hogl::ringbuf::options opts = { };
-	opts.capacity = 64;
-	opts.flags    = hogl::ringbuf::IMMORTAL;
-
-	hogl::ringbuf ring("DUMMY", opts);
-
-	ring.hold();
-	ring.release();
-}
-
 BOOST_AUTO_TEST_CASE(ring_ops)
 {
 	hogl::ringbuf::options opts = { };
@@ -163,4 +151,18 @@ BOOST_AUTO_TEST_CASE(ring_block)
 	BOOST_REQUIRE (ring->seqnum() == 100);
 
 	ring->release();
+}
+
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+
+BOOST_AUTO_TEST_CASE(immortal_ring)
+{
+	hogl::ringbuf::options opts = { };
+	opts.capacity = 64;
+	opts.flags    = hogl::ringbuf::IMMORTAL;
+
+	hogl::ringbuf ring("DUMMY", opts);
+
+	ring.hold();
+	ring.release();
 }

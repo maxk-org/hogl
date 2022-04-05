@@ -82,6 +82,8 @@ void activate(output &out, const engine::options &engine_opts)
 	atexit(hogl::deactivate);
 }
 
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+
 void deactivate()
 {
 	if (!default_engine)
