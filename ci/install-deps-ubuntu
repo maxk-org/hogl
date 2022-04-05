@@ -3,7 +3,9 @@
 set -o errexit
 set -o verbose
 
-apt-get update && apt-get install -y \
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update && apt-get install -y -q --on-install-recommends \
   libtool \
   automake \
   pkg-config \

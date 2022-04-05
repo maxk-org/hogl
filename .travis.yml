@@ -13,11 +13,11 @@ services:
 # Test all supported runtime environments.
 env:
   matrix:
-  - OS_DIST=centos OS_VERSION=6.7
-  - OS_DIST=centos OS_VERSION=6.8
   - OS_DIST=centos OS_VERSION=7
-  - OS_DIST=ubuntu OS_VERSION=14.04
   - OS_DIST=ubuntu OS_VERSION=16.04
+  - OS_DIST=ubuntu OS_VERSION=18.04
+  - OS_DIST=ubuntu OS_VERSION=20.04
+  - OS_DIST=ubuntu OS_VERSION=22.04
 
 # Build and run tests in container.
-script: ci/run_docker
+script: ci/run-docker

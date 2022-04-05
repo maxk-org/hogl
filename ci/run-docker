@@ -10,14 +10,14 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $THIS_DIR/..
 
 # Create a container from the base OS image.
-CONTAINER_ID=`docker create ${OS_DIST}:${OS_VERSION}`
+CONTAINER_ID=$(docker create ${OS_DIST}:${OS_VERSION})
 
 # Copy the source code into the container. Do not use a volume so that
 # multiple builds can run concurrently without overwriting files.
-docker cp `pwd` ${CONTAINER_ID}:/src
+docker cp $(pwd) ${CONTAINER_ID}:/src
 
 # Create a new image that includes the source code.
-IMAGE_ID=`docker commit ${CONTAINER_ID}`
+IMAGE_ID=$(docker commit ${CONTAINER_ID})
 docker rm ${CONTAINER_ID}
 
 # Run the build and test suite.
