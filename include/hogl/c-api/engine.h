@@ -60,12 +60,12 @@ struct hogl_engine_options {
 };
 
 /**
- * Activate default holg engine.
+ * Activate default hogl engine.
  */
 void hogl_activate(hogl_output_t out, struct hogl_engine_options *opts);
 
 /**
- * Deactivate default holg engine
+ * Deactivate default hogl engine
  */
 void hogl_deactivate();
 
