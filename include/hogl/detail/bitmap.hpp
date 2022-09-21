@@ -98,6 +98,11 @@ public:
 			_data[which_word(bit)] &= ~((word)1 << which_bit(bit));
 	}
 
+	bool test(unsigned int bit) const
+	{
+		return _data[which_word(bit)] & ((word)1 << which_bit(bit));
+	}
+
 	void reset()
 	{
 		memset(_data, 0, nbytes(_size));
@@ -106,11 +111,6 @@ public:
 	void reset(unsigned int bit)
 	{
 		set(bit, 0);
-	}
-
-	bool test(unsigned int bit) const
-	{
-		return _data[which_word(bit)] & (1 << which_bit(bit));
 	}
 
 	unsigned int size() const { return _size; }
