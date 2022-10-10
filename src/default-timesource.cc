@@ -57,8 +57,19 @@ static hogl::timestamp clock_monotonic(const hogl::timesource *)
 #else
 static hogl::timestamp clock_monotonic(const hogl::timesource *)
 {
-	static uint64_t nspc = 1000000000ULL / SYSPAGE_ENTRY(qtime)->cycles_per_sec;
-	return hogl::timestamp(ClockCycles() * nspc);
+	uint64_t c = ClockCycles();
+
+	#ifdef __SIZEOF_INT128__
+	static const uint64_t SCALE = 30;
+	static uint64_t nspc_scaled = (1000000000ULL << SCALE) / SYSPAGE_ENTRY(qtime)->cycles_per_sec;
+	 __uint128_t nsec = ((__uint128_t) nspc_scaled * c) >> SCALE;
+	#else
+	static const uint64_t SCALE = 10;
+	static uint64_t nspc_scaled = (1000000000ULL << SCALE) / SYSPAGE_ENTRY(qtime)->cycles_per_sec;
+	uint64_t nsec = (nspc_scaled * c) >> SCALE;
+	#endif
+
+	return hogl::timestamp(nsec);
 }
 #endif
 
