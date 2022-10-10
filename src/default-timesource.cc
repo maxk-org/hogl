@@ -57,10 +57,8 @@ static hogl::timestamp clock_monotonic(const hogl::timesource *)
 #else
 static hogl::timestamp clock_monotonic(const hogl::timesource *)
 {
-	static uint64_t cps = SYSPAGE_ENTRY(qtime)->cycles_per_sec;
-	static uint64_t nspc = 1000000000ULL / cps;
-	uint64_t c = ClockCycles();
-	return hogl::timestamp( timespec{ (long int)(c / cps), (long int)((c % cps) * nspc) });
+	static uint64_t nspc = 1000000000ULL / SYSPAGE_ENTRY(qtime)->cycles_per_sec;
+	return hogl::timestamp(ClockCycles() * nspc);
 }
 #endif
 
