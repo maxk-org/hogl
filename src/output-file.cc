@@ -383,6 +383,11 @@ void output_file::do_rotate()
 	ostrbuf_fd osb(ofd, 0, 128);
 	_format.footer(osb, _name.c_str());
 	osb.flush();
+
+	// Sync and drop cached pages
+	fsync(ofd);
+	posix_fadvise(ofd, 0, 0, POSIX_FADV_DONTNEED);
+
 	close(ofd);
 }
 
