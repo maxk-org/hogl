@@ -328,7 +328,7 @@ template <typename It> class is_output_iterator {
 };
 
 // A workaround for std::string not having mutable data() until C++17.
-template <typename Char> inline Char* get_data(std::basic_string<Char>& s) {
+template <typename HoglChar> inline HoglChar* get_data(std::basic_string<HoglChar>& s) {
   return &s[0];
 }
 template <typename Container>
@@ -485,8 +485,8 @@ class output_range {
   sentinel end() const { return {}; }  // Sentinel is not used yet.
 };
 
-template <typename Char>
-inline size_t count_code_points(basic_string_view<Char> s) {
+template <typename HoglChar>
+inline size_t count_code_points(basic_string_view<HoglChar> s) {
   return s.size();
 }
 
@@ -505,8 +505,8 @@ inline size_t count_code_points(basic_string_view<char8_type> s) {
       reinterpret_cast<const char*>(s.data()), s.size()));
 }
 
-template <typename Char>
-inline size_t code_point_index(basic_string_view<Char> s, size_t n) {
+template <typename HoglChar>
+inline size_t code_point_index(basic_string_view<HoglChar> s, size_t n) {
   size_t size = s.size();
   return n < size ? n : size;
 }
@@ -525,20 +525,20 @@ inline size_t code_point_index(basic_string_view<char8_type> s, size_t n) {
 
 inline char8_type to_char8_t(char c) { return static_cast<char8_type>(c); }
 
-template <typename InputIt, typename OutChar>
+template <typename InputIt, typename OutHoglChar>
 using needs_conversion = bool_constant<
     std::is_same<typename std::iterator_traits<InputIt>::value_type,
                  char>::value &&
-    std::is_same<OutChar, char8_type>::value>;
+    std::is_same<OutHoglChar, char8_type>::value>;
 
-template <typename OutChar, typename InputIt, typename OutputIt,
-          FMT_ENABLE_IF(!needs_conversion<InputIt, OutChar>::value)>
+template <typename OutHoglChar, typename InputIt, typename OutputIt,
+          FMT_ENABLE_IF(!needs_conversion<InputIt, OutHoglChar>::value)>
 OutputIt copy_str(InputIt begin, InputIt end, OutputIt it) {
   return std::copy(begin, end, it);
 }
 
-template <typename OutChar, typename InputIt, typename OutputIt,
-          FMT_ENABLE_IF(needs_conversion<InputIt, OutChar>::value)>
+template <typename OutHoglChar, typename InputIt, typename OutputIt,
+          FMT_ENABLE_IF(needs_conversion<InputIt, OutHoglChar>::value)>
 OutputIt copy_str(InputIt begin, InputIt end, OutputIt it) {
   return std::transform(begin, end, it, to_char8_t);
 }
@@ -850,25 +850,25 @@ inline int count_digits(uint32_t n) {
 }
 #endif
 
-template <typename Char> FMT_API std::string grouping_impl(locale_ref loc);
-template <typename Char> inline std::string grouping(locale_ref loc) {
+template <typename HoglChar> FMT_API std::string grouping_impl(locale_ref loc);
+template <typename HoglChar> inline std::string grouping(locale_ref loc) {
   return grouping_impl<char>(loc);
 }
 template <> inline std::string grouping<wchar_t>(locale_ref loc) {
   return grouping_impl<wchar_t>(loc);
 }
 
-template <typename Char> FMT_API Char thousands_sep_impl(locale_ref loc);
-template <typename Char> inline Char thousands_sep(locale_ref loc) {
-  return Char(thousands_sep_impl<char>(loc));
+template <typename HoglChar> FMT_API HoglChar thousands_sep_impl(locale_ref loc);
+template <typename HoglChar> inline HoglChar thousands_sep(locale_ref loc) {
+  return HoglChar(thousands_sep_impl<char>(loc));
 }
 template <> inline wchar_t thousands_sep(locale_ref loc) {
   return thousands_sep_impl<wchar_t>(loc);
 }
 
-template <typename Char> FMT_API Char decimal_point_impl(locale_ref loc);
-template <typename Char> inline Char decimal_point(locale_ref loc) {
-  return Char(decimal_point_impl<char>(loc));
+template <typename HoglChar> FMT_API HoglChar decimal_point_impl(locale_ref loc);
+template <typename HoglChar> inline HoglChar decimal_point(locale_ref loc) {
+  return HoglChar(decimal_point_impl<char>(loc));
 }
 template <> inline wchar_t decimal_point(locale_ref loc) {
   return decimal_point_impl<wchar_t>(loc);
@@ -877,31 +877,31 @@ template <> inline wchar_t decimal_point(locale_ref loc) {
 // Formats a decimal unsigned integer value writing into buffer.
 // add_thousands_sep is called after writing each char to add a thousands
 // separator if necessary.
-template <typename UInt, typename Char, typename F>
-inline Char* format_decimal(Char* buffer, UInt value, int num_digits,
+template <typename UInt, typename HoglChar, typename F>
+inline HoglChar* format_decimal(HoglChar* buffer, UInt value, int num_digits,
                             F add_thousands_sep) {
   FMT_ASSERT(num_digits >= 0, "invalid digit count");
   buffer += num_digits;
-  Char* end = buffer;
+  HoglChar* end = buffer;
   while (value >= 100) {
     // Integer division is slow so do it for a group of two digits instead
     // of for every digit. The idea comes from the talk by Alexandrescu
     // "Three Optimization Tips for C++". See speed-test for a comparison.
     auto index = static_cast<unsigned>((value % 100) * 2);
     value /= 100;
-    *--buffer = static_cast<Char>(data::digits[index + 1]);
+    *--buffer = static_cast<HoglChar>(data::digits[index + 1]);
     add_thousands_sep(buffer);
-    *--buffer = static_cast<Char>(data::digits[index]);
+    *--buffer = static_cast<HoglChar>(data::digits[index]);
     add_thousands_sep(buffer);
   }
   if (value < 10) {
-    *--buffer = static_cast<Char>('0' + value);
+    *--buffer = static_cast<HoglChar>('0' + value);
     return end;
   }
   auto index = static_cast<unsigned>(value * 2);
-  *--buffer = static_cast<Char>(data::digits[index + 1]);
+  *--buffer = static_cast<HoglChar>(data::digits[index + 1]);
   add_thousands_sep(buffer);
-  *--buffer = static_cast<Char>(data::digits[index]);
+  *--buffer = static_cast<HoglChar>(data::digits[index]);
   return end;
 }
 
@@ -911,38 +911,38 @@ template <typename Int> constexpr int digits10() FMT_NOEXCEPT {
 template <> constexpr int digits10<int128_t>() FMT_NOEXCEPT { return 38; }
 template <> constexpr int digits10<uint128_t>() FMT_NOEXCEPT { return 38; }
 
-template <typename Char, typename UInt, typename Iterator, typename F>
+template <typename HoglChar, typename UInt, typename Iterator, typename F>
 inline Iterator format_decimal(Iterator out, UInt value, int num_digits,
                                F add_thousands_sep) {
   FMT_ASSERT(num_digits >= 0, "invalid digit count");
   // Buffer should be large enough to hold all digits (<= digits10 + 1).
   enum { max_size = digits10<UInt>() + 1 };
-  Char buffer[2 * max_size];
+  HoglChar buffer[2 * max_size];
   auto end = format_decimal(buffer, value, num_digits, add_thousands_sep);
-  return internal::copy_str<Char>(buffer, end, out);
+  return internal::copy_str<HoglChar>(buffer, end, out);
 }
 
-template <typename Char, typename It, typename UInt>
+template <typename HoglChar, typename It, typename UInt>
 inline It format_decimal(It out, UInt value, int num_digits) {
-  return format_decimal<Char>(out, value, num_digits, [](Char*) {});
+  return format_decimal<HoglChar>(out, value, num_digits, [](HoglChar*) {});
 }
 
-template <unsigned BASE_BITS, typename Char, typename UInt>
-inline Char* format_uint(Char* buffer, UInt value, int num_digits,
+template <unsigned BASE_BITS, typename HoglChar, typename UInt>
+inline HoglChar* format_uint(HoglChar* buffer, UInt value, int num_digits,
                          bool upper = false) {
   buffer += num_digits;
-  Char* end = buffer;
+  HoglChar* end = buffer;
   do {
     const char* digits = upper ? "0123456789ABCDEF" : data::hex_digits;
     unsigned digit = (value & ((1 << BASE_BITS) - 1));
-    *--buffer = static_cast<Char>(BASE_BITS < 4 ? static_cast<char>('0' + digit)
+    *--buffer = static_cast<HoglChar>(BASE_BITS < 4 ? static_cast<char>('0' + digit)
                                                 : digits[digit]);
   } while ((value >>= BASE_BITS) != 0);
   return end;
 }
 
-template <unsigned BASE_BITS, typename Char>
-Char* format_uint(Char* buffer, internal::fallback_uintptr n, int num_digits,
+template <unsigned BASE_BITS, typename HoglChar>
+HoglChar* format_uint(HoglChar* buffer, internal::fallback_uintptr n, int num_digits,
                   bool = false) {
   auto char_digits = std::numeric_limits<unsigned char>::digits / 4;
   int start = (num_digits + char_digits - 1) / char_digits - 1;
@@ -956,19 +956,19 @@ Char* format_uint(Char* buffer, internal::fallback_uintptr n, int num_digits,
     auto p = buffer;
     for (int i = 0; i < char_digits; ++i) {
       unsigned digit = (value & ((1 << BASE_BITS) - 1));
-      *--p = static_cast<Char>(data::hex_digits[digit]);
+      *--p = static_cast<HoglChar>(data::hex_digits[digit]);
       value >>= BASE_BITS;
     }
   }
   return buffer;
 }
 
-template <unsigned BASE_BITS, typename Char, typename It, typename UInt>
+template <unsigned BASE_BITS, typename HoglChar, typename It, typename UInt>
 inline It format_uint(It out, UInt value, int num_digits, bool upper = false) {
   // Buffer should be large enough to hold all digits (digits / BASE_BITS + 1).
   char buffer[num_bits<UInt>() / BASE_BITS + 1];
   format_uint<BASE_BITS>(buffer, value, num_digits, upper);
-  return internal::copy_str<Char>(buffer, buffer + num_digits, out);
+  return internal::copy_str<HoglChar>(buffer, buffer + num_digits, out);
 }
 
 // A converter from UTF-8 to UTF-16.
@@ -987,14 +987,14 @@ class utf8_to_utf16 {
 template <typename T = void> struct null {};
 
 // Workaround an array initialization issue in gcc 4.8.
-template <typename Char> struct fill_t {
+template <typename HoglChar> struct fill_t {
  private:
   enum { max_size = 4 };
-  Char data_[max_size];
+  HoglChar data_[max_size];
   unsigned char size_;
 
  public:
-  FMT_CONSTEXPR void operator=(basic_string_view<Char> s) {
+  FMT_CONSTEXPR void operator=(basic_string_view<HoglChar> s) {
     auto size = s.size();
     if (size > max_size) {
       FMT_THROW(format_error("invalid fill"));
@@ -1005,16 +1005,16 @@ template <typename Char> struct fill_t {
   }
 
   size_t size() const { return size_; }
-  const Char* data() const { return data_; }
+  const HoglChar* data() const { return data_; }
 
-  FMT_CONSTEXPR Char& operator[](size_t index) { return data_[index]; }
-  FMT_CONSTEXPR const Char& operator[](size_t index) const {
+  FMT_CONSTEXPR HoglChar& operator[](size_t index) { return data_[index]; }
+  FMT_CONSTEXPR const HoglChar& operator[](size_t index) const {
     return data_[index];
   }
 
-  static FMT_CONSTEXPR fill_t<Char> make() {
-    auto fill = fill_t<Char>();
-    fill[0] = Char(' ');
+  static FMT_CONSTEXPR fill_t<HoglChar> make() {
+    auto fill = fill_t<HoglChar>();
+    fill[0] = HoglChar(' ');
     fill.size_ = 1;
     return fill;
   }
@@ -1034,14 +1034,14 @@ enum type { none, minus, plus, space };
 using sign_t = sign::type;
 
 // Format specifiers for built-in and string types.
-template <typename Char> struct basic_format_specs {
+template <typename HoglChar> struct basic_format_specs {
   int width;
   int precision;
   char type;
   align_t align : 4;
   sign_t sign : 3;
   bool alt : 1;  // Alternate form ('#').
-  internal::fill_t<Char> fill;
+  internal::fill_t<HoglChar> fill;
 
   constexpr basic_format_specs()
       : width(0),
@@ -1050,7 +1050,7 @@ template <typename Char> struct basic_format_specs {
         align(align::none),
         sign(sign::none),
         alt(false),
-        fill(internal::fill_t<Char>::make()) {}
+        fill(internal::fill_t<HoglChar>::make()) {}
 };
 
 using format_specs = basic_format_specs<char>;
@@ -1078,27 +1078,27 @@ struct float_specs {
 };
 
 // Writes the exponent exp in the form "[+-]d{2,3}" to buffer.
-template <typename Char, typename It> It write_exponent(int exp, It it) {
+template <typename HoglChar, typename It> It write_exponent(int exp, It it) {
   FMT_ASSERT(-10000 < exp && exp < 10000, "exponent out of range");
   if (exp < 0) {
-    *it++ = static_cast<Char>('-');
+    *it++ = static_cast<HoglChar>('-');
     exp = -exp;
   } else {
-    *it++ = static_cast<Char>('+');
+    *it++ = static_cast<HoglChar>('+');
   }
   if (exp >= 100) {
     const char* top = data::digits + (exp / 100) * 2;
-    if (exp >= 1000) *it++ = static_cast<Char>(top[0]);
-    *it++ = static_cast<Char>(top[1]);
+    if (exp >= 1000) *it++ = static_cast<HoglChar>(top[0]);
+    *it++ = static_cast<HoglChar>(top[1]);
     exp %= 100;
   }
   const char* d = data::digits + exp * 2;
-  *it++ = static_cast<Char>(d[0]);
-  *it++ = static_cast<Char>(d[1]);
+  *it++ = static_cast<HoglChar>(d[0]);
+  *it++ = static_cast<HoglChar>(d[1]);
   return it;
 }
 
-template <typename Char> class float_writer {
+template <typename HoglChar> class float_writer {
  private:
   // The number is given as v = digits_ * pow(10, exp_).
   const char* digits_;
@@ -1106,61 +1106,61 @@ template <typename Char> class float_writer {
   int exp_;
   size_t size_;
   float_specs specs_;
-  Char decimal_point_;
+  HoglChar decimal_point_;
 
   template <typename It> It prettify(It it) const {
     // pow(10, full_exp - 1) <= v <= pow(10, full_exp).
     int full_exp = num_digits_ + exp_;
     if (specs_.format == float_format::exp) {
       // Insert a decimal point after the first digit and add an exponent.
-      *it++ = static_cast<Char>(*digits_);
+      *it++ = static_cast<HoglChar>(*digits_);
       int num_zeros = specs_.precision - num_digits_;
       if (num_digits_ > 1 || specs_.showpoint) *it++ = decimal_point_;
-      it = copy_str<Char>(digits_ + 1, digits_ + num_digits_, it);
+      it = copy_str<HoglChar>(digits_ + 1, digits_ + num_digits_, it);
       if (num_zeros > 0 && specs_.showpoint)
-        it = std::fill_n(it, num_zeros, static_cast<Char>('0'));
-      *it++ = static_cast<Char>(specs_.upper ? 'E' : 'e');
-      return write_exponent<Char>(full_exp - 1, it);
+        it = std::fill_n(it, num_zeros, static_cast<HoglChar>('0'));
+      *it++ = static_cast<HoglChar>(specs_.upper ? 'E' : 'e');
+      return write_exponent<HoglChar>(full_exp - 1, it);
     }
     if (num_digits_ <= full_exp) {
       // 1234e7 -> 12340000000[.0+]
-      it = copy_str<Char>(digits_, digits_ + num_digits_, it);
-      it = std::fill_n(it, full_exp - num_digits_, static_cast<Char>('0'));
+      it = copy_str<HoglChar>(digits_, digits_ + num_digits_, it);
+      it = std::fill_n(it, full_exp - num_digits_, static_cast<HoglChar>('0'));
       if (specs_.showpoint || specs_.precision < 0) {
         *it++ = decimal_point_;
         int num_zeros = specs_.precision - full_exp;
         if (num_zeros <= 0) {
           if (specs_.format != float_format::fixed)
-            *it++ = static_cast<Char>('0');
+            *it++ = static_cast<HoglChar>('0');
           return it;
         }
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         if (num_zeros > 1000)
           throw std::runtime_error("fuzz mode - avoiding excessive cpu use");
 #endif
-        it = std::fill_n(it, num_zeros, static_cast<Char>('0'));
+        it = std::fill_n(it, num_zeros, static_cast<HoglChar>('0'));
       }
     } else if (full_exp > 0) {
       // 1234e-2 -> 12.34[0+]
-      it = copy_str<Char>(digits_, digits_ + full_exp, it);
+      it = copy_str<HoglChar>(digits_, digits_ + full_exp, it);
       if (!specs_.showpoint) {
         // Remove trailing zeros.
         int num_digits = num_digits_;
         while (num_digits > full_exp && digits_[num_digits - 1] == '0')
           --num_digits;
         if (num_digits != full_exp) *it++ = decimal_point_;
-        return copy_str<Char>(digits_ + full_exp, digits_ + num_digits, it);
+        return copy_str<HoglChar>(digits_ + full_exp, digits_ + num_digits, it);
       }
       *it++ = decimal_point_;
-      it = copy_str<Char>(digits_ + full_exp, digits_ + num_digits_, it);
+      it = copy_str<HoglChar>(digits_ + full_exp, digits_ + num_digits_, it);
       if (specs_.precision > num_digits_) {
         // Add trailing zeros.
         int num_zeros = specs_.precision - num_digits_;
-        it = std::fill_n(it, num_zeros, static_cast<Char>('0'));
+        it = std::fill_n(it, num_zeros, static_cast<HoglChar>('0'));
       }
     } else {
       // 1234e-6 -> 0.001234
-      *it++ = static_cast<Char>('0');
+      *it++ = static_cast<HoglChar>('0');
       int num_zeros = -full_exp;
       int num_digits = num_digits_;
       if (num_digits == 0 && specs_.precision >= 0 &&
@@ -1172,8 +1172,8 @@ template <typename Char> class float_writer {
         while (num_digits > 0 && digits_[num_digits - 1] == '0') --num_digits;
       if (num_zeros != 0 || num_digits != 0 || specs_.showpoint) {
         *it++ = decimal_point_;
-        it = std::fill_n(it, num_zeros, static_cast<Char>('0'));
-        it = copy_str<Char>(digits_, digits_ + num_digits, it);
+        it = std::fill_n(it, num_zeros, static_cast<HoglChar>('0'));
+        it = copy_str<HoglChar>(digits_, digits_ + num_digits, it);
       }
     }
     return it;
@@ -1181,7 +1181,7 @@ template <typename Char> class float_writer {
 
  public:
   float_writer(const char* digits, int num_digits, int exp, float_specs specs,
-               Char decimal_point)
+               HoglChar decimal_point)
       : digits_(digits),
         num_digits_(num_digits),
         exp_(exp),
@@ -1201,7 +1201,7 @@ template <typename Char> class float_writer {
   size_t width() const { return size(); }
 
   template <typename It> void operator()(It&& it) {
-    if (specs_.sign) *it++ = static_cast<Char>(data::signs[specs_.sign]);
+    if (specs_.sign) *it++ = static_cast<HoglChar>(data::signs[specs_.sign]);
     it = prettify(it);
   }
 };
@@ -1244,9 +1244,9 @@ FMT_CONSTEXPR void handle_int_type_spec(char spec, Handler&& handler) {
   }
 }
 
-template <typename ErrorHandler = error_handler, typename Char>
+template <typename ErrorHandler = error_handler, typename HoglChar>
 FMT_CONSTEXPR float_specs parse_float_type_spec(
-    const basic_format_specs<Char>& specs, ErrorHandler&& eh = {}) {
+    const basic_format_specs<HoglChar>& specs, ErrorHandler&& eh = {}) {
   auto result = float_specs();
   result.showpoint = specs.alt;
   switch (specs.type) {
@@ -1296,8 +1296,8 @@ FMT_CONSTEXPR float_specs parse_float_type_spec(
   return result;
 }
 
-template <typename Char, typename Handler>
-FMT_CONSTEXPR void handle_char_specs(const basic_format_specs<Char>* specs,
+template <typename HoglChar, typename Handler>
+FMT_CONSTEXPR void handle_char_specs(const basic_format_specs<HoglChar>* specs,
                                      Handler&& handler) {
   if (!specs) return handler.on_char();
   if (specs->type && specs->type != 'c') return handler.on_int();
@@ -1306,8 +1306,8 @@ FMT_CONSTEXPR void handle_char_specs(const basic_format_specs<Char>* specs,
   handler.on_char();
 }
 
-template <typename Char, typename Handler>
-FMT_CONSTEXPR void handle_cstring_type_spec(Char spec, Handler&& handler) {
+template <typename HoglChar, typename Handler>
+FMT_CONSTEXPR void handle_cstring_type_spec(HoglChar spec, Handler&& handler) {
   if (spec == 0 || spec == 's')
     handler.on_string();
   else if (spec == 'p')
@@ -1316,13 +1316,13 @@ FMT_CONSTEXPR void handle_cstring_type_spec(Char spec, Handler&& handler) {
     handler.on_error("invalid type specifier");
 }
 
-template <typename Char, typename ErrorHandler>
-FMT_CONSTEXPR void check_string_type_spec(Char spec, ErrorHandler&& eh) {
+template <typename HoglChar, typename ErrorHandler>
+FMT_CONSTEXPR void check_string_type_spec(HoglChar spec, ErrorHandler&& eh) {
   if (spec != 0 && spec != 's') eh.on_error("invalid type specifier");
 }
 
-template <typename Char, typename ErrorHandler>
-FMT_CONSTEXPR void check_pointer_type_spec(Char spec, ErrorHandler&& eh) {
+template <typename HoglChar, typename ErrorHandler>
+FMT_CONSTEXPR void check_pointer_type_spec(HoglChar spec, ErrorHandler&& eh) {
   if (spec != 0 && spec != 'p') eh.on_error("invalid type specifier");
 }
 
@@ -1384,7 +1384,7 @@ void arg_map<Context>::init(const basic_format_args<Context>& args) {
   }
 }
 
-template <typename Char> struct nonfinite_writer {
+template <typename HoglChar> struct nonfinite_writer {
   sign_t sign;
   const char* str;
   static constexpr size_t str_size = 3;
@@ -1393,13 +1393,13 @@ template <typename Char> struct nonfinite_writer {
   size_t width() const { return size(); }
 
   template <typename It> void operator()(It&& it) const {
-    if (sign) *it++ = static_cast<Char>(data::signs[sign]);
-    it = copy_str<Char>(str, str + str_size, it);
+    if (sign) *it++ = static_cast<HoglChar>(data::signs[sign]);
+    it = copy_str<HoglChar>(str, str + str_size, it);
   }
 };
 
-template <typename OutputIt, typename Char>
-FMT_NOINLINE OutputIt fill(OutputIt it, size_t n, const fill_t<Char>& fill) {
+template <typename OutputIt, typename HoglChar>
+FMT_NOINLINE OutputIt fill(OutputIt it, size_t n, const fill_t<HoglChar>& fill) {
   auto fill_size = fill.size();
   if (fill_size == 1) return std::fill_n(it, n, fill[0]);
   for (size_t i = 0; i < n; ++i) it = std::copy_n(fill.data(), fill_size, it);
@@ -1625,13 +1625,13 @@ template <typename Range> class basic_writer {
     }
   };
 
-  template <typename Char> struct str_writer {
-    const Char* s;
+  template <typename HoglChar> struct str_writer {
+    const HoglChar* s;
     size_t size_;
 
     size_t size() const { return size_; }
     size_t width() const {
-      return count_code_points(basic_string_view<Char>(s, size_));
+      return count_code_points(basic_string_view<HoglChar>(s, size_));
     }
 
     template <typename It> void operator()(It&& it) const {
@@ -1782,8 +1782,8 @@ template <typename Range> class basic_writer {
     *it++ = value;
   }
 
-  template <typename Char, FMT_ENABLE_IF(std::is_same<Char, char_type>::value)>
-  void write(Char value) {
+  template <typename HoglChar, FMT_ENABLE_IF(std::is_same<HoglChar, char_type>::value)>
+  void write(HoglChar value) {
     auto&& it = reserve(1);
     *it++ = value;
   }
@@ -1798,14 +1798,14 @@ template <typename Range> class basic_writer {
     it = std::copy(value.begin(), value.end(), it);
   }
 
-  template <typename Char>
-  void write(const Char* s, std::size_t size, const format_specs& specs) {
-    write_padded(specs, str_writer<Char>{s, size});
+  template <typename HoglChar>
+  void write(const HoglChar* s, std::size_t size, const format_specs& specs) {
+    write_padded(specs, str_writer<HoglChar>{s, size});
   }
 
-  template <typename Char>
-  void write(basic_string_view<Char> s, const format_specs& specs = {}) {
-    const Char* data = s.data();
+  template <typename HoglChar>
+  void write(basic_string_view<HoglChar> s, const format_specs& specs = {}) {
+    const HoglChar* data = s.data();
     std::size_t size = s.size();
     if (specs.precision >= 0 && to_unsigned(specs.precision) < size)
       size = code_point_index(s, to_unsigned(specs.precision));
@@ -1977,14 +1977,14 @@ class arg_formatter_base {
   }
 };
 
-template <typename Char> FMT_CONSTEXPR bool is_name_start(Char c) {
+template <typename HoglChar> FMT_CONSTEXPR bool is_name_start(HoglChar c) {
   return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || '_' == c;
 }
 
 // Parses the range [begin, end) as an unsigned integer. This function assumes
 // that the range is non-empty and the first character is a digit.
-template <typename Char, typename ErrorHandler>
-FMT_CONSTEXPR int parse_nonnegative_int(const Char*& begin, const Char* end,
+template <typename HoglChar, typename ErrorHandler>
+FMT_CONSTEXPR int parse_nonnegative_int(const HoglChar*& begin, const HoglChar* end,
                                         ErrorHandler&& eh) {
   FMT_ASSERT(begin != end && '0' <= *begin && *begin <= '9', "");
   unsigned value = 0;
@@ -2071,16 +2071,16 @@ template <typename ErrorHandler> class precision_checker {
 };
 
 // A format specifier handler that sets fields in basic_format_specs.
-template <typename Char> class specs_setter {
+template <typename HoglChar> class specs_setter {
  public:
-  explicit FMT_CONSTEXPR specs_setter(basic_format_specs<Char>& specs)
+  explicit FMT_CONSTEXPR specs_setter(basic_format_specs<HoglChar>& specs)
       : specs_(specs) {}
 
   FMT_CONSTEXPR specs_setter(const specs_setter& other)
       : specs_(other.specs_) {}
 
   FMT_CONSTEXPR void on_align(align_t align) { specs_.align = align; }
-  FMT_CONSTEXPR void on_fill(basic_string_view<Char> fill) {
+  FMT_CONSTEXPR void on_fill(basic_string_view<HoglChar> fill) {
     specs_.fill = fill;
   }
   FMT_CONSTEXPR void on_plus() { specs_.sign = sign::plus; }
@@ -2090,7 +2090,7 @@ template <typename Char> class specs_setter {
 
   FMT_CONSTEXPR void on_zero() {
     specs_.align = align::numeric;
-    specs_.fill[0] = Char('0');
+    specs_.fill[0] = HoglChar('0');
   }
 
   FMT_CONSTEXPR void on_width(int width) { specs_.width = width; }
@@ -2099,12 +2099,12 @@ template <typename Char> class specs_setter {
   }
   FMT_CONSTEXPR void end_precision() {}
 
-  FMT_CONSTEXPR void on_type(Char type) {
+  FMT_CONSTEXPR void on_type(HoglChar type) {
     specs_.type = static_cast<char>(type);
   }
 
  protected:
-  basic_format_specs<Char>& specs_;
+  basic_format_specs<HoglChar>& specs_;
 };
 
 template <typename ErrorHandler> class numeric_specs_checker {
@@ -2247,12 +2247,12 @@ class specs_handler : public specs_setter<typename Context::char_type> {
 enum class arg_id_kind { none, index, name };
 
 // An argument reference.
-template <typename Char> struct arg_ref {
+template <typename HoglChar> struct arg_ref {
   FMT_CONSTEXPR arg_ref() : kind(arg_id_kind::none), val() {}
 
   FMT_CONSTEXPR explicit arg_ref(int index)
       : kind(arg_id_kind::index), val(index) {}
-  FMT_CONSTEXPR explicit arg_ref(basic_string_view<Char> name)
+  FMT_CONSTEXPR explicit arg_ref(basic_string_view<HoglChar> name)
       : kind(arg_id_kind::name), val(name) {}
 
   FMT_CONSTEXPR arg_ref& operator=(int idx) {
@@ -2264,20 +2264,20 @@ template <typename Char> struct arg_ref {
   arg_id_kind kind;
   union value {
     FMT_CONSTEXPR value(int id = 0) : index{id} {}
-    FMT_CONSTEXPR value(basic_string_view<Char> n) : name(n) {}
+    FMT_CONSTEXPR value(basic_string_view<HoglChar> n) : name(n) {}
 
     int index;
-    basic_string_view<Char> name;
+    basic_string_view<HoglChar> name;
   } val;
 };
 
 // Format specifiers with width and precision resolved at formatting rather
 // than parsing time to allow re-using the same parsed specifiers with
 // different sets of arguments (precompilation of format strings).
-template <typename Char>
-struct dynamic_format_specs : basic_format_specs<Char> {
-  arg_ref<Char> width_ref;
-  arg_ref<Char> precision_ref;
+template <typename HoglChar>
+struct dynamic_format_specs : basic_format_specs<HoglChar> {
+  arg_ref<HoglChar> width_ref;
+  arg_ref<HoglChar> precision_ref;
 };
 
 // Format spec handler that saves references to arguments representing dynamic
@@ -2332,11 +2332,11 @@ class dynamic_specs_handler
   ParseContext& context_;
 };
 
-template <typename Char, typename IDHandler>
-FMT_CONSTEXPR const Char* parse_arg_id(const Char* begin, const Char* end,
+template <typename HoglChar, typename IDHandler>
+FMT_CONSTEXPR const HoglChar* parse_arg_id(const HoglChar* begin, const HoglChar* end,
                                        IDHandler&& handler) {
   FMT_ASSERT(begin != end, "");
-  Char c = *begin;
+  HoglChar c = *begin;
   if (c == '}' || c == ':') {
     handler();
     return begin;
@@ -2361,17 +2361,17 @@ FMT_CONSTEXPR const Char* parse_arg_id(const Char* begin, const Char* end,
   do {
     ++it;
   } while (it != end && (is_name_start(c = *it) || ('0' <= c && c <= '9')));
-  handler(basic_string_view<Char>(begin, to_unsigned(it - begin)));
+  handler(basic_string_view<HoglChar>(begin, to_unsigned(it - begin)));
   return it;
 }
 
 // Adapts SpecHandler to IDHandler API for dynamic width.
-template <typename SpecHandler, typename Char> struct width_adapter {
+template <typename SpecHandler, typename HoglChar> struct width_adapter {
   explicit FMT_CONSTEXPR width_adapter(SpecHandler& h) : handler(h) {}
 
   FMT_CONSTEXPR void operator()() { handler.on_dynamic_width(auto_id()); }
   FMT_CONSTEXPR void operator()(int id) { handler.on_dynamic_width(id); }
-  FMT_CONSTEXPR void operator()(basic_string_view<Char> id) {
+  FMT_CONSTEXPR void operator()(basic_string_view<HoglChar> id) {
     handler.on_dynamic_width(id);
   }
 
@@ -2383,12 +2383,12 @@ template <typename SpecHandler, typename Char> struct width_adapter {
 };
 
 // Adapts SpecHandler to IDHandler API for dynamic precision.
-template <typename SpecHandler, typename Char> struct precision_adapter {
+template <typename SpecHandler, typename HoglChar> struct precision_adapter {
   explicit FMT_CONSTEXPR precision_adapter(SpecHandler& h) : handler(h) {}
 
   FMT_CONSTEXPR void operator()() { handler.on_dynamic_precision(auto_id()); }
   FMT_CONSTEXPR void operator()(int id) { handler.on_dynamic_precision(id); }
-  FMT_CONSTEXPR void operator()(basic_string_view<Char> id) {
+  FMT_CONSTEXPR void operator()(basic_string_view<HoglChar> id) {
     handler.on_dynamic_precision(id);
   }
 
@@ -2399,9 +2399,9 @@ template <typename SpecHandler, typename Char> struct precision_adapter {
   SpecHandler& handler;
 };
 
-template <typename Char>
-FMT_CONSTEXPR const Char* next_code_point(const Char* begin, const Char* end) {
-  if (const_check(sizeof(Char) != 1) || (*begin & 0x80) == 0) return begin + 1;
+template <typename HoglChar>
+FMT_CONSTEXPR const HoglChar* next_code_point(const HoglChar* begin, const HoglChar* end) {
+  if (const_check(sizeof(HoglChar) != 1) || (*begin & 0x80) == 0) return begin + 1;
   do {
     ++begin;
   } while (begin != end && (*begin & 0xc0) == 0x80);
@@ -2409,8 +2409,8 @@ FMT_CONSTEXPR const Char* next_code_point(const Char* begin, const Char* end) {
 }
 
 // Parses fill and alignment.
-template <typename Char, typename Handler>
-FMT_CONSTEXPR const Char* parse_align(const Char* begin, const Char* end,
+template <typename HoglChar, typename Handler>
+FMT_CONSTEXPR const HoglChar* parse_align(const HoglChar* begin, const HoglChar* end,
                                       Handler&& handler) {
   FMT_ASSERT(begin != end, "");
   auto align = align::none;
@@ -2438,7 +2438,7 @@ FMT_CONSTEXPR const Char* parse_align(const Char* begin, const Char* end,
         auto c = *begin;
         if (c == '{')
           return handler.on_error("invalid fill character '{'"), begin;
-        handler.on_fill(basic_string_view<Char>(begin, to_unsigned(p - begin)));
+        handler.on_fill(basic_string_view<HoglChar>(begin, to_unsigned(p - begin)));
         begin = p + 1;
       } else
         ++begin;
@@ -2452,8 +2452,8 @@ FMT_CONSTEXPR const Char* parse_align(const Char* begin, const Char* end,
   return begin;
 }
 
-template <typename Char, typename Handler>
-FMT_CONSTEXPR const Char* parse_width(const Char* begin, const Char* end,
+template <typename HoglChar, typename Handler>
+FMT_CONSTEXPR const HoglChar* parse_width(const HoglChar* begin, const HoglChar* end,
                                       Handler&& handler) {
   FMT_ASSERT(begin != end, "");
   if ('0' <= *begin && *begin <= '9') {
@@ -2461,7 +2461,7 @@ FMT_CONSTEXPR const Char* parse_width(const Char* begin, const Char* end,
   } else if (*begin == '{') {
     ++begin;
     if (begin != end)
-      begin = parse_arg_id(begin, end, width_adapter<Handler, Char>(handler));
+      begin = parse_arg_id(begin, end, width_adapter<Handler, HoglChar>(handler));
     if (begin == end || *begin != '}')
       return handler.on_error("invalid format string"), begin;
     ++begin;
@@ -2469,18 +2469,18 @@ FMT_CONSTEXPR const Char* parse_width(const Char* begin, const Char* end,
   return begin;
 }
 
-template <typename Char, typename Handler>
-FMT_CONSTEXPR const Char* parse_precision(const Char* begin, const Char* end,
+template <typename HoglChar, typename Handler>
+FMT_CONSTEXPR const HoglChar* parse_precision(const HoglChar* begin, const HoglChar* end,
                                           Handler&& handler) {
   ++begin;
-  auto c = begin != end ? *begin : Char();
+  auto c = begin != end ? *begin : HoglChar();
   if ('0' <= c && c <= '9') {
     handler.on_precision(parse_nonnegative_int(begin, end, handler));
   } else if (c == '{') {
     ++begin;
     if (begin != end) {
       begin =
-          parse_arg_id(begin, end, precision_adapter<Handler, Char>(handler));
+          parse_arg_id(begin, end, precision_adapter<Handler, HoglChar>(handler));
     }
     if (begin == end || *begin++ != '}')
       return handler.on_error("invalid format string"), begin;
@@ -2493,8 +2493,8 @@ FMT_CONSTEXPR const Char* parse_precision(const Char* begin, const Char* end,
 
 // Parses standard format specifiers and sends notifications about parsed
 // components to handler.
-template <typename Char, typename SpecHandler>
-FMT_CONSTEXPR const Char* parse_format_specs(const Char* begin, const Char* end,
+template <typename HoglChar, typename SpecHandler>
+FMT_CONSTEXPR const HoglChar* parse_format_specs(const HoglChar* begin, const HoglChar* end,
                                              SpecHandler&& handler) {
   if (begin == end || *begin == '}') return begin;
 
@@ -2559,10 +2559,10 @@ inline bool find<false, char>(const char* first, const char* last, char value,
   return out != nullptr;
 }
 
-template <typename Handler, typename Char> struct id_adapter {
+template <typename Handler, typename HoglChar> struct id_adapter {
   FMT_CONSTEXPR void operator()() { handler.on_arg_id(); }
   FMT_CONSTEXPR void operator()(int id) { handler.on_arg_id(id); }
-  FMT_CONSTEXPR void operator()(basic_string_view<Char> id) {
+  FMT_CONSTEXPR void operator()(basic_string_view<HoglChar> id) {
     handler.on_arg_id(id);
   }
   FMT_CONSTEXPR void on_error(const char* message) {
@@ -2571,14 +2571,14 @@ template <typename Handler, typename Char> struct id_adapter {
   Handler& handler;
 };
 
-template <bool IS_CONSTEXPR, typename Char, typename Handler>
-FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
+template <bool IS_CONSTEXPR, typename HoglChar, typename Handler>
+FMT_CONSTEXPR void parse_format_string(basic_string_view<HoglChar> format_str,
                                        Handler&& handler) {
   struct pfs_writer {
-    FMT_CONSTEXPR void operator()(const Char* begin, const Char* end) {
+    FMT_CONSTEXPR void operator()(const HoglChar* begin, const HoglChar* end) {
       if (begin == end) return;
       for (;;) {
-        const Char* p = nullptr;
+        const HoglChar* p = nullptr;
         if (!find<IS_CONSTEXPR>(begin, end, '}', p))
           return handler_.on_text(begin, end);
         ++p;
@@ -2595,7 +2595,7 @@ FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
   while (begin != end) {
     // Doing two passes with memchr (one for '{' and another for '}') is up to
     // 2.5x faster than the naive one-pass implementation on big format strings.
-    const Char* p = begin;
+    const HoglChar* p = begin;
     if (*begin != '{' && !find<IS_CONSTEXPR>(begin + 1, end, '{', p))
       return write(begin, end);
     write(begin, p);
@@ -2607,8 +2607,8 @@ FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
     } else if (*p == '{') {
       handler.on_text(p, p + 1);
     } else {
-      p = parse_arg_id(p, end, id_adapter<Handler, Char>{handler});
-      Char c = p != end ? *p : Char();
+      p = parse_arg_id(p, end, id_adapter<Handler, HoglChar>{handler});
+      HoglChar c = p != end ? *p : HoglChar();
       if (c == '}') {
         handler.on_replacement_field(p);
       } else if (c == ':') {
@@ -2638,16 +2638,16 @@ FMT_CONSTEXPR const typename ParseContext::char_type* parse_format_specs(
   return f.parse(ctx);
 }
 
-template <typename Char, typename ErrorHandler, typename... Args>
+template <typename HoglChar, typename ErrorHandler, typename... Args>
 class format_string_checker {
  public:
   explicit FMT_CONSTEXPR format_string_checker(
-      basic_string_view<Char> format_str, ErrorHandler eh)
+      basic_string_view<HoglChar> format_str, ErrorHandler eh)
       : arg_id_(-1),
         context_(format_str, eh),
         parse_funcs_{&parse_format_specs<Args, parse_context_type>...} {}
 
-  FMT_CONSTEXPR void on_text(const Char*, const Char*) {}
+  FMT_CONSTEXPR void on_text(const HoglChar*, const HoglChar*) {}
 
   FMT_CONSTEXPR void on_arg_id() {
     arg_id_ = context_.next_arg_id();
@@ -2658,13 +2658,13 @@ class format_string_checker {
     context_.check_arg_id(id);
     check_arg_id();
   }
-  FMT_CONSTEXPR void on_arg_id(basic_string_view<Char>) {
+  FMT_CONSTEXPR void on_arg_id(basic_string_view<HoglChar>) {
     on_error("compile-time checks don't support named arguments");
   }
 
-  FMT_CONSTEXPR void on_replacement_field(const Char*) {}
+  FMT_CONSTEXPR void on_replacement_field(const HoglChar*) {}
 
-  FMT_CONSTEXPR const Char* on_format_specs(const Char* begin, const Char*) {
+  FMT_CONSTEXPR const HoglChar* on_format_specs(const HoglChar* begin, const HoglChar*) {
     advance_to(context_, begin);
     return arg_id_ < num_args ? parse_funcs_[arg_id_](context_) : begin;
   }
@@ -2674,7 +2674,7 @@ class format_string_checker {
   }
 
  private:
-  using parse_context_type = basic_format_parse_context<Char, ErrorHandler>;
+  using parse_context_type = basic_format_parse_context<HoglChar, ErrorHandler>;
   enum { num_args = sizeof...(Args) };
 
   FMT_CONSTEXPR void check_arg_id() {
@@ -2682,17 +2682,17 @@ class format_string_checker {
   }
 
   // Format specifier parsing function.
-  using parse_func = const Char* (*)(parse_context_type&);
+  using parse_func = const HoglChar* (*)(parse_context_type&);
 
   int arg_id_;
   parse_context_type context_;
   parse_func parse_funcs_[num_args > 0 ? num_args : 1];
 };
 
-template <typename Char, typename ErrorHandler, typename... Args>
-FMT_CONSTEXPR bool do_check_format_string(basic_string_view<Char> s,
+template <typename HoglChar, typename ErrorHandler, typename... Args>
+FMT_CONSTEXPR bool do_check_format_string(basic_string_view<HoglChar> s,
                                           ErrorHandler eh = ErrorHandler()) {
-  format_string_checker<Char, ErrorHandler, Args...> checker(s, eh);
+  format_string_checker<HoglChar, ErrorHandler, Args...> checker(s, eh);
   parse_format_string<true>(s, checker);
   return true;
 }
@@ -2926,9 +2926,9 @@ class format_int {
 
 // A formatter specialization for the core types corresponding to internal::type
 // constants.
-template <typename T, typename Char>
-struct formatter<T, Char,
-                 enable_if_t<internal::type_constant<T, Char>::value !=
+template <typename T, typename HoglChar>
+struct formatter<T, HoglChar,
+                 enable_if_t<internal::type_constant<T, HoglChar>::value !=
                              internal::type::custom_type>> {
   FMT_CONSTEXPR formatter() = default;
 
@@ -2937,7 +2937,7 @@ struct formatter<T, Char,
   template <typename ParseContext>
   FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
     using handler_type = internal::dynamic_specs_handler<ParseContext>;
-    auto type = internal::type_constant<T, Char>::value;
+    auto type = internal::type_constant<T, HoglChar>::value;
     internal::specs_checker<handler_type> handler(handler_type(specs_, ctx),
                                                   type);
     auto it = parse_format_specs(ctx.begin(), ctx.end(), handler);
@@ -3014,15 +3014,15 @@ struct formatter<T, Char,
   }
 
  private:
-  internal::dynamic_format_specs<Char> specs_;
+  internal::dynamic_format_specs<HoglChar> specs_;
 };
 
 #define FMT_FORMAT_AS(Type, Base)                                             \
-  template <typename Char>                                                    \
-  struct formatter<Type, Char> : formatter<Base, Char> {                      \
+  template <typename HoglChar>                                                    \
+  struct formatter<Type, HoglChar> : formatter<Base, HoglChar> {                      \
     template <typename FormatContext>                                         \
     auto format(Type const& val, FormatContext& ctx) -> decltype(ctx.out()) { \
-      return formatter<Base, Char>::format(val, ctx);                         \
+      return formatter<Base, HoglChar>::format(val, ctx);                         \
     }                                                                         \
   }
 
@@ -3032,24 +3032,24 @@ FMT_FORMAT_AS(short, int);
 FMT_FORMAT_AS(unsigned short, unsigned);
 FMT_FORMAT_AS(long, long long);
 FMT_FORMAT_AS(unsigned long, unsigned long long);
-FMT_FORMAT_AS(Char*, const Char*);
-FMT_FORMAT_AS(std::basic_string<Char>, basic_string_view<Char>);
+FMT_FORMAT_AS(HoglChar*, const HoglChar*);
+FMT_FORMAT_AS(std::basic_string<HoglChar>, basic_string_view<HoglChar>);
 FMT_FORMAT_AS(std::nullptr_t, const void*);
-FMT_FORMAT_AS(internal::std_string_view<Char>, basic_string_view<Char>);
+FMT_FORMAT_AS(internal::std_string_view<HoglChar>, basic_string_view<HoglChar>);
 
-template <typename Char>
-struct formatter<void*, Char> : formatter<const void*, Char> {
+template <typename HoglChar>
+struct formatter<void*, HoglChar> : formatter<const void*, HoglChar> {
   template <typename FormatContext>
   auto format(void* val, FormatContext& ctx) -> decltype(ctx.out()) {
-    return formatter<const void*, Char>::format(val, ctx);
+    return formatter<const void*, HoglChar>::format(val, ctx);
   }
 };
 
-template <typename Char, size_t N>
-struct formatter<Char[N], Char> : formatter<basic_string_view<Char>, Char> {
+template <typename HoglChar, size_t N>
+struct formatter<HoglChar[N], HoglChar> : formatter<basic_string_view<HoglChar>, HoglChar> {
   template <typename FormatContext>
-  auto format(const Char* val, FormatContext& ctx) -> decltype(ctx.out()) {
-    return formatter<basic_string_view<Char>, Char>::format(val, ctx);
+  auto format(const HoglChar* val, FormatContext& ctx) -> decltype(ctx.out()) {
+    return formatter<basic_string_view<HoglChar>, HoglChar>::format(val, ctx);
   }
 };
 
@@ -3063,7 +3063,7 @@ struct formatter<Char[N], Char> : formatter<basic_string_view<Char>, Char> {
 //       visit([&](const auto &val) { format(buf, val, ctx); }, v);
 //     }
 //   };
-template <typename Char = char> class dynamic_formatter {
+template <typename HoglChar = char> class dynamic_formatter {
  private:
   struct null_handler : internal::error_handler {
     void on_align(align_t) {}
@@ -3119,13 +3119,13 @@ template <typename Char = char> class dynamic_formatter {
         specs_.precision, specs_.precision_ref, ctx);
   }
 
-  internal::dynamic_format_specs<Char> specs_;
-  const Char* format_str_;
+  internal::dynamic_format_specs<HoglChar> specs_;
+  const HoglChar* format_str_;
 };
 
-template <typename Range, typename Char>
-typename basic_format_context<Range, Char>::format_arg
-basic_format_context<Range, Char>::arg(basic_string_view<char_type> name) {
+template <typename Range, typename HoglChar>
+typename basic_format_context<Range, HoglChar>::format_arg
+basic_format_context<Range, HoglChar>::arg(basic_string_view<char_type> name) {
   map_.init(args_);
   format_arg arg = map_.find(name);
   if (arg.type() == internal::type::none_type)
@@ -3133,22 +3133,22 @@ basic_format_context<Range, Char>::arg(basic_string_view<char_type> name) {
   return arg;
 }
 
-template <typename Char, typename ErrorHandler>
+template <typename HoglChar, typename ErrorHandler>
 FMT_CONSTEXPR void advance_to(
-    basic_format_parse_context<Char, ErrorHandler>& ctx, const Char* p) {
+    basic_format_parse_context<HoglChar, ErrorHandler>& ctx, const HoglChar* p) {
   ctx.advance_to(ctx.begin() + (p - &*ctx.begin()));
 }
 
-template <typename ArgFormatter, typename Char, typename Context>
+template <typename ArgFormatter, typename HoglChar, typename Context>
 struct format_handler : internal::error_handler {
   using range = typename ArgFormatter::range;
 
-  format_handler(range r, basic_string_view<Char> str,
+  format_handler(range r, basic_string_view<HoglChar> str,
                  basic_format_args<Context> format_args,
                  internal::locale_ref loc)
       : parse_context(str), context(r.begin(), format_args, loc) {}
 
-  void on_text(const Char* begin, const Char* end) {
+  void on_text(const HoglChar* begin, const HoglChar* end) {
     auto size = internal::to_unsigned(end - begin);
     auto out = context.out();
     auto&& it = internal::reserve(out, size);
@@ -3163,21 +3163,21 @@ struct format_handler : internal::error_handler {
     parse_context.check_arg_id(id);
     get_arg(id);
   }
-  void on_arg_id(basic_string_view<Char> id) { arg = context.arg(id); }
+  void on_arg_id(basic_string_view<HoglChar> id) { arg = context.arg(id); }
 
-  void on_replacement_field(const Char* p) {
+  void on_replacement_field(const HoglChar* p) {
     advance_to(parse_context, p);
     context.advance_to(
         visit_format_arg(ArgFormatter(context, &parse_context), arg));
   }
 
-  const Char* on_format_specs(const Char* begin, const Char* end) {
+  const HoglChar* on_format_specs(const HoglChar* begin, const HoglChar* end) {
     advance_to(parse_context, begin);
     internal::custom_formatter<Context> f(parse_context, context);
     if (visit_format_arg(f, arg)) return parse_context.begin();
-    basic_format_specs<Char> specs;
+    basic_format_specs<HoglChar> specs;
     using internal::specs_handler;
-    using parse_context_t = basic_format_parse_context<Char>;
+    using parse_context_t = basic_format_parse_context<HoglChar>;
     internal::specs_checker<specs_handler<parse_context_t, Context>> handler(
         specs_handler<parse_context_t, Context>(specs, parse_context, context),
         arg.type());
@@ -3189,18 +3189,18 @@ struct format_handler : internal::error_handler {
     return begin;
   }
 
-  basic_format_parse_context<Char> parse_context;
+  basic_format_parse_context<HoglChar> parse_context;
   Context context;
   basic_format_arg<Context> arg;
 };
 
 /** Formats arguments and writes the output to the range. */
-template <typename ArgFormatter, typename Char, typename Context>
+template <typename ArgFormatter, typename HoglChar, typename Context>
 typename Context::iterator vformat_to(
-    typename ArgFormatter::range out, basic_string_view<Char> format_str,
+    typename ArgFormatter::range out, basic_string_view<HoglChar> format_str,
     basic_format_args<Context> args,
     internal::locale_ref loc = internal::locale_ref()) {
-  format_handler<ArgFormatter, Char, Context> h(out, format_str, args, loc);
+  format_handler<ArgFormatter, HoglChar, Context> h(out, format_str, args, loc);
   internal::parse_format_string<false>(format_str, h);
   return h.context.out();
 }
@@ -3253,21 +3253,21 @@ template <> struct formatter<bytes> {
   internal::dynamic_format_specs<char> specs_;
 };
 
-template <typename It, typename Char> struct arg_join : internal::view {
+template <typename It, typename HoglChar> struct arg_join : internal::view {
   It begin;
   It end;
-  basic_string_view<Char> sep;
+  basic_string_view<HoglChar> sep;
 
-  arg_join(It b, It e, basic_string_view<Char> s) : begin(b), end(e), sep(s) {}
+  arg_join(It b, It e, basic_string_view<HoglChar> s) : begin(b), end(e), sep(s) {}
 };
 
-template <typename It, typename Char>
-struct formatter<arg_join<It, Char>, Char>
-    : formatter<typename std::iterator_traits<It>::value_type, Char> {
+template <typename It, typename HoglChar>
+struct formatter<arg_join<It, HoglChar>, HoglChar>
+    : formatter<typename std::iterator_traits<It>::value_type, HoglChar> {
   template <typename FormatContext>
-  auto format(const arg_join<It, Char>& value, FormatContext& ctx)
+  auto format(const arg_join<It, HoglChar>& value, FormatContext& ctx)
       -> decltype(ctx.out()) {
-    using base = formatter<typename std::iterator_traits<It>::value_type, Char>;
+    using base = formatter<typename std::iterator_traits<It>::value_type, HoglChar>;
     auto it = value.begin;
     auto out = ctx.out();
     if (it != value.end) {
@@ -3346,43 +3346,43 @@ template <typename T> inline std::wstring to_wstring(const T& value) {
   return format(L"{}", value);
 }
 
-template <typename Char, std::size_t SIZE>
-std::basic_string<Char> to_string(const basic_memory_buffer<Char, SIZE>& buf) {
-  return std::basic_string<Char>(buf.data(), buf.size());
+template <typename HoglChar, std::size_t SIZE>
+std::basic_string<HoglChar> to_string(const basic_memory_buffer<HoglChar, SIZE>& buf) {
+  return std::basic_string<HoglChar>(buf.data(), buf.size());
 }
 
-template <typename Char>
-typename buffer_context<Char>::iterator internal::vformat_to(
-    internal::buffer<Char>& buf, basic_string_view<Char> format_str,
-    basic_format_args<buffer_context<type_identity_t<Char>>> args) {
-  using range = buffer_range<Char>;
+template <typename HoglChar>
+typename buffer_context<HoglChar>::iterator internal::vformat_to(
+    internal::buffer<HoglChar>& buf, basic_string_view<HoglChar> format_str,
+    basic_format_args<buffer_context<type_identity_t<HoglChar>>> args) {
+  using range = buffer_range<HoglChar>;
   return vformat_to<arg_formatter<range>>(buf, to_string_view(format_str),
                                           args);
 }
 
-template <typename S, typename Char = char_t<S>,
+template <typename S, typename HoglChar = char_t<S>,
           FMT_ENABLE_IF(internal::is_string<S>::value)>
-inline typename buffer_context<Char>::iterator vformat_to(
-    internal::buffer<Char>& buf, const S& format_str,
-    basic_format_args<buffer_context<type_identity_t<Char>>> args) {
+inline typename buffer_context<HoglChar>::iterator vformat_to(
+    internal::buffer<HoglChar>& buf, const S& format_str,
+    basic_format_args<buffer_context<type_identity_t<HoglChar>>> args) {
   return internal::vformat_to(buf, to_string_view(format_str), args);
 }
 
 template <typename S, typename... Args, std::size_t SIZE = inline_buffer_size,
-          typename Char = enable_if_t<internal::is_string<S>::value, char_t<S>>>
-inline typename buffer_context<Char>::iterator format_to(
-    basic_memory_buffer<Char, SIZE>& buf, const S& format_str, Args&&... args) {
+          typename HoglChar = enable_if_t<internal::is_string<S>::value, char_t<S>>>
+inline typename buffer_context<HoglChar>::iterator format_to(
+    basic_memory_buffer<HoglChar, SIZE>& buf, const S& format_str, Args&&... args) {
   internal::check_format_string<Args...>(format_str);
-  using context = buffer_context<Char>;
+  using context = buffer_context<HoglChar>;
   return internal::vformat_to(buf, to_string_view(format_str),
                               make_format_args<context>(args...));
 }
 
-template <typename OutputIt, typename Char = char>
-using format_context_t = basic_format_context<OutputIt, Char>;
+template <typename OutputIt, typename HoglChar = char>
+using format_context_t = basic_format_context<OutputIt, HoglChar>;
 
-template <typename OutputIt, typename Char = char>
-using format_args_t = basic_format_args<format_context_t<OutputIt, Char>>;
+template <typename OutputIt, typename HoglChar = char>
+using format_args_t = basic_format_args<format_context_t<OutputIt, HoglChar>>;
 
 template <typename S, typename OutputIt, typename... Args,
           FMT_ENABLE_IF(
@@ -3426,25 +3426,25 @@ template <typename OutputIt> struct format_to_n_result {
   std::size_t size;
 };
 
-template <typename OutputIt, typename Char = typename OutputIt::value_type>
+template <typename OutputIt, typename HoglChar = typename OutputIt::value_type>
 using format_to_n_context =
-    format_context_t<internal::truncating_iterator<OutputIt>, Char>;
+    format_context_t<internal::truncating_iterator<OutputIt>, HoglChar>;
 
-template <typename OutputIt, typename Char = typename OutputIt::value_type>
-using format_to_n_args = basic_format_args<format_to_n_context<OutputIt, Char>>;
+template <typename OutputIt, typename HoglChar = typename OutputIt::value_type>
+using format_to_n_args = basic_format_args<format_to_n_context<OutputIt, HoglChar>>;
 
-template <typename OutputIt, typename Char, typename... Args>
-inline format_arg_store<format_to_n_context<OutputIt, Char>, Args...>
+template <typename OutputIt, typename HoglChar, typename... Args>
+inline format_arg_store<format_to_n_context<OutputIt, HoglChar>, Args...>
 make_format_to_n_args(const Args&... args) {
-  return format_arg_store<format_to_n_context<OutputIt, Char>, Args...>(
+  return format_arg_store<format_to_n_context<OutputIt, HoglChar>, Args...>(
       args...);
 }
 
-template <typename OutputIt, typename Char, typename... Args,
+template <typename OutputIt, typename HoglChar, typename... Args,
           FMT_ENABLE_IF(internal::is_output_iterator<OutputIt>::value)>
 inline format_to_n_result<OutputIt> vformat_to_n(
-    OutputIt out, std::size_t n, basic_string_view<Char> format_str,
-    format_to_n_args<type_identity_t<OutputIt>, type_identity_t<Char>> args) {
+    OutputIt out, std::size_t n, basic_string_view<HoglChar> format_str,
+    format_to_n_args<type_identity_t<OutputIt>, type_identity_t<HoglChar>> args) {
   auto it = vformat_to(internal::truncating_iterator<OutputIt>(out, n),
                        format_str, args);
   return {it.base(), it.count()};
@@ -3469,11 +3469,11 @@ inline format_to_n_result<OutputIt> format_to_n(OutputIt out, std::size_t n,
                       make_format_args<context>(args...));
 }
 
-template <typename Char>
-inline std::basic_string<Char> internal::vformat(
-    basic_string_view<Char> format_str,
-    basic_format_args<buffer_context<type_identity_t<Char>>> args) {
-  basic_memory_buffer<Char> buffer;
+template <typename HoglChar>
+inline std::basic_string<HoglChar> internal::vformat(
+    basic_string_view<HoglChar> format_str,
+    basic_format_args<buffer_context<type_identity_t<HoglChar>>> args) {
+  basic_memory_buffer<HoglChar> buffer;
   internal::vformat_to(buffer, format_str, args);
   return to_string(buffer);
 }
@@ -3487,8 +3487,8 @@ inline std::size_t formatted_size(string_view format_str, const Args&... args) {
   return format_to(internal::counting_iterator(), format_str, args...).count();
 }
 
-template <typename Char, FMT_ENABLE_IF(std::is_same<Char, wchar_t>::value)>
-void vprint(std::FILE* f, basic_string_view<Char> format_str,
+template <typename HoglChar, FMT_ENABLE_IF(std::is_same<HoglChar, wchar_t>::value)>
+void vprint(std::FILE* f, basic_string_view<HoglChar> format_str,
             wformat_args args) {
   wmemory_buffer buffer;
   internal::vformat_to(buffer, format_str, args);
@@ -3497,8 +3497,8 @@ void vprint(std::FILE* f, basic_string_view<Char> format_str,
     FMT_THROW(system_error(errno, "cannot write to file"));
 }
 
-template <typename Char, FMT_ENABLE_IF(std::is_same<Char, wchar_t>::value)>
-void vprint(basic_string_view<Char> format_str, wformat_args args) {
+template <typename HoglChar, FMT_ENABLE_IF(std::is_same<HoglChar, wchar_t>::value)>
+void vprint(basic_string_view<HoglChar> format_str, wformat_args args) {
   vprint(stdout, format_str, args);
 }
 
@@ -3506,51 +3506,51 @@ void vprint(basic_string_view<Char> format_str, wformat_args args) {
 namespace internal {
 
 #  if FMT_USE_UDL_TEMPLATE
-template <typename Char, Char... CHARS> class udl_formatter {
+template <typename HoglChar, HoglChar... CHARS> class udl_formatter {
  public:
   template <typename... Args>
-  std::basic_string<Char> operator()(Args&&... args) const {
-    FMT_CONSTEXPR_DECL Char s[] = {CHARS..., '\0'};
+  std::basic_string<HoglChar> operator()(Args&&... args) const {
+    FMT_CONSTEXPR_DECL HoglChar s[] = {CHARS..., '\0'};
     FMT_CONSTEXPR_DECL bool invalid_format =
-        do_check_format_string<Char, error_handler, remove_cvref_t<Args>...>(
-            basic_string_view<Char>(s, sizeof...(CHARS)));
+        do_check_format_string<HoglChar, error_handler, remove_cvref_t<Args>...>(
+            basic_string_view<HoglChar>(s, sizeof...(CHARS)));
     (void)invalid_format;
     return format(s, std::forward<Args>(args)...);
   }
 };
 #  else
-template <typename Char> struct udl_formatter {
-  basic_string_view<Char> str;
+template <typename HoglChar> struct udl_formatter {
+  basic_string_view<HoglChar> str;
 
   template <typename... Args>
-  std::basic_string<Char> operator()(Args&&... args) const {
+  std::basic_string<HoglChar> operator()(Args&&... args) const {
     return format(str, std::forward<Args>(args)...);
   }
 };
 #  endif  // FMT_USE_UDL_TEMPLATE
 
-template <typename Char> struct udl_arg {
-  basic_string_view<Char> str;
+template <typename HoglChar> struct udl_arg {
+  basic_string_view<HoglChar> str;
 
-  template <typename T> named_arg<T, Char> operator=(T&& value) const {
+  template <typename T> named_arg<T, HoglChar> operator=(T&& value) const {
     return {str, std::forward<T>(value)};
   }
 };
 
 // Converts string literals to basic_string_view.
-template <typename Char, size_t N>
-FMT_CONSTEXPR basic_string_view<Char> compile_string_to_view(
-    const Char (&s)[N]) {
+template <typename HoglChar, size_t N>
+FMT_CONSTEXPR basic_string_view<HoglChar> compile_string_to_view(
+    const HoglChar (&s)[N]) {
   // Remove trailing null character if needed. Won't be present if this is used
   // with raw character array (i.e. not defined as a string).
   return {s,
-          N - ((std::char_traits<Char>::to_int_type(s[N - 1]) == 0) ? 1 : 0)};
+          N - ((std::char_traits<HoglChar>::to_int_type(s[N - 1]) == 0) ? 1 : 0)};
 }
 
 // Converts string_view to basic_string_view.
-template <typename Char>
-FMT_CONSTEXPR basic_string_view<Char> compile_string_to_view(
-    const std_string_view<Char>& s) {
+template <typename HoglChar>
+FMT_CONSTEXPR basic_string_view<HoglChar> compile_string_to_view(
+    const std_string_view<HoglChar>& s) {
   return {s.data(), s.size()};
 }
 }  // namespace internal
@@ -3561,8 +3561,8 @@ inline namespace literals {
 #    if FMT_CLANG_VERSION
 #      pragma GCC diagnostic ignored "-Wgnu-string-literal-operator-template"
 #    endif
-template <typename Char, Char... CHARS>
-FMT_CONSTEXPR internal::udl_formatter<Char, CHARS...> operator""_format() {
+template <typename HoglChar, HoglChar... CHARS>
+FMT_CONSTEXPR internal::udl_formatter<HoglChar, CHARS...> operator""_format() {
   return {};
 }
 #    pragma GCC diagnostic pop
